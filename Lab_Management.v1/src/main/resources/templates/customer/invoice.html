@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Hóa đơn bán hàng điện thoại</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <!--<link rel="stylesheet" href="/css/Header.css">-->
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script th:src="@{/js/header.js}"></script>
+    <script src="/js/headernew/headernew.js"></script>
+    <link rel="stylesheet" href="/css/invoice.css">
+</head>
+<body>
+<div th:replace="headernew :: header"></div>
+<br>
+<br>
+<br>
+<div>
+    <div class="container-invoice" style="margin-top: 20px">
+        <h1>HÓA ĐƠN BÁN HÀNG</h1>
+        <!-- Thông tin khách hàng -->
+        <div class="card mt-4">
+            <div class="card">
+                Thông tin khách hàng
+            </div>
+            <div class="card-body">
+                <p th:text="'Tên khách hàng: ' + ${orderDTO.getCustomer.getFirstName} + ' ' + ${orderDTO.getCustomer.getLastName}"></p>
+                <p th:text="'Địa chỉ: ' + ${orderDTO.getCustomer.getAddress}"></p>
+                <p th:text="'Số điện thoại: ' + ${orderDTO.getCustomer.getPhone}"></p>
+            </div>
+        </div>
+
+        <!-- Chi tiết hóa đơn ... -->
+        <div class="card mt-4">
+            <div class="card">
+                Chi tiết hóa đơn
+            </div>
+            <div class="card-body">
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th>Sản phẩm</th>
+                        <th>Giá</th>
+                        <th>Số lượng</th>
+                        <th>Tổng cộng</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="orderItem : ${orderDTO.getOrderitemDTOS}">
+                        <td th:text="${orderItem.getPhoneDTO.getPhoneName} + ' | ' + ${orderItem.getPhoneDTO.getRam.getCapacity} + 'GB | ' + ${orderItem.getPhoneDTO.getStorageCapacity.getCapacity}+ 'GB'">
+                            <span class="highlight"></span></td>
+                        <td th:text="'$'+${orderItem.getPrice}"></td>
+                        <td th:text="${orderItem.getQuantity}"></td>
+                        <td th:text="'$'+${orderItem.getQuantity}*${orderItem.getPrice}"></td>
+                    </tr>
+                    </tbody>
+                    <tfoot>
+                    <tr>
+                        <td colspan="3" class="text-right">Tổng cộng:</td>
+                        <td><span th:text="'$'+${orderDTO.getAmount}" class="highlight"></span></td>
+                    </tr>
+                    <tr>
+                        <td colspan="3" class="text-left" th:text="'Ngày đặt hàng: ' + ${orderDTO.getOrderDate}"></td>
+                    </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+        <br>
+        <!-- Thông tin cửa hàng -->
+        <div class="card">
+            <div class="card">
+                Thông tin cửa hàng
+            </div>
+            <div class="card-body">
+                <p>Tên cửa hàng: Handshop</p>
+                <p>Địa chỉ: KHL 125, P. Liên Bảo, TP. Vĩnh Yên, Vĩnh Phúc</p>
+                <p>Số điện thoại: 0356911600</p>
+            </div>
+        </div>
+        <div class="mt-4">
+            <button class="btn btn-primary" onclick="exportInvoice()">Xuất hóa đơn</button>
+            <button class="btn btn-primary" onclick="printInvoice()">In hóa đơn</button>
+        </div>
+    </div>
+
+    <!-- Script để xuất hóa đơn -->
+    <script>
+        function exportInvoice() {
+            // Logic để xuất hóa đơn
+            alert("Hóa đơn đã được xuất.");
+        }
+
+        function printInvoice() {
+            // Logic để in ... hóa đơn
+            alert("Hóa đơn đã được in.");
+        }
+    </script>
+</div>
+<br>
+<br>
+<div th:replace="footer :: footer"></div>
+
+</body>
+</html>

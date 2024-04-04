@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Slide Banner</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/swiper/swiper-bundle.min.js"></script>
+    <link rel="stylesheet" th:href="@{/css/Header.css}">
+    <script src="/js/header.js"></script>
+</head>
+<body>
+<banner>
+    <section>
+        <a href="/register">
+            <div class="big-banner"></div>
+        </a>
+    </section>
+    <section class="swiper mySwiper">
+        <div class="swiper-wrapper" >
+            <div class="card swiper-slide" style="background: rgba(255,255,255,0.6)">
+                <div class="card__image">
+                    <img src="/images/banner1.jpg" alt="card image">
+                </div>
+            </div>
+
+            <div class="card swiper-slide" style="background: rgba(255,255,255,0.6)">
+                <div class="card__image">
+                    <img src="/images/banner2.jpg" alt="card image">
+                </div>
+            </div>
+
+            <div class="card swiper-slide" style="background: rgba(255,255,255,0.6)">
+                <div class="card__image">
+                    <img src="/images/banner3.jpg" alt="card image">
+                </div>
+            </div>
+            <div class="card swiper-slide" style="background: rgba(255,255,255,0.6)">
+                <div class="card__image">
+                    <img src="/images/banner6.jpg" alt="card image">
+                </div>
+            </div>
+        </div>
+        <div class="d-flex justify-content-between align-items-center">
+            <div class="swiper-button-prev" type="button"> < </div>
+            <div class="swiper-button-next" type="button"> > </div>
+        </div>
+    </section>
+
+    <!-- Swiper JS -->
+    <script src="https://cdn.jsdelivr.net/npm/swiper/swiper-bundle.min.js"></script>
+
+</banner>
+</body>
+</html>

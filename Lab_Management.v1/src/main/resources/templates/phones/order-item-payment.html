@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>Thanh toán</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.6.0/css/bootstrap.min.css">
+    <link rel="stylesheet" th:href="@{/css/Header.css}">
+    <script src="/js/headernew/headernew.js"></script>
+    <!--<link rel="stylesheet" th:href="@{/css/base2.min.css}">-->
+</head>
+<body>
+<div th:replace="headernew :: header"></div>
+<div id="nocitceAdmin"></div>
+<div class="container" style="margin-top: 150px">
+    <h1>Thanh toán</h1>
+    <form th:action="@{/anonymousUser/RequestOrder}" method="post" th:unless="${#authorization.expression('isAuthenticated()')}">
+        <table class="table table-bordered">
+            <thead>
+            <tr id="trh" style="background-color: rgba(255,255,255,0.7); text-align: center">
+                <th> STT</th>
+                <th>Image</th>
+                <th>Name</th>
+                <th>Price</th>
+                <th>Quantity</th>
+                <th>Total</th>
+            </tr>
+            </thead>
+            <tbody id="productTableBody" >
+            </tbody>
+        </table>
+        <div id="divtotalAmount">
+            <span id="totalAmount">0</span>
+        </div>
+        <input type="hidden" class="totalAmount" name="totalAmount">
+        <div class="row">
+            <div class="col-md-6">
+                <h2>Phương thức thanh toán</h2>
+                    <select id="paymentMethod" class="multiselect-dropdown form-control" name="paymentMethod" style="margin: 40px 0px">
+                        <option th:each="paymentMethod : ${paymentMethods}" th:value="${paymentMethod.getMethodName}"
+                                th:text="${paymentMethod.getMethodName}"></option>
+                    </select>
+                <div style="display: none" id="paymentinfo">
+                    <label for="numberOrAdresspayment" class="lable numberOrAdresspayment"></label> <input type="text"
+                                                                                                           class="form-control"
+                                                                                                           id="numberOrAdresspayment"
+                                                                                                           name="numberOrAdresspayment">
+                    <label style="display: none" for="expirationdate" class="lable expirationdate"> </label> <input
+                        type="text" class="form-control" id="expirationdate" name="expirationdate"
+                        placeholder="Nhập ngày hết hạn ">
+                    <label style="display: none" for="cvv" class="lable cvv"></label> <input type="text"
+                                                                                             class="form-control"
+                                                                                             id="cvv" name="cvv"
+                                                                                             placeholder="Nhập số CVV ">
+                    <p style="display: none" id="textQR"></p>
+                    <img id="imgQR" src="/Images/QRPay.PNG" style="display: none; width: 400px; margin-top: 50px ">
+                </div>
+            </div>
+            <div class="col-md-6" th:unless="${#authorization.expression('isAuthenticated()')}">
+                <!--Nếu khách hàng ko đăng nhập -->
+                <h2>Thông tin khách hàng</h2>
+                <div class="form-group">
+                    <label for="nameunknow"> Tên Khách hàng </label>
+                    <input type="text" class="form-control" id="nameunknow" name="nameunknow">
+                </div>
+                <div class="form-group">
+                    <label for="emailunknow"> Email </label>
+                    <input type="text" class="form-control" id="emailunknow" name="emailunknow">
+                </div>
+                <div class="form-group">
+                    <label for="phoneunknow"> Số điện thoại liên lạc </label>
+                    <input type="text" class="form-control" id="phoneunknow" name="phoneunknow">
+                </div>
+                <div class="form-group">
+                    <label for="addressunknow"> Địa chỉ nhận hàng </label>
+                    <input type="text" class="form-control" id="addressunknow" name="addressunknow">
+                </div>
+            </div>
+        </div>
+        <div>
+            <input type="hidden" name="Orderdate"
+                   th:value="${#dates.format(#dates.createNow(), 'yyyy-MM-dd HH:mm:ss')}">
+            <input type="hidden" name="dateProcessed" value="0000-00-00 00:00:00">
+        </div>
+        <div class="row">
+            <div class="col-md-12" style="display: flex; justify-content: center">
+                <button style="margin: 10px; " type="submit" class="btn btn-primary" id="btnSendRequestBuy" onclick="return confirm('Xác nhận tạo đơn hàng! \n(Nếu bạn chưa đăng ký tài khoản trên hệ thống, hệ thống sẽ tự động tạo tài khoản dựa trên thông tin đăt hàng của bạn)')">
+                    Gửi yêu cầu mua hàng
+                </button>
+            </div>
+        </div>
+    </form>
+    <form th:action="@{/RequestOrder}" method="post" sec:authorize="hasAnyRole('ROLE_CUSTOMER', 'ROLE_EMPLOYEE')">
+        <table class="table table-bordered">
+            <thead>
+            <tr style="background-color: rgba(255,255,255,0.7); text-align: center">
+                <th>STT</th>
+                <th>Image</th>
+                <th>Name</th>
+                <th>Price</th>
+                <th>Quantity</th>
+                <th>Total</th>
+            </tr>
+            </thead>
+            <tbody id="productTableBody">
+            </tbody>
+        </table>
+        <div id="divtotalAmount">
+            <span id="totalAmount">0</span>
+        </div>
+        <input type="hidden" class="totalAmount" name="totalAmount">
+        <div class="row">
+            <div class="col-md-6">
+                <h2>Phương thức thanh toán</h2>
+                <select id="paymentMethod" class="multiselect-dropdown form-control" name="paymentMethod" style="margin: 40px 0px">
+                    <option th:each="paymentMethod : ${paymentMethods}" th:value="${paymentMethod.getMethodName}"
+                            th:text="${paymentMethod.getMethodName}"></option>
+                </select>
+                <!--<h2>Phương thức thanh toán</h2>
+                <select id="paymentMethod" style="margin: 10px" name="paymentMethod">
+                    <option th:each="paymentMethod : ${paymentMethods}" th:value="${paymentMethod.getMethodName}"
+                            th:text="${paymentMethod.getMethodName}"></option>
+                </select>-->
+                <div style="display: none" id="paymentinfo">
+                    <label for="numberOrAdresspayment" class="lable numberOrAdresspayment"></label> <input type="text"
+                                                                                                           class="form-control"
+                                                                                                           id="numberOrAdresspayment"
+                                                                                                           name="numberOrAdresspayment">
+                    <label style="display: none" for="expirationdate" class="lable expirationdate"> </label> <input
+                        type="text" class="form-control" id="expirationdate" name="expirationdate"
+                        placeholder="Nhập ngày hết hạn ">
+                    <label style="display: none" for="cvv" class="lable cvv"></label> <input type="text"
+                                                                                             class="form-control"
+                                                                                             id="cvv" name="cvv"
+                                                                                             placeholder="Nhập số CVV ">
+                    <p style="display: none" id="textQR"></p>
+                    <img id="imgQR" src="/Images/QRPay.PNG" style="display: none; width: 400px; margin-top: 50px ">
+                </div>
+            </div>
+            <div class="col-md-6" th:if="${#authorization.expression('hasRole(''ROLE_CUSTOMER'')')}">
+                <!--Nếu khách hàng có đăng nhập -->
+                <h2>Thông tin khách hàng</h2>
+                <input type="hidden" name="customerId" th:value="${customer.customerId}">
+                <div class="form-group">
+                    <label for="name">Tên</label>
+                    <input type="text" class="form-control" id="name" name="name"
+                           th:value="${customer.getFirstName}+' '+${customer.getLastName}">
+                </div>
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" class="form-control" id="email" name="email" th:value="${customer.getEmail}">
+                </div>
+                <div class="form-group">
+                    <label for="phone">Số điện thoại</label>
+                    <input type="text" class="form-control" id="phone" name="phone" th:value="${customer.getPhone}">
+                </div>
+                <div class="form-group">
+                    <label for="address"> Địa chỉ nhận hàng </label>
+                    <input type="text" class="form-control" id="address" name="address"
+                           th:value="${customer.getAddress}">
+                </div>
+            </div>
+        </div>
+        <div>
+            <input type="hidden" name="Orderdate"
+                   th:value="${#dates.format(#dates.createNow(), 'yyyy-MM-dd HH:mm:ss')}">
+            <input type="hidden" name="dateProcessed" value="0000-00-00 00:00:00">
+        </div>
+        <div class="row">
+            <div class="col-md-12" style="display: flex; justify-content: center">
+                <button style="margin: 10px;" type="submit" class="btn btn-primary" id="btnSendRequestBuy" onclick="return confirm('Xác nhận tạo đơn hàng! \n(Nếu bạn chưa đăng ký tài khoản trên hệ thống, hệ thống sẽ tự động tạo tài khoản dựa trên thông tin đăt hàng của bạn)')">
+                    Gửi yêu cầu mua hàng
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+<!--<div th:if="!${paymentsuccess}" th:text="'Thanh toán thành công'" style="background-color: mediumseagreen; color: forestgreen"></div>-->
+<!--<div th:unless="${paymentsuccess}" th:text="'Thanh toán không thành công'" style="background-color: palevioletred; color: red"></div>-->
+<div th:replace="footer :: footer" style="background-color: transparent"></div>
+</body>
+<script src="/js/order-item-payment.js"></script>
+<script src="/js/header.js"></script>
+<script th:inline="javascript">
+    window.onload = function () {
+        // Lấy dữ liệu từ Local Storage
+        var selectedProducts = localStorage.getItem('selectedProducts');
+        // Kiểm tra xem dữ liệu có tồn tại trong Local Storage không
+        if (selectedProducts) {
+            var parsedData = JSON.parse(selectedProducts); // Deserialize the JSON
+            var tableBody = document.getElementById("productTableBody");
+            if(tableBody){
+                tableBody.style.backgroundColor = "rgba(255,255,255,0.7)";
+                tableBody.style.fontWeight = "Bold";
+                tableBody.style.textAlign = "center";
+                var total = 0;
+                // Lặp qua dữ liệu và cập nhật nội dung HTML
+                parsedData.forEach(function(product, index) {
+                    var newRow = tableBody.insertRow();
+                    var cellIndex = newRow.insertCell(0);
+                    var cellImage = newRow.insertCell(1);
+                    var cellName = newRow.insertCell(2);
+                    var cellPrice = newRow.insertCell(3);
+                    var cellQuantity = newRow.insertCell(4);
+                    var cellTotal = newRow.insertCell(5);
+
+                    newRow.setAttribute('data-model', product.modelId);
+
+                    //tạo một thẻ input hiden lưu model
+                    var inputmodel = document.createElement('input');
+                    inputmodel.type = "hidden"; // Loại input là "hidden"
+                    inputmodel.value = product.modelId;
+                    inputmodel.name = "inputmodel";
+                    newRow.append(inputmodel)
+                    //tạo một thẻ input hiden lưu quantity
+                    var inputquantity = document.createElement('input');
+                    inputquantity.type = "hidden"; // Loại input là "hidden"
+                    inputquantity.value = product.quantityorder;
+                    inputquantity.name = "inputquantity";
+                    newRow.append(inputquantity);
+
+                    // Tạo một thẻ img
+                    var img = document.createElement('img');
+                    img.src = '/Images/' + product.imageName;
+                    img.alt = 'Product Image';
+                    img.style.width = '100px';
+
+                    var img_link = document.createElement('a');
+                    img_link.href = '/Handshop/ViewDetailPhone/' + product.phoneId;
+                    img_link.appendChild(img);
+
+                    var name_link = document.createElement('a');
+                    name_link.href = '/Handshop/ViewDetailPhone/' + product.phoneId;
+                    name_link.textContent = product.phoneName + ' | ' + product.ram.capacity + 'GB | ' + product.storageCapacity.capacity +'GB';
+
+                    var name_span = document.createElement('span');
+                    name_span.appendChild(name_link);
+
+                    cellIndex.textContent = index + 1;
+                    cellImage.appendChild(img_link);
+                    cellName.appendChild(name_span);
+                    // cellName.textContent = product.phoneName + ' | ' + product.ram.capacity + 'GB | ' + product.storageCapacity.capacity +'GB';
+                    cellPrice.textContent = formatCurrency(parseFloat(product.price));
+                    cellQuantity.textContent = product.quantityorder;
+                    cellTotal.textContent = formatCurrency((parseFloat(product.price)*product.quantityorder));
+                    total += parseFloat(product.price)*product.quantityorder;
+                });
+                $('#totalAmount').text('Tổng tiền: '+formatCurrency(total));
+                // var x = total.toFixed(2)+'';
+                $('.totalAmount').attr('value',formatCurrency(total));
+                $('#divtotalAmount').css({
+                    'font-family' : 'Arial, sans-serif',
+                    'font-size': '24px',
+                    'font-weight': 'bold',
+                    'text-align': 'center',
+                    'display': 'block',
+                    'margin': '0 auto',
+                });
+                $('#totalAmount').css({
+                'display': 'inline-block',
+                    'padding': '10px',
+                    'background-color': 'pink',
+                    'color': 'blue',
+                    'border-radius': '50px'
+                })
+            } else {
+                var alertDiv = document.getElementById('nocitceAdmin');
+                alertDiv.innerHTML = '<br><br><br><br><br><strong>Thông báo:</strong> Bạn cần đăng nhập bằng tài khoản Khách hàng';
+                alertDiv.style.display = 'block';
+                alertDiv.style.color = 'red';
+                alertDiv.style.fontSize = '3em';
+            }
+
+        }
+        $('th').css({'align-content' : 'center'})
+        $('td').css({'align-content' : 'center'})
+    };
+</script>
+
+</html>

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Select Model</title>
+</head>
+<body>
+<select-Model>
+    <div>
+        <h2>Select model phone for add</h2>
+    </div>
+    <form th:action="@{/Handshop/admin/showFormForUpdate}" method="get">
+        <div class="form-group">
+            <label for="model">Model:</label>
+            <select class="form-control" id="model" name="modelID" required onchange="updatePhoneName()">
+                <!-- Populate options dynamically from your database -->
+                <option th:each="model : ${models}" th:value="${model.getId}"
+                        th:text="${model.getModel}"></option>
+                <!-- Add more options as needed -->
+            </select>
+            <button type="submit" class="btn btn-primary"> Add New Phone
+            <!--<button type="submit" class="btn btn-primary" onclick="confirm('Bạn có chắc chắn đổi mật khẩu?')"> Đổi MK-->
+            </button>
+        </div>
+        <div>
+            <label id="Phonename" style="font-weight: bold; font-size: 30px"></label>
+
+        </div>
+    </form>
+    <script th:inline="javascript">
+        var phoneNameList = /*[[${phoneNameList}]]*/ []; // Đảm bảo phoneNameList là một mảng
+        function updatePhoneName() {
+            var modelDropdown = document.getElementById("model"); // Lấy thẻ dropdown
+            var selectedPhoneIndex = modelDropdown.selectedIndex; // Lấy chỉ số của option đã chọn
+            var selectedPhone = phoneNameList[selectedPhoneIndex]; // Lấy giá trị của option đã chọn
+            var phoneNameLabel = document.getElementById("Phonename"); // Lấy thẻ label
+
+            phoneNameLabel.innerText = "Phone Name: " + selectedPhone; // Cập nhật nội dung của label
+        }
+    </script>
+</select-Model>
+</body>
+</html>

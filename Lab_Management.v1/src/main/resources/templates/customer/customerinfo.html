@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Thông tin tài khoản</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/Header.css">
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="/js/header.js"></script>
+    <script src="/js/headernew/headernew.js"></script>
+    <style>
+        .passCustomer:focus {
+            border: 1px solid black;
+        }
+        .container {
+            max-width: 960px;
+            margin: 0 auto;
+        }
+
+        h1,h2 {
+            text-align: center;
+            color: white;
+            /*-webkit-text-stroke: 0.6px black;*/
+            background-color: rgba(0,0,0,0.1);
+            color: #cc6633;
+            /*color: white;*/
+        }
+
+        .row {
+            display: flex;
+            flex-wrap: wrap;
+            margin: 0 -15px;
+        }
+
+        .col-md-6 {
+            flex: 0 0 50%;
+            padding: 0 15px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 8px;
+            border: 1px solid #ccc;
+        }
+
+        th {
+            background-color: #eee;
+        }
+
+        .table-account-info th:first-child {
+            width: 20%;
+        }
+
+        .table-account-info td:first-child {
+            font-weight: bold;
+        }
+
+        /* CSS for overall styling */
+
+        body {
+            font-family: sans-serif;
+            font-size: 1rem;
+        }
+
+        /** Đơn hàng */
+
+        .table-container {
+            display: flex;
+            justify-content: center;
+        }
+        .table {
+            width: 90%; /* hoặc bạn có thể chỉ định kích thước cụ thể khác phù hợp với nội dung của bạn */
+        }
+        td, th {
+            white-space: nowrap;
+            text-align: center;
+            vertical-align: middle; /* Thêm thuộc tính này để căn giữa theo chiều dọc */
+        }
+        .wrap{
+            white-space: unset;
+        }
+        h1{
+            margin-top: 50px;
+            text-align: center;
+        }
+        tbody, td{
+            background: white
+        }
+    </style>
+
+</head>
+<body >
+<div th:replace="headernew :: header"></div>
+
+<div class="container"  style="margin-top: 100px">
+    <div style="display: flex; justify-content: center">
+        <h1>Thông tin tài khoản</h1>
+        <a th:href="'/Handshop/UpdateCustomerInfo/'+${customer.customerId}">
+            <img src="/images/edit.png" alt="edit profile" style="width: 48px; height: 48px; margin: fill">
+        </a>
+    </div>
+    <div class="row">
+        <div class="col-md-6">
+                <h2>Thông tin cá nhân</h2>
+            <table class="table">
+                <thead>
+                <tr>
+                    <th>Tên</th>
+                    <td th:text="${customer.firstName}"></td>
+                </tr>
+                <tr>
+                    <th>Họ</th>
+                    <td th:text="${customer.lastName}"></td>
+                </tr>
+                <tr>
+                    <th>Email</th>
+                    <td th:text="${customer.email}"></td>
+                </tr>
+                <tr>
+                    <th>Số điện thoại</th>
+                    <td th:text="${customer.phone}"></td>
+                </tr>
+                </thead>
+            </table>
+        </div>
+        <div class="col-md-6">
+            <h2>Thông tin tài khoản</h2>
+            <table class="table">
+                <thead>
+                <tr>
+                    <th>Tên đăng nhập</th>
+                    <td th:text="${customer.email}">
+
+                    </td>
+                </tr>
+                <tr>
+                    <th>Mật khẩu</th>
+                    <td>
+                        <div class="d-flex" style="flex-direction: row; justify-content: center">
+                            <form th:action="@{/Handshop/editpassCustomer}" method="post" style="display: flex; flex-direction: row;justify-content: space-around">
+                                <input type="text" th:value="${customer.pass}" class="passCustomer" name="passCustomer" style="width: 66%; margin: unset; border: 1px solid lightgray;">
+                                <input type="hidden" th:value="${customer.email}" name="emailCustomer">
+                                <button type="submit" class="btn btn-primary" onclick="return confirm('Bạn có chắc chắn đổi mật khẩu?')" style="width: 33%;">Đổi MK</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <th>Địa chỉ</th>
+                    <td th:text="${customer.address}"></td>
+                </tr>
+                <tr>
+                    <th>Ngày đăng ký</th>
+                    <td th:text="${customer.registrationDate}"></td>
+                </tr>
+                </thead>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div>
+    <h1>Trạng thái đơn hàng của bạn</h1>
+    <br>
+    <div class="main-card mb-3 card">
+        <div class="card-body">
+            <table style="width: 100%;" id="example" class="table table-hover table-striped table-bordered">
+                <thead>
+                <tr>
+                    <th>Mã đơn hàng</th>
+                    <th>Sản phẩm</th>
+                    <th>Số lượng đặt hàng</th>
+                    <th>Số lượng đáp ứng</th>
+                    <th>Số lượng bổ sung</th>
+                    <th>Giá/SP</th>
+                    <th>Tổng giá</th>
+                    <th>Ngày đặt hàng</th>
+                    <th>Xử lý lần cuối</th>
+                    <th>Thao tác</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="order : ${orderDTOs}">
+                    <td th:text="${order.getOrderID}"></td>
+                    <td>
+                        <div th:each="phone : ${order.getPhoneDTOS}">
+                            <p th:text="${phone.PhoneName} +' | '+${phone.getRam.getCapacity}+'GB | '+${phone.getStorageCapacity.getCapacity}+'GB'"></p>
+                        </div>
+                    </td>
+                    <td>
+                        <div th:each="orderitem : ${order.getOrderitemDTOS}">
+                            <p th:text="${orderitem.getQuantity}"></p>
+                        </div>
+                    </td>
+                    <td>
+                        <div th:each="orderitem : ${order.getOrderitemDTOS}">
+                            <p th:text="${orderitem.getQuantity - orderitem.getMissing}"></p>
+                        </div>
+                    </td>
+                    <td>
+                        <div th:each="orderitem : ${order.getOrderitemDTOS}">
+                            <p th:text="${orderitem.getMissing}" th:data-missing="${orderitem.getMissing}"></p>
+                        </div>
+                    </td>
+                    <td>
+                        <div th:each="orderitem : ${order.getOrderitemDTOS}">
+                            <p th:text="${#numbers.formatCurrency(orderitem.price)}"></p>
+                        </div>
+                    </td>
+                    <td th:text="${#numbers.formatCurrency(order.getAmount)}"></td>
+                    <td class="wrap" th:text="${order.getOrderDate}"></td>
+                    <td class="wrap" th:text="${order.getDateProcessed}"></td>
+                    <td>
+                        <div class="d-flex" style="display: flex; justify-content: center; align-items: center;">
+                            <a th:if="${order.getStatus == 'Chờ duyệt'}"
+                               th:href="@{'/Handshop/rejectOrder?OrderID=' + ${order.OrderID}}" class="actionbtn">
+                                <button type="button" class="btn btn-danger btn-sm" >
+                                    Hủy
+                                </button>
+                            </a>
+                            <a th:unless="${order.getStatus == 'Đã hủy' || order.getStatus == 'Chờ duyệt'}"
+                               th:href="@{'/Handshop/invoiceCustomer?OrderID=' + ${order.OrderID}}" class="actionbtn" style="margin-left: 10px">
+                                <button type="button" class="btn btn-primary btn-sm">Xem hóa đơn</button>
+                            </a>
+                            <div th:if="${order.status == 'Đã hủy'}" th:text="'Đã hủy'" style="color: #f70005; font-weight: bold"></div>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+                <tfoot>
+                <tr>
+                    <th>Mã đơn hàng</th>
+                    <th>Sản phẩm</th>
+                    <th>Số lượng đặt hàng</th>
+                    <th>Số lượng đáp ứng</th>
+                    <th>Số lượng bổ sung</th>
+                    <th>Giá/SP</th>
+                    <th>Tổng giá</th>
+                    <th>Ngày đặt hàng</th>
+                    <th>Xử lý lần cuối</th>
+                    <th>Thao tác</th>
+                </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+</div>
+<div th:if="${changedPass}" style="display: flex; justify-content: flex-end; align-items: flex-end;
+                                position: fixed; top: 150px; right: 10px;
+                                background: linear-gradient(45deg, rgba(229,191,22,0.45), rgba(152,229,18,0.45));">
+    <p id="successMessage" style="padding: 15px;
+                                border: 1px solid transparent;
+                                border-radius: 4px;
+                                color: #721c24;
+                                border-color: black;
+                                margin-bottom: 0;
+                                font-weight: bold;">Đổi mật khẩu thành công (<span id="countdown">3</span>)</p>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+<!--TABLES -->
+<!--DataTables-->
+<script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/datatables.net-bs4@1.10.19/js/dataTables.bootstrap4.min.js" crossorigin="anonymous"></script>
+<script src="https://cdn.datatables.net/responsive/2.2.3/js/dataTables.responsive.min.js" crossorigin="anonymous"></script>
+<script src="https://cdn.datatables.net/responsive/2.2.3/js/responsive.bootstrap.min.js" crossorigin="anonymous"></script>
+<!--Bootstrap Tables-->
+<script th:src="@{/js/table/tablesInit.js}"></script>
+<!--Tables Init-->
+<script th:src="@{/js/table/tablesVendors.js}"></script>
+
+
+<script>
+    var countdown = 3; // Số giây còn lại
+    var countdownElement = document.getElementById("countdown");
+    // Cập nhật số giây còn lại và ẩn thông báo khi hết thời gian
+    var countdownInterval = setInterval(function() {
+        countdown--;
+        countdownElement.textContent = countdown;
+
+        if (countdown < 0) {
+            document.getElementById("successMessage").style.display = "none";
+            clearInterval(countdownInterval);
+        }
+    }, 1000);
+    $(document).ready(function () {
+        setTimeout(function () {
+            $('#example_filter').css({
+                'display': 'flex',
+                'justify-content': 'end',
+            });
+        }, 3000);
+    })
+</script>
+<br>
+<br>
+<div th:replace="footer :: footer"></div>
+
+</body>
+</html>

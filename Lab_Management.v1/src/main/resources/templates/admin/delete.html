@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="https://www.thymeleaf.org/thyme leaf-extras-springsecurity5">
+<head>
+    <meta charset="UTF-8">
+    <title>Xóa Điện thoại</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body class="scroll-container">
+<delete-phone>
+    <h1 style="margin-top: 50px; text-align: center;">Yêu xóa sản phẩm</h1><br>
+    <div style="display: flex; justify-content: center; align-content: center; flex-direction: column">
+        <p>Bạn có chắc chắn muốn xóa điện thoại này không?</p>
+        <form th:object="${phone}" th:action="@{'/Handshop/admin/delete/' + ${phone.phoneId}}" method="Post">
+            <input type="hidden" th:field="*{phoneId}"/> <!-- Trường ẩn để truyền id của nhân viên -->
+            <button type="submit" class="btn btn-danger" onclick="confirmDelete(this)">Xóa</button>
+            <a href="/Handshop/admin/" class="btn btn-secondary">Hủy</a>
+        </form>
+    </div>
+</delete-phone>
+</body>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> <!--Phải load jquery trước khi load bootstrap js-->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</html>

@@ -1,0 +1,110 @@
+.phone-list {
+    display: flex;
+    flex-wrap: wrap;
+    /*flex-direction: row;*/
+    /*align-items: flex-start;*/
+    justify-content: space-around;
+}
+
+/*.phone-list {*/
+/*display: flex;*/
+/*flex-wrap: wrap;*/
+/*justify-content: space-around;*/
+/*}*/
+
+.phone-item {
+    background-color: rgba(255,255,255,0.8);
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 20px;
+    margin: 20px;
+    text-align: center;
+    box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.2);
+    max-width: 300px;
+    transition: transform 0.2s ease; /* Tạo hiệu ứng nổi lên mượt mà trong 0.2 giây */
+}
+.phone-item:hover {
+    transform: scale(1.1); /* Tăng kích thước 110% khi hover */
+}
+
+.phone-item img {
+    max-width: 100%;
+}
+
+.phone-item h2 {
+    font-size: 20px;
+    margin: 10px 0;
+}
+
+.phone-item p {
+    font-size: 16px;
+    margin: 5px 0;
+}
+
+.phone-item button {
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 10px 20px;
+    margin-top: 10px;
+    cursor: pointer;
+}
+
+.phone-item button:hover {
+    background-color: #0056b3;
+}
+.img-phones{
+    transition: transform 0.2s ease; /* Tạo hiệu ứng nổi lên mượt mà trong 0.2 giây */
+}
+.img-phones:hover{
+    transform: scale(1.3); /* Tăng kích thước 110% khi hover */
+}
+
+/* Định dạng container */
+.scroll-container {
+    width: 100%; /* Đặt kích thước tối đa cho container */
+    overflow-x: auto; /* Hiển thị thanh trượt ngang khi cần thiết */
+}
+
+
+
+/*////////////////////////*/
+/*           Giá          */
+/*////////////////////////*/
+
+.price {
+    color: red; /* Màu đỏ */
+    font-size: 28px; /* Kích thước lớn hơn */
+    border: 2px solid red; /* Đường viền */
+    padding: 5px 10px; /* Khoảng cách giữa nền và văn bản */
+    border-radius: 5px; /* Đường viền cong */
+    transition: all 0.3s ease; /* Hiệu ứng hover */
+}
+
+/* Hiệu ứng hover */
+.price:hover {
+    background-color: red; /* Màu nền đỏ khi hover */
+    color: white; /* Màu văn bản trắng khi hover */
+}
+
+/* Icon shoping cart*/
+
+.phone-item{
+    position: relative;
+}
+.Cart-icon{
+    display: flex;
+    justify-content: flex-end;
+    position: absolute;
+    top: 10px;
+    right: 20px;
+    transition: transform 0.2s ease; /* Tạo hiệu ứng nổi lên mượt mà trong 0.2 giây */
+}
+.Cart-icon img {
+    max-width: 40px;
+    transition: 0.5s;
+}
+.Cart-icon img:hover {
+    transform: scale(1.2); /* Tăng kích thước 110% khi hover */
+}

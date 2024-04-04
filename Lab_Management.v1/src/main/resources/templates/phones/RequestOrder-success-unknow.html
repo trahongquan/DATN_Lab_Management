@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Thanh toán thành công</title>
+    <link rel="stylesheet" href="/css/Header.css">
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <script src="/js/headernew/headernew.js"></script>
+
+</head>
+<body>
+<div th:replace="headernew :: header"></div>
+<br>
+<br>
+<br>
+<br>
+<div style="display: flex; justify-content: center; align-content: center; flex-direction: column">
+    <h1 style="margin-left: 50%; transform: translateX(-50%)">Đặt đơn hàng thành công</h1>
+    <h1 style="color: red; font-size: larger; align-content: center; margin-left: 50%; transform: translateX(-50%)"> Cảm
+        ơn bạn đã đặt hàng từ chúng tôi!</h1>
+
+    <h3>
+        Vì bạn chưa đăng kí tài khoản trên hệ thống <br>
+        Nên chúng tôi đã tạo tài khoản với email của bạn trong hệ thống để tiện theo dõi đơn hàng
+        <p th:text="@{'Tên đăng nhập của bạn: ' + ${emailunknow}}"></p>
+        <p th:text="@{'Mật khẩu đăng nhập của bạn: ' + ${phoneunknow}}"></p>
+    </h3>
+</div>
+<div th:replace="footer :: footer"></div>
+</body>
+</html>

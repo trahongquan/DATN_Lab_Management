@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="https://www.thymeleaf.org/thyme leaf-extras-springsecurity5">
+<head>
+    <meta charset="UTF-8">
+    <title>Handshop</title>
+    <!-- Đặt các thẻ meta, CSS, hoặc các tài nguyên khác cần thiết -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" th:href="@{/css/Header.css}">
+</head>
+<body>
+<header class="container">
+    <!-- Đặt nội dung của header ở đây -->
+
+    <nav class="row">
+        <div class="header">
+                <a href="/Handshop/list">
+                    <img alt="" th:src="'/Images/logo-Handphone-transferent.png'" style="height: 80px">
+                </a>
+            <div class="headerLeft">
+                <div class="header-menu">
+                    <ul class="top-menu notmobile">
+                        <li class="category-menu-items"><a href="/Handshop/iphone"> iPhone </a></li>
+                        <li class="category-menu-items"><a href="/Handshop/Android"> Android </a></li>
+                        <li class="category-menu-items"><a href="/Handshop/iphone"> iPad </a></li>
+                        <li class="category-menu-items"><a href="/Handshop/Android"> Máy tính bảng </a></li>
+                        <li class="category-menu-items"><a href="#"> Phụ kiện </a></li>
+                        <li class="topic-items category-menu-items"><a href="#">Dịch vụ</a>
+                            <div class="child-menu">
+                                <div class="child-menu-content">
+                                    <a href="#" style="background-color: transparent"></a>
+                                    <a href="#">Bảo Hành Uỷ Quyền Apple </a>
+                                    <a href="#">Trả Góp</a>
+                                    <a href="#">Thu Cũ Đổi Mới</a>
+                                    <a href="#">WorkShop</a>
+                                    <a href="#">MBTI</a>
+                                    <a href="#">Sim Thẻ</a>
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <form th:action="@{/Handshop/list/search}" method="post">
+                <div class="search-container" style="display: flex; flex-direction: row; justify-items: center; align-items: center">
+                    <input style="min-width: 0px" type="text" class="form-control  bg-transparent text-dark" name="inputdatasearch" placeholder="Nhập từ khóa tìm kiếm">
+                    <button class="search-button  bg-transparent text-dark" type="submit" style="max-width: max-content">
+                        <img src="/images/search-icon-1.png" style="max-width: 15px" alt="">
+                    </button>
+                </div>
+            </form>
+            <div class="menu-toggle">
+                <ul class="top-menu mobile">
+                    <div class="header-links">
+                        <ul class="popup-header-links" th:if="${#authorization.expression('isAuthenticated()')}">
+                            <li id="topcartlink"><a href="/Handshop/cart" class="ico-cart"> <span
+                                    class="cart-label">Giỏ hàng</span> <span class="cart-qty">0</span> </a></li>
+                            <li class="li_ico-wishlist"><a href="#" class="ico-wishlist"> <span
+                                    class="wishlist-label">Yêu thích</span> <span
+                                    class="wishlist-qty">(0)</span> </a></li>
+                            <li class="listbox"><a sec:authorize="hasRole('ROLE_CUSTOMER')" th:href="'/Handshop/myAccount/'+${#authentication.name}" class="ico-cart">
+                                <span style="align-self: center">Xin trào:</span><br>
+                                <span sec:authentication="name" th:data-nameUser="${#authentication.name}"></span></a></li>
+                            <li class="listbox"><a sec:authorize="hasAnyRole('ROLE_ADMIN', 'ROLE_EMPLOYEE')" th:href="'/Handshop/admin'" class="ico-cart">
+                                <span style="align-self: center">Xin trào: </span><br>
+                                <span sec:authentication="name" th:data-nameUser="${#authentication.name}"></span></a></li>
+                            <!--<li class="listbox" > <a href="Address" class="ico-cart"> <span>Địa chỉ nhận hàng</span> </a> </li>-->
+                            <li class="listbox">
+                                <form action="#" th:action="@{/logout}" method="POST">
+                                    <input type="submit" value="Đăng xuất" class="button-logout"/>
+                                </form>
+                            </li>
+                            <!-- Hiển thị các mục khi đã đăng nhập -->
+                        </ul>
+                        <ul class="popup-header-links" th:unless="${#authorization.expression('isAuthenticated()')}">
+                            <!-- Hiển thị các mục khi chưa đăng nhập -->
+                            <li class="li_ico-register"><a href="/register" class="ico-register">Tạo tài khoản
+                                ngay</a></li>
+                            <li class="li_ico-login"><a href="/CustomerLogin" class="ico-login">Đăng nhập</a></li>
+                            <!-- Hiển thị các mục khi chưa đăng nhập -->
+                        </ul>
+                    </div>
+                </ul>
+            </div>
+    </nav>
+</header>
+</body>
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+<script src="/js/header.js"></script>
+</html>

@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Phone</title>
+    <!-- Link to Bootstrap CSS for styling -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+
+</head>
+<body class="scroll-container">
+<form-edit-phone>
+<!--<div th:replace="admin/headerAdmin :: header-admin"></div>-->
+<h1 style="margin-top: 50px; text-align: center;">Cập nhật thông tin điện thoại</h1><br>
+
+<div class="container">
+    <form th:object="${phone}" th:action="@{'/Handshop/admin/showFormForUpdate/' + ${phone.phoneId}}" method="post" enctype="multipart/form-data">
+        <!-- Phone ID (hidden) -->
+        <input type="hidden" name="phoneId" th:field="*{phoneId}" />
+        <!-- Input for uploading an image -->
+        <div class="form-group">
+            <label for="image">Image:</label>
+            <input type="file" class="form-control" id="image" name="file">
+        </div>
+        <!-- Input for Phone Name -->
+        <div class="form-group">
+            <label for="phoneName">Phone Name:</label>
+            <input type="text" class="form-control" id="phoneName" name="phoneName" th:field="*{phoneName}" required onchange="updatePhoneModel()">
+        </div>
+        <!-- Input for Brand -->
+        <div class="form-group">
+            <label for="brand">Brand:</label>
+            <select class="form-control" id="brand" name="brandId" th:field="*{brandId}" required onchange="updatePhoneModel()">
+                <!-- Populate options dynamically from your database -->
+                <option th:each="brand : ${brands}" th:value="${brand.BrandID}" th:text="${brand.BrandName}"></option>
+            </select>
+        </div>
+        <div th:if="${#strings.contains(#request.requestURI, 'Handshop/admin/showFormForUpdate')}" class="form-group">
+            <label for="category">Model:</label>
+            <input class="form-control" id="model" name="model" required readonly
+                   th:value="${modelphone.getModel}"/>
+            <!--<select class="form-control" id="model" name="modelID" required onchange="updatePhoneModel()">-->
+                <!--&lt;!&ndash; Populate options dynamically from your database &ndash;&gt;-->
+                <!--<option th:value="${modelphone.getId}"-->
+                        <!--th:text="${modelphone.getModel}"></option>-->
+                <!--&lt;!&ndash; Add more options as needed &ndash;&gt;-->
+            <!--</select>-->
+        </div>
+        <div class="form-group">
+            <label for="seri">Nhập đúng chuỗi seri như mẫu:</label>
+            <input type="text" class="form-control" id="seri" name="seri" th:field="*{seri}" required
+                   onchange="updatePhoneModel()"
+                   th:placeholder="'[183749265, 572639184, 628473195, 475923618]'">
+        </div>
+        <!-- Input for Release Year -->
+        <div class="form-group">
+            <label for="releaseYear">Release Year:</label>
+            <input type="number" class="form-control" id="releaseYear" name="releaseYear"
+                   onchange="updatePhoneModel()"
+                   th:field="*{releaseYear}" required min="1890">
+        </div>
+        <!-- Input for Category (Dropdown) -->
+        <div class="form-group">
+            <label for="category">Category:</label>
+            <select class="form-control" id="category" name="categoryId" th:field="*{categoryId}" required onchange="updatePhoneModel()">
+                <!-- Populate options dynamically from your database -->
+                <option th:each="category : ${categories}" th:value="${category.CategoryID}" th:text="${category.CategoryName}"></option>
+            </select>
+        </div>
+        <!-- Input for Screen Size (Inch) -->
+        <div class="form-group">
+            <label for="screenSize">Screen Size (Inch):</label>
+            <input type="number" step="0.1" class="form-control" id="screenSize" name="screenSize"
+                   onchange="updatePhoneModel()"
+                   th:field="*{screenSize}" required min="4">
+        </div>
+        <!-- Input for Storage Capacity (Dropdown) -->
+        <div class="form-group">
+            <label for="storageCapacity">Storage Capacity:</label>
+            <select class="form-control" id="storageCapacity" name="storageCapacityID" required
+                    onchange="updatePhoneModel()"
+                    th:field="*{storageCapacityID}">
+                <!-- Populate options dynamically from your database -->
+                <option th:each="storageCapacity : ${storageCapacities}" th:value="${storageCapacity.getId}"
+                        th:text="${storageCapacity.getCapacity}"></option>
+                <!-- Add more options as needed -->
+            </select>
+        </div>
+        <!-- Input for RAM (Dropdown) -->
+        <div class="form-group">
+            <label for="ram">RAM:</label>
+            <select class="form-control" id="ram" name="ramID" required th:field="*{ramID}" onchange="updatePhoneModel()">
+                <!-- Populate options dynamically from your database -->
+                <option th:each="ram : ${rams}" th:value="${ram.getId}"
+                        th:text="${ram.getCapacity}"></option>
+                <!-- Add more options as needed -->
+            </select>
+        </div>
+        <!-- Input for Operating System (Dropdown) -->
+        <div class="form-group">
+            <label for="operatingSystem">Operating System:</label>
+            <select class="form-control" id="operatingSystem" name="operatingSystemID" required
+                    onchange="updatePhoneModel()" th:field="*{operatingSystemID}">
+                <!-- Populate options dynamically from your database -->
+                <option th:each="operatingSystem : ${operatingSystems}" th:value="${operatingSystem.getId}"
+                        th:text="${operatingSystem.getOsType}"></option>
+                <!-- Add more options as needed -->
+            </select>
+        </div>
+        <!-- Input for Price ($ USD) -->
+        <div class="form-group">
+            <label for="price">price:</label>
+            <input type="text" class="form-control" id="price" name="price" required
+                   onchange="updatePhoneModel()"
+                   th:field="*{#numbers.formatCurrency(Price)}" th:placeholder="'black'">
+        </div>
+        <!-- Input for Color (Hex Color Code) -->
+        <div class="form-group">
+            <label for="color">Color:</label>
+            <select class="form-control" id="color" name="colorID" required onchange="updatePhoneModel()" th:field="*{colorID}">
+                <!-- Populate options dynamically from your database -->
+                <option th:each="color : ${colors}" th:value="${color.getId}"
+                        th:text="${color.getColor}"></option>
+                <!-- Add more options as needed -->
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="quantity">quantity: </label>
+            <input type="text" class="form-control" id="quantity" name="quantity"
+                   onchange="updatePhoneModel()"
+                   th:field="*{quantity}" required th:placeholder="'số lượng'">
+        </div>
+        <!-- Submit button -->
+        <button type="submit" class="btn btn-primary">Save</button>
+    </form>
+    <script>
+        function updatePhoneModel() {
+            var phoneNameInput = document.getElementById("phoneName").value; // Lấy giá trị từ trường nhập liệu "Tên điện thoại"
+            var releaseYearInput = document.getElementById("releaseYear").value; // Lấy giá trị từ trường nhập liệu "Năm phát hành"
+
+            var storageCapacityDropdown = document.getElementById("storageCapacity"); // Lấy thẻ dropdown "Bộ nhớ trong"
+            var storageCapacityOption = storageCapacityDropdown.options[storageCapacityDropdown.selectedIndex]; // Lấy option đã chọn trong dropdown "Bộ nhớ trong"
+            var storageCapacity = storageCapacityOption.text; // Lấy giá trị bộ nhớ trong từ option đã chọn
+
+            var ramDropdown = document.getElementById("ram"); // Lấy thẻ dropdown "Bộ nhớ RAM"
+            var ramOption = ramDropdown.options[ramDropdown.selectedIndex]; // Lấy option đã chọn trong dropdown "Bộ nhớ RAM"
+            var ramCapacity = ramOption.text; // Lấy giá trị bộ nhớ RAM từ option đã chọn
+
+            var colorDropdown = document.getElementById("color"); // Lấy thẻ dropdown "Màu"
+            var colorOption = colorDropdown.options[colorDropdown.selectedIndex]; // Lấy option đã chọn trong dropdown "Màu"
+            var colorName = colorOption.text; // Lấy tên màu từ option đã chọn
+
+            var modelInput = phoneNameInput + "-" + releaseYearInput + "-" + storageCapacity + "-" + ramCapacity + "-" + colorName; // Tạo tên model theo quy tắc
+
+            var addModelInput = document.getElementById("model"); // Lấy trường nhập liệu "Thêm model"
+            addModelInput.value = modelInput; // Cập nhật giá trị trường nhập liệu "Thêm model" với tên model mới
+        }
+    </script>
+</div>
+
+<!-- Link to Bootstrap JS and jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> <!--Phải load jquery trước khi load bootstrap js-->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</form-edit-phone>
+</body>
+</html>

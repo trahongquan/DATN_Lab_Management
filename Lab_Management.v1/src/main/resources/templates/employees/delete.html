@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Xóa Nhân Viên</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body>
+<div th:replace="admin/headerAdmin :: header-admin"></div>
+<delete-employe>
+    <div class="container" style="text-align: center">
+        <h1>Xóa Nhân Viên</h1>
+        <p>Bạn có chắc chắn muốn xóa nhân viên này không?</p>
+        <form th:object="${employee}"
+              th:action="@{'/Handshop/admin/AccEmployeesManager/delete/' + ${employee.employeeID}}" method="Post">
+            <input type="hidden" th:field="*{employeeID}"/> <!-- Trường ẩn để truyền id của nhân viên -->
+            <button type="submit" class="btn btn-danger" onclick="confirmDelete(this)">Xóa</button>
+            <a href="/employees/list" class="btn btn-secondary">Hủy</a>
+        </form>
+    </div>
+</delete-employe>
+</body>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> <!--Phải load jquery trước khi load bootstrap js-->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</html>

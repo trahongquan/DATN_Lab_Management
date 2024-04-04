@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="https://www.thymeleaf.org/thyme leaf-extras-springsecurity5"
+      xmlns="http://www.w3.org/1999/html">
+<head>
+    <meta charset="UTF-8">
+    <title>Hand Mobile Shop</title>
+    <link rel="stylesheet" th:href="@{/css/HomeMBPhoneStyle.css}">
+    <!--<link rel="stylesheet" href="/css/HomeMBPhoneStyle.css">-->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <link rel="stylesheet" th:href="@{/css/base2.min.css}">
+</head>
+<body class="scroll-container">
+
+<list-phone><!--<div th:replace="admin/templateAdmin.html :: header-admin"></div>-->
+    <h1 style="margin-top: 50px; text-align: center;">Danh sách điện thoại </h1>
+    <br>
+    <form th:action="@{/Handshop/admin/searchAdmin}" method="post">
+        <div class="search-container"
+             style="display: flex; flex-direction: row; justify-content: center; align-items: center;">
+            <input style="min-width: 0px; max-width: 300px;" type="text" class="form-control  bg-transparent text-dark"
+                   name="inputdatasearch" placeholder="Nhập từ khóa tìm kiếm">
+            <button class="search-button  bg-transparent text-dark" type="submit" style="max-width: max-content">
+                <span> 🔍 </span>
+            </button>
+        </div>
+    </form>
+    <br>
+    <div th:if="${addphone}" style="display: flex; justify-content: flex-end; align-items: flex-end;
+                                position: fixed; bottom: 10px; right: 10px; background: linear-gradient(45deg, rgba(229,191,22,0.45), rgba(152,229,18,0.45))">
+        <p id="successMessage" style="padding: 15px;
+                                border: 1px solid transparent;
+                                border-radius: 4px;
+                                color: #721c24;
+                                border-color: black;
+                                margin-bottom: 0;
+                                font-weight: bold;">Thao tác thành công (<span id="countdown">3</span>)</p>
+    </div>
+    <div style="display:flex; justify-content:center; align-content: center">
+        <a href="/Handshop/admin/ExportInventory">
+            <h5>Tài về danh sách</h5>
+        </a>
+    </div>
+
+
+    <div class="main-card mb-3 card">
+        <div class="card-body">
+            <table style="width: 100%;" id="example" class="table table-hover table-striped table-bordered">
+                <thead>
+                    <tr>
+                        <th>Hình ảnh</th>
+                        <th>Brand</th>
+                        <th>Category</th>
+                        <th>Phone Name</th>
+                        <th>Model</th>
+                        <th th:unless="${#request.requestURI == '/Handshop/admin/listphone'}">Release Year</th>
+                        <th th:unless="${#request.requestURI == '/Handshop/admin/listphone'}">Screen Size</th>
+                        <th th:unless="${#request.requestURI == '/Handshop/admin/listphone'}">Storage Capacity</th>
+                        <th th:unless="${#request.requestURI == '/Handshop/admin/listphone'}">RAM</th>
+                        <th>Operating System</th>
+                        <th>Price</th>
+                        <th th:unless="${#request.requestURI == '/Handshop/admin/listphone'}">Color</th>
+                        <th th:unless="${#request.requestURI == '/Handshop/admin/listphone'}">Số lượng</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="phone, iter : ${phoneDTOS}">
+                        <td><img class="img-phoneDTOS" th:src="'/Images/' + ${phone.ImageName}" th:alt="phoneDTOS"
+                                 style="width: 70px; height: 70px;"></td>
+                        <td th:text="${phone.brand.getBrandName}"></td>
+                        <td th:text="${phone.category.getCategoryName}"></td>
+                        <td th:text="${phone.phoneName}"></td>
+                        <td th:text="${phone.getModel.getModel}"></td>
+                        <td th:unless="${#request.requestURI == '/Handshop/admin/listphone'}" th:text="${phone.releaseYear}"></td>
+                        <td th:unless="${#request.requestURI == '/Handshop/admin/listphone'}" th:text="${phone.screenSize}+ 'inch'"></td>
+                        <td th:unless="${#request.requestURI == '/Handshop/admin/listphone'}" th:text="${phone.getStorageCapacity.getCapacity}+'GB'"></td>
+                        <td th:unless="${#request.requestURI == '/Handshop/admin/listphone'}" th:text="${phone.getRam.getCapacity}+'GB'"></td>
+                        <td th:text="${phone.getOperatingSystem.getOsType}"></td>
+                        <td th:text="${#numbers.formatCurrency(phone.getPrice)}"></td>
+                        <td th:unless="${#request.requestURI == '/Handshop/admin/listphone'}" th:text="${phone.getColor.getColor}"></td>
+                        <!--Đếm số lượng máy theo model-->
+                        <td th:unless="${#request.requestURI == '/Handshop/admin/listphone'}" th:text="${phone.getQuantity}"></td>
+                        <td>
+                            <div class="d-flex" style="display: flex; justify-content: center; align-items: center;">
+                                <form th:action="@{'/Handshop/admin/showFormForUpdate/' + ${phone.phoneId}}" method="get">
+                                    <button th:unless="${#request.requestURI == '/Handshop/admin/listphone'}"
+                                            type="submit" class="btn btn-info btn-sm mr-1">Detail</button>
+
+                                    <button th:if="${#request.requestURI == '/Handshop/admin/listphone'}"
+                                            type="submit" class="btn btn-info btn-sm mr-1">Update</button>
+                                </form>
+                                <form th:if="${#request.requestURI == '/Handshop/admin/listphone'}"
+                                      th:action="@{'/Handshop/admin/delete/' + ${phone.phoneId}}" method="POST"
+                                      id="deletePhoneForm">
+                                    <button type="button" class="btn btn-danger btn-sm" onclick="confirmDelete(this)"
+                                            th:data="${phone.phoneId}">Delete
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                        <script>
+                            function confirmDelete(button) {
+                                var phoneID = button.getAttribute("data") + "";
+                                window.location.href = '/Handshop/admin/delete/' + phoneID;
+                            }
+                        </script>
+                    </tr>
+                </tbody>
+                <tfoot>
+                <tr>
+                    <th>Hình ảnh</th>
+                    <th>Brand</th>
+                    <th>Category</th>
+                    <th>Phone Name</th>
+                    <th>Model</th>
+                    <th th:unless="${#request.requestURI == '/Handshop/admin/listphone'}">Release Year</th>
+                    <th th:unless="${#request.requestURI == '/Handshop/admin/listphone'}">Screen Size</th>
+                    <th th:unless="${#request.requestURI == '/Handshop/admin/listphone'}">Storage Capacity</th>
+                    <th th:unless="${#request.requestURI == '/Handshop/admin/listphone'}">RAM</th>
+                    <th>Operating System</th>
+                    <th>Price</th>
+                    <th th:unless="${#request.requestURI == '/Handshop/admin/listphone'}">Color</th>
+                    <th th:unless="${#request.requestURI == '/Handshop/admin/listphone'}">Số lượng</th>
+                    <th>Action</th>
+                </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!--Phải load jquery trước khi load bootstrap js-->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script th:src="@{/js/script.js}"></script>
+    <div style="margin: 20px">
+        <!-- Add a Logout button -->
+        <form action="#" th:action="@{/logout}" method="POST">
+            <input type="submit" value="Logout" class="btn btn-outline-primary mt-2"/>
+        </form>
+        <!--<div sec:authorize="isAuthenticated" style="color: red"> Authenticated as <span sec:authentication=""></span></div>-->
+    </div>
+    <!--CORE-->
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"
+            integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.bundle.min.js"
+            crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/metismenu"></script>
+    <script th:src="@{/js/app.js}"></script>
+    <script th:src="@{/js/demo.js}"></script>
+</list-phone>
+</body>
+</html>

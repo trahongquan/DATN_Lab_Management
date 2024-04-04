@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="https://www.thymeleaf.org/thyme leaf-extras-springsecurity5"
+      xmlns="http://www.w3.org/1999/html">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="/js/headernew/headernew.js"></script>
+    <style>
+        .footer>.container, .sub-footer>.container{
+            background: transparent;
+        }
+
+    </style>
+
+</head>
+<body>
+<div th:replace="headernew::header"></div>
+<footer th:fragment="footer">
+    <div class="footerfull" style="background: whitesmoke; color: black">
+        <div class="footer">
+            <div class="container" style="max-width: 100%;">
+                <div class="row d-flex justify-content-between">
+                    <div class="col-xl-4">
+                        <h3>About Us</h3>
+                        <p>Handshop là địa chỉ tin cậy cho việc mua sắm điện thoại di động với đa dạng sản phẩm từ các
+                            thương hiệu hàng đầu. Với cam kết chất lượng và dịch vụ hoàn hảo, Handshop mang đến cho
+                            khách hàng trải nghiệm mua sắm tuyệt vời và thuận tiện. Với đội ngũ nhân viên chuyên nghiệp,
+                            Handshop không ngừng nâng cao chất lượng sản phẩm và dịch vụ để đáp ứng nhu cầu đa dạng của
+                            khách hàng.</p>
+                    </div>
+                    <div class="col-xl-4">
+                        <h3>Contact Information</h3>
+                        <p>Address: KHL 125, P. Liên Bảo, TP. Vĩnh Yên, Vĩnh Phúc</p>
+                        <p>Phone: 0356911600</p>
+                        <p>Email: example@example.com</p>
+                    </div>
+                    <div class="col-xl-4">
+                        <h3>Quick Links</h3>
+                        <ul class="list-unstyled">
+                            <li><a href="#">Home</a></li>
+                            <li><a href="#">About</a></li>
+                            <li><a href="#">Products</a></li>
+                            <li><a href="#">Contact</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="sub-footer">
+            <div class="container" style=" background:black;color: white;max-width: 100%;">
+                <div class="row">
+                    <div class="col-md-12">
+                        <p style="text-align: center">© 2023 Handshop - MobileShop professional. All Rights Reserved.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- CSS -->
+<!-- Bootstrap CSS and JS (Make sure to include these in your project) -->
+<!--<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">-->
+</body>
+</html>

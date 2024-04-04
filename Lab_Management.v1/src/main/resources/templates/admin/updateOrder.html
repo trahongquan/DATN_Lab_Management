@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Update Order</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <!-- Thêm các tệp CSS tùy chỉnh của bạn nếu cần -->
+</head>
+<body>
+<div class="container mt-4">
+    <h2 th:text="${'Update Order '+order.getOrderID}"></h2>
+    <form th:action="@{/Handshop/admin/updateSeriesOrder}" method="post" >
+        <input type="hidden" name="OrderID" th:value="${order.getOrderID}"/>
+        <div th:each="seriMissing, iterStat : ${seriMissings}">
+            <div th:if="${seriMissing.missing}!=0">
+                <h4 th:text="${seriMissing.phone.PhoneName} +' | '+${seriMissing.phone.Ram}+'GB | '+${seriMissing.phone.StorageCapacity}+'GB'"></h4>
+                <div th:each="i : ${#numbers.sequence(1, seriMissing.missing)}">
+                    <input type="text" name="seriesPhone" class="form-control mb-3" th:placeholder="${'add seri for missing ' + seriMissing.phone.phoneName}" />
+                </div>
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary mt-3">Update</button>
+    </form>
+            <!--<input type="text" th:name="${'Phone' + (iterStat.index + 1)}" class="form-control mb-3" th:each="i : ${#numbers.sequence(1, missings[__${iterStat.index}__])}" th:placeholder="${'add seri for missing ' + phone.phoneName}" />-->
+            <!--sử dụng __${iterStat.index}__ để truy cập vào chỉ số của vòng lặp, và phone.phoneName để truy cập vào thuộc tính phoneName của đối tượng phone-->
+</div>
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<!-- Thêm các tệp script JS tùy chỉnh của bạn nếu cần -->
+</body>
+</html>

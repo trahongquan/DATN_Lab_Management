@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+
+<html xmlns:th="http://www.thymeleaf.org">
+<!--<html xmlns:th="http://www.springframework.org/schema/data/jaxb">-->
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Phone</title>
+    <!-- Link to Bootstrap CSS for styling -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+
+</head>
+<body class="scroll-container">
+<form-phone>
+    <!--<div th:replace="admin/headerAdmin :: header-admin"></div>-->
+    <h1 style="margin-top: 50px; text-align: center;">Thêm điện thoại</h1><br>
+    <div class="container">
+        <form th:object="${phone}" th:action="@{'/Handshop/admin/add'}" method="post" enctype="multipart/form-data">
+            <div>
+                <!-- Input for uploading an image -->
+                <div class="form-group">
+                    <label for="image">Image:</label>
+                    <input type="file" class="form-control" id="image" name="file" required>
+                </div>
+                <!-- Input for Phone Name -->
+                <div class="form-group">
+                    <label for="phoneName">Phone Name:</label>
+                    <input type="text" class="form-control" id="phoneName" name="phoneName" required th:field="*{phoneName}"
+                           th:placeholder="'Iphone SE'">
+                </div>
+                <!-- Input for Brand -->
+                <div class="form-group">
+                    <label th:for="@{'brand'}">Brand:</label>
+                    <select th:class="@{'form-control'}" th:id="@{'brand'}" th:name="@{'brandID'}" required th:field="*{brandId}">
+                        <option th:each="brand : ${brands}" th:value="${brand.BrandID}"
+                                th:text="${brand.BrandName}"></option>
+                    </select>
+                </div>
+                <!-- Input for Category (Dropdown) -->
+                <div class="form-group">
+                    <label for="category">Category:</label>
+                    <select class="form-control" id="category" name="categoryID" required th:field="*{categoryId}">
+                        <!-- Populate options dynamically from your database -->
+                        <option th:each="category : ${categories}" th:value="${category.CategoryID}"
+                                th:text="${category.CategoryName}"></option>
+                        <!-- Add more options as needed -->
+                    </select>
+                </div>
+                <!-- Input for Model -->
+                <div class="form-group">
+                    <label for="category">Model:</label>
+                    <select class="form-control" id="model" name="modelID" required>
+                        <!-- Populate options dynamically from your database -->
+                        <option th:each="model : ${models}" th:value="${model.getId}"
+                                th:text="${model.getModel}"></option>
+                        <!-- Add more options as needed -->
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="seri">Nhập đúng chuỗi seri như mẫu:</label>
+                    <input type="text" class="form-control" id="seri" name="seri" required
+                           th:placeholder="'[183749265, 572639184, 628473195, 475923618]'">
+                </div>
+                <!-- Input for Release Year -->
+                <div class="form-group">
+                    <label for="releaseYear">Release Year:</label>
+                    <input type="number" class="form-control" id="releaseYear" name="releaseYear" required min="1890"
+                           th:max="@{year}" th:placeholder="'2023'">
+                </div>
+                <!-- Input for Screen Size (Inch) -->
+                <div class="form-group">
+                    <label for="screenSize">Screen Size (Inch):</label>
+                    <input type="number" step="0.1" class="form-control" id="screenSize" name="screenSize" required
+                           min="4" th:placeholder="'5.70'">
+                </div>
+                <!-- Input for Storage Capacity (Dropdown) -->
+                <div class="form-group">
+                    <label for="storageCapacity">Storage Capacity:</label>
+                    <select class="form-control" id="storageCapacity" name="storageCapacityID" required th:field="*{storageCapacityID}">
+                        <!-- Populate options dynamically from your database -->
+                        <option th:each="storageCapacity : ${storageCapacities}" th:value="${storageCapacity.getId}"
+                                th:text="${storageCapacity.getCapacity}"></option>
+                        <!-- Add more options as needed -->
+                    </select>
+                </div>
+                <!-- Input for RAM (Dropdown) -->
+                <div class="form-group">
+                    <label for="ram">RAM:</label>
+                    <select class="form-control" id="ram" name="ramID" required th:field="*{ramID}">
+                        <!-- Populate options dynamically from your database -->
+                        <option th:each="ram : ${rams}" th:value="${ram.getId}"
+                                th:text="${ram.getCapacity}"></option>
+                        <!-- Add more options as needed -->
+                    </select>
+                </div>
+                <!-- Input for Operating System (Dropdown) -->
+                <div class="form-group">
+                    <label for="operatingSystem">Operating System:</label>
+                    <select class="form-control" id="operatingSystem" name="operatingSystemID" required th:field="*{operatingSystemID}">
+                        <!-- Populate options dynamically from your database -->
+                        <option th:each="operatingSystem : ${operatingSystems}" th:value="${operatingSystem.getId}"
+                                th:text="${operatingSystem.getOsType}"></option>
+                        <!-- Add more options as needed -->
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="price">price:</label>
+                    <input type="text" class="form-control" id="price" name="price" required th:placeholder="'1234567'">
+                </div>
+                <!-- Input for Color (Hex Color Code) -->
+                <div class="form-group">
+                    <label for="color">Color:</label>
+                    <select class="form-control" id="color" name="colorID" required th:field="*{colorID}">
+                        <!-- Populate options dynamically from your database -->
+                        <option th:each="color : ${colors}" th:value="${color.getId}"
+                                th:text="${color.getColor}"></option>
+                        <!-- Add more options as needed -->
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="quantity">quantity: </label>
+                    <input type="text" class="form-control" id="quantity" name="quantity" required
+                           th:placeholder="'số lượng'">
+                </div>
+                <button type="submit" class="btn btn-primary">Create</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Link to Bootstrap JS and jQuery -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</form-phone>
+</body>
+</html>

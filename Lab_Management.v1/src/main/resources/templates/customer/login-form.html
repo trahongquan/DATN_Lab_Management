@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Đăng nhập</title>
+</head>
+<body>
+<h1>Đăng nhập</h1>
+<form th:object="${LoginCustomerForm}" th:action="@{/CustomerLogin}" method="post">
+    <label for="username">Email hoặc Số điện thoại:</label>
+    <input type="text" id="username" name="username" required><br>
+
+    <label for="password">Mật khẩu:</label>
+    <input type="password" id="password" name="password" required><br>
+
+    <button type="submit">Đăng nhập</button>
+
+    <!-- Hiển thị thông báo lỗi nếu có -->
+    <div th:if="${loginError}" class="error-message">Sai tài khoản hoặc mật khẩu. Vui lòng thử lại.</div>
+</form>
+</body>
+</html>

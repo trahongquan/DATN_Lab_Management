@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"><head>
+    <meta charset="UTF-8">
+    <title>Add new Brand or Category</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Phone</title>
+    <!-- Link to Bootstrap CSS for styling -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <style>
+        .form-group>div, .form-group>div>form>div, .form-group>form>div{
+            margin: 5px;
+        }
+        div>p{
+            display: flex;
+            justify-content: center;
+            align-content: center;
+        }
+        p{
+            padding: 15px;
+            border: 1px solid transparent;
+            border-radius: 4px;
+            color: #721c24;
+            border-color: black;
+            margin-bottom: 0;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+<!--<div th:replace="admin/headerAdmin :: header-admin"></div>-->
+<add-StorageCapacity>
+    <h1 style="text-align: center"> Danh mục Bộ nhớ trong</h1>
+    <div th:replace="admin/add-nocite.html :: notice"></div>
+    <!-- Input for Brand -->
+    <div class="form-group" style="display: flex ; justify-content: space-around">
+        <form th:action="@{/Handshop/admin/StorageCapacity/del}" method="post">
+            <div class="form-group">
+                <label for="delstorageCapacity">Bộ nhớ trong (GB):</label>
+                <select class="form-control" id="delstorageCapacity" name="storageCapacityID" required onchange="updatePhoneName()">
+                    <!-- Populate options dynamically from your database -->
+                    <option th:each="storageCapacity : ${storageCapacities}" th:value="${storageCapacity.getId}"
+                            th:text="${storageCapacity.getCapacity}"></option>
+                    <!-- Add more options as needed -->
+                </select>
+                <br>
+                <button type="submit" class="btn btn-danger"> Xóa bộ nhớ trong
+                    <!--<button type="submit" class="btn btn-primary" onclick="confirm('Bạn có chắc chắn đổi mật khẩu?')"> Đổi MK-->
+                </button>
+            </div>
+        </form>
+        <div style="display: flex; justify-content: space-around">
+            <form th:action="'/Handshop/admin/StorageCapacity/add'" method="post">
+                <div style="margin-right: 10px">
+                    <label for="addstorageCapacity" >Thêm Bộ nhớ trong:</label>
+                    <input type="text" class="form-control" id="addstorageCapacity" name="addstorageCapacity" required>
+                </div>
+                <br>
+                <button type="submit" class="btn btn-primary" > Thêm mới </button>
+            </form>
+        </div>
+    </div>
+</add-StorageCapacity>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

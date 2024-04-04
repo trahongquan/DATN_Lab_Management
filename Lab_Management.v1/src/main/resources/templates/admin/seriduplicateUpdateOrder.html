@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Duplicated Phone Codes</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <!-- Thêm các tệp CSS tùy chỉnh của bạn nếu cần -->
+</head>
+<body>
+<div class="container mt-4">
+    <h2>Duplicated Phone seri</h2>
+    <form th:action="@{/Handshop/admin/updateSeriesOrderSeriduplicate}" method="post" >
+        <input type="hidden" name="OrderID" th:value="${order.getOrderID}"/>
+        <div th:each="seri : ${seriesPhone}">
+            <input type="hidden" name="seriesPhone" th:value="${seri}"/>
+        </div>
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th>Phone Code</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="item : ${seriduplicate}">
+                <td th:text="'Số seri: '+${item}+' đã nằm trong kho, nếu bạn tiếp tục thì điện thoại này sẽ được chuyển sang trạng thái đã được bán'"></td>
+                <input type="hidden" name="seriduplicate" class="form-control mb-3" value="${item}" />
+            </tr>
+            </tbody>
+        </table>
+        <button type="submit" class="btn btn-primary mt-3">Tiếp tục</button>
+    </form>
+</div>
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<!-- Thêm các tệp script JS tùy chỉnh của bạn nếu cần -->
+</body>
+</html>

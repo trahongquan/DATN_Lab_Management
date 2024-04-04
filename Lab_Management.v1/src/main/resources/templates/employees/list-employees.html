@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>List of Employees</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+<!--<div th:replace="admin/headerAdmin :: header-admin"></div>-->
+<div class="container">
+    <list-employees>
+        <a href="/Handshop/admin/AccEmployeesManager/add" class="btn btn-success" style="padding: auto">Add
+            Employees</a>
+        <h1>List of Employees</h1>
+        <div class="main-card mb-3 card">
+            <div class="card-body">
+                <table style="width: 100%;" id="example" class="table table-hover table-striped table-bordered">
+                    <thead>
+                    <tr>
+                        <th>Họ</th>
+                        <th>Tên</th>
+                        <th>Email</th>
+                        <th>Số điện thoại</th>
+                        <th>Mật khẩu</th>
+                        <th>Ngày thuê</th>
+                        <th>Đã nghỉ</th>
+                        <th>Thao tác</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="employee : ${employees}">
+                        <td th:text="${employee.firstName}"></td>
+                        <td th:text="${employee.lastName}"></td>
+                        <td th:text="${employee.email}"></td>
+                        <td th:text="${employee.phone}"></td>
+                        <td th:text="${employee.pass}"></td>
+                        <td th:text="${employee.hireDate}"></td>
+                        <td th:if="${employee.hireEndDate != null}" th:text="'✅ ' + ${employee.hireEndDate}"> </td>
+                        <td th:if="${employee.hireEndDate == null}"> ❌ </td>
+                        <td>
+                            <div class="d-flex" style="display: flex; justify-content: center; align-items: center;">
+                                <form th:action="@{'/Handshop/admin/AccEmployeesManager/showFormForUpdate/' + ${employee.employeeID}}"
+                                      method="get">
+                                    <button type="submit" class="btn btn-info btn-sm mr-1">Update</button>
+                                </form>
+                                <form th:action="@{'/Handshop/admin/AccEmployeesManager/delete/' + ${employee.employeeID}}"
+                                      method="POST" id="deleteEmployeeForm">
+                                    <button type="button" class="btn btn-danger btn-sm" onclick="confirmDelete(this)"
+                                            th:data="${employee.employeeID}">Delete
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+
+
+                        <script>
+                            function confirmDelete(button) {
+                                var employeeId = button.getAttribute("data") + "";
+                                window.location.href = '/Handshop/admin/AccEmployeesManager/delete/' + employeeId;
+                            }
+                        </script>
+                    </tr>
+                    </tbody>
+                    <tfoot>
+                    <tr>
+                        <th>Họ</th>
+                        <th>Tên</th>
+                        <th>Email</th>
+                        <th>Số điện thoại</th>
+                        <th>Mật khẩu</th>
+                        <th>Ngày thuê</th>
+                        <th>Đã nghỉ</th>
+                        <th>Thao tác</th>
+                    </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </list-employees>
+<!--
+        <table class="table table-bordered">
+            <thead>
+            <tr>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Pass</th>
+                <th>Ngày thuê</th>
+                <th>Action</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="employee : ${employees}">
+                <td th:text="${employee.firstName}"></td>
+                <td th:text="${employee.lastName}"></td>
+                <td th:text="${employee.email}"></td>
+                <td th:text="${employee.phone}"></td>
+                <td th:text="${employee.pass}"></td>
+                <td th:text="${employee.hireDate}"></td>
+                <td>
+                    <div class="d-flex" style="display: flex; justify-content: center; align-items: center;">
+                        <form th:action="@{'/Handshop/admin/AccEmployeesManager/showFormForUpdate/' + ${employee.employeeID}}"
+                              method="get">
+                            <button type="submit" class="btn btn-info btn-sm mr-1">Update</button>
+                        </form>
+                        <form th:action="@{'/Handshop/admin/AccEmployeesManager/delete/' + ${employee.employeeID}}"
+                              method="POST" id="deleteEmployeeForm">
+                            <button type="button" class="btn btn-danger btn-sm" onclick="confirmDelete(this)"
+                                    th:data="${employee.employeeID}">Delete
+                            </button>
+                        </form>
+                    </div>
+                </td>
+
+
+                <script>
+                    function confirmDelete(button) {
+                        var employeeId = button.getAttribute("data") + "";
+                        window.location.href = '/Handshop/admin/AccEmployeesManager/delete/' + employeeId;
+                    }
+                </script>
+
+            </tr>
+            </tbody>
+        </table>
+-->
+
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> <!--Phải load jquery trước khi load bootstrap js-->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

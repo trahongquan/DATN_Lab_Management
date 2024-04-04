@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>My Page</title>
+    <!-- Import jQuery -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+</head>
+<body>
+<h1>My Page</h1>
+<button id="ajaxButton">Send AJAX Request</button>
+<div id="responseDiv"></div>
+
+<script>
+    $(document).ready(function() {
+        // Bắt sự kiện khi click vào nút "Send AJAX Request"
+        $("#ajaxButton").click(function() {
+            $.ajax({
+                type: "POST",
+                url: "http://localhost:8080/ajax-request",
+                data: JSON.stringify({ key: "value" }), // Dữ liệu gửi đi
+                contentType: "application/json",
+                success: function(response) {
+                    // Xử lý phản hồi từ máy chủ
+                    $("#responseDiv").text(response);
+                },
+                error: function(error) {
+                    console.error(error);
+                }
+            });
+        });
+    });
+</script>
+</body>
+</html>

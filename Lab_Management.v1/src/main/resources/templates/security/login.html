@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="https://www.thymeleaf.org/thyme leaf-extras-springsecurity5">
+
+<!-- Head -->
+<head>
+
+    <title>Existing Login Form a Flat Responsive Widget Template :: W3layouts</title>
+
+    <!-- Meta-Tags -->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="keywords" content="Existing Login Form Widget Responsive, Login Form Web Template, Flat Pricing Tables, Flat Drop-Downs, Sign-Up Web Templates, Flat Web Templates, Login Sign-up Responsive Web Template, Smartphone Compatible Web Template, Free Web Designs for Nokia, Samsung, LG, Sony Ericsson, Motorola Web Design">
+
+    <script src="/js/headernew/headernew.js"></script>
+
+    <!--<script type="application/x-javascript"> addEventListener("load", function() { setTimeout(hideURLbar, 0); }, false); function hideURLbar(){ window.scrollTo(0,1); } </script>
+    &lt;!&ndash; //Meta-Tags &ndash;&gt;
+
+    <link href="css/popuo-box.css" rel="stylesheet" type="text/css" media="all" />
+
+    <link rel="stylesheet" href="css/login.css" type="text/css" media="all">
+    <link rel="stylesheet" href="css/stylesSupport.css">
+
+    &lt;!&ndash; Fonts &ndash;&gt;
+    <link href="https://fonts.googleapis.com/css?family=Quicksand:300,400,500,700" rel="stylesheet">
+    &lt;!&ndash; //Fonts &ndash;&gt;
+    <link rel="stylesheet" href="/css/Header.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>-->
+</head>
+<!-- //Head -->
+
+<!-- Body -->
+<body>
+<div th:replace="headernew :: header"></div>
+<br>
+<br>
+<br>
+<div class="w3layoutscontaineragileits">
+    <style>
+        @import url("/css/popuo-box.css");
+        @import url("/css/login.css");
+        @import url("/css/stylesSupport.css");
+        @import url("/css/Header.css");
+        @import url("https://fonts.googleapis.com/css?family=Quicksand:300,400,500,700");
+    </style>
+    <script type="application/x-javascript"> addEventListener("load", function() { setTimeout(hideURLbar, 0); }, false); function hideURLbar(){ window.scrollTo(0,1); } </script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <h2>Login here</h2>
+    <form th:action="@{/authenticateTheUser}" method="post">
+        <div class="form-group">
+            <div class="col-xs-15">
+                <div>
+                    <!-- Check for login error -->
+                    <div th:if="${param.error}">
+                        <div class="alert alert-danger col-xs-offset-1 col-xs-10" style="color: red ; margin: 10px; font-weight: bold">
+                            <b>
+                                Invalid username and password.
+                            </b>
+                        </div>
+                    </div>
+                    <!-- Check for Logout -->
+                    <div th:if="${param.logout}">
+                        <div class="alert alert-success col-xs-offset-1 col-xs-10" style="color: mediumvioletred; margin: 10px; font-weight: bold">
+                            <b>
+                                You have been logged out
+                            </b>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <input type="text" Name="username" placeholder="EMAIL" required="">
+        <input type="password" Name="password" placeholder="PASSWORD" required="">
+        <ul class="agileinfotickwthree">
+            <li>
+                <input type="checkbox" id="brand1" value="">
+                <label for="brand1"><span></span>Remember me</label>
+                <a href="#">Forgot password?</a>
+            </li>
+        </ul>
+        <div class="aitssendbuttonw3ls">
+            <input type="submit" value="LOGIN">
+            <p style="color: #c9c3f7" > To register new account <span>→</span> <a class="w3_play_icon1" href="#small-dialog1"> Click Here</a></p>
+            <div class="clear"></div>
+        </div>
+    </form>
+</div>
+
+<!-- for register popup -->
+<div id="small-dialog1" class="mfp-hide">
+    <div class="contact-form1">
+        <div class="contact-w3-agileits">
+            <h3>Register Form</h3>
+            <form th:action="@{/register}" method="post">
+                <div class="form-sub-w3ls">
+                    <input placeholder="First Name" type="text"  name="firstName" required="">
+                    <div class="icon-agile">
+                        <i class="fa fa-user" aria-hidden="true"></i>
+                    </div>
+                </div>
+                <div class="form-sub-w3ls">
+                    <input placeholder="Last Name"  type="text" name="lastName" required="">
+                    <div class="icon-agile">
+                        <i class="fa fa-user" aria-hidden="true"></i>
+                    </div>
+                </div>
+                <div class="form-sub-w3ls">
+                    <input placeholder="Phone" name="phone" type="text" required="">
+                    <div class="icon-agile">
+                        <i class="fa fa-map-marke" aria-hidden="true"></i>
+                    </div>
+                </div>
+                <div class="form-sub-w3ls">
+                    <input placeholder="Email" name="email" class="mail" type="email" required="">
+                    <div class="icon-agile">
+                        <i class="fa fa-envelope-o" aria-hidden="true"></i>
+                    </div>
+                </div>
+                <div class="form-sub-w3ls">
+                    <input placeholder="Password" name="pass" type="password" required="">
+                    <div class="icon-agile">
+                        <i class="fa fa-unlock-alt" aria-hidden="true"></i>
+                    </div>
+                </div>
+                <div class="form-sub-w3ls">
+                    <input placeholder="Confirm Password" name="confirmPassword" type="password" required="">
+                    <div class="icon-agile">
+                        <i class="fa fa-unlock-alt" aria-hidden="true"></i>
+                    </div>
+                </div>
+                <div class="form-sub-w3ls">
+                    <input placeholder="Adress" type="text" name="address" required="">
+                    <div class="icon-agile">
+                        <i class="fa fa-user" aria-hidden="true"></i>
+                    </div>
+                </div>
+                <input type="hidden" id="registrationDate" name="registrationDate" th:value="${#dates.format(#dates.createNow(), 'yyyy-MM-dd HH:mm:ss')}">
+                <div class="login-check">
+                    <label class="checkbox">
+                    <input type="checkbox" name="checkbox" checked="">I Accept Terms & Conditions</label>
+                </div>
+                <div class="submit-w3l">
+                    <input type="submit" value="Register">
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<!-- //for register popup -->
+
+<div class="w3footeragile">
+    <p> &copy; 2017 Existing Login Form. All Rights Reserved | Design by <a href="/" target="_blank">Handshop</a></p>
+</div>
+
+
+<script type="text/javascript" src="js/jquery-2.1.4.min.js"></script>
+
+<!-- pop-up-box-js-file -->
+<script src="js/jquery.magnific-popup.js" type="text/javascript"></script>
+<!--//pop-up-box-js-file -->
+<script>
+    $(document).ready(function() {
+        $('.w3_play_icon,.w3_play_icon1,.w3_play_icon2').magnificPopup({
+            type: 'inline',
+            fixedContentPos: false,
+            fixedBgPos: true,
+            overflowY: 'auto',
+            closeBtnInside: true,
+            preloader: false,
+            midClick: true,
+            removalDelay: 300,
+            mainClass: 'my-mfp-zoom-in'
+        });
+
+    });
+    //xử lý Confirm Password = Password thì mới tiếp tục cho post từ form
+    // $(document).ready(function() {
+    //     $('form').submit(function(event) {
+    //         var password = $('input[name="pass"]').val();
+    //         var confirmPassword = $('input[name="confirmPassword"]').val();
+    //
+    //         if (password !== confirmPassword) {
+    //             alert("Mật khẩu xác nhận không khớp. Vui lòng kiểm tra lại!");
+    //             event.preventDefault(); // Ngăn chặn việc gửi form nếu mật khẩu không khớp
+    //         }
+    //     });
+    // });
+</script>
+
+</body>
+<!-- //Body -->
+
+</html>

@@ -1,0 +1,481 @@
+/*Body*/
+
+body {
+    background: url("../images/b2-1.jpg");
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-position: center;
+    background-size: cover;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    color: #FFF;
+    font-family: 'Quicksand', sans-serif;
+    backdrop-filter: blur(5px); /* Áp dụng hiệu ứng mờ */
+    -webkit-backdrop-filter: blur(5px); /* Áp dụng hiệu ứng mờ (Safari) */
+}
+
+/* //////////////////////////////// */
+/* Menu nav-bar */
+/* //////////////////////////////// */
+.header-lower, .header-menu{
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+}
+.header-lower, .top-menu, .headerLeft, .header-menu{
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+}
+.notmobile{
+
+}
+.category-menu-items {
+    width: 110px;
+    height: 56px;
+    margin: auto; /* Căn giữa trái phải */
+    display: flex;
+    justify-content: center; /* Căn giữa theo chiều ngang (trục X) */
+    align-items: center; /* Căn giữa theo chiều dọc (trục Y) */
+    transition: 0.5s;
+}
+
+.category-menu-items:hover {
+    border: 1px solid;
+    box-shadow: inset 0 0 20px rgba(255, 255, 255, .5), 0 0 20px rgba(255, 255, 255, .2);
+    outline-color: rgba(255, 255, 255, 0);
+    outline-offset: 15px;
+    text-shadow: 1px 1px 2px #427388;
+}
+
+/* //////////////////////////////// */
+/* Menu MyAcc */
+/* //////////////////////////////// */
+
+.listbox ul.list {
+    display: none;
+    position: absolute;
+    top: 64px;
+    z-index: 99;
+    width: 250%;
+    background-color: transparent;
+}
+
+.listbox .inactive{
+    margin-top: 10px;
+    z-index: 99;
+    background-color: #515154;
+    text-align: left;
+}
+
+.listbox .inactive:after {
+    content: "";
+    position: absolute;
+    top: 0px;
+    left: 5px;
+    border-right: 10px solid transparent;
+    border-left: 10px solid transparent;
+    border-bottom: 10px solid #515154;
+}
+
+.listbox:hover ul.list {
+    display: block !important;
+}
+
+.listbox .inactivea {
+    display: block;
+    padding: 12px 16px;
+    line-height: 20px;
+    font-size: 15px;
+    color: #d2d2d7;
+    cursor: pointer;
+    border-bottom: 1px solid #5c5c5c;
+}
+
+
+
+/* //////////////////////////////// */
+
+/* Header */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: linear-gradient(0.25turn,#ebf8e1, #3f87a6,  #f69d3c);
+    color: white; /* Màu chữ trắng */
+    padding: 10px;
+}
+
+.headerLeft {
+    flex: 3; /* Chiếm 3/5 màn hình bên trái */
+    display: flex;
+    align-items: center;
+}
+
+/* Item Dịch vụ */
+.topic-items{
+    position: relative;
+    transition: 0.5s;
+}
+
+/* //////// */
+
+.header-menu {
+    flex: 2; /* Chiếm 2/5 màn hình bên phải */
+    display: flex;
+    justify-content: flex-end; /* Các nút nằm ở phía bên phải */
+}
+
+.menu-toggle {
+    flex: 2; /* Chiếm 2/5 màn hình bên phải */
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+}
+
+.header-menu ul, .menu-toggle ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+}
+
+.header-menu li, .menu-toggle li {
+    margin-right: 20px;
+}
+
+/* Menu link styles (tuỳ chỉnh theo ý muốn) */
+.header-menu a, .menu-toggle a {
+    text-decoration: none;
+    color: white;
+}
+
+.header-menu a:hover, .menu-toggle a:hover {
+    color: #ffd700; /* Màu khi hover */
+}
+
+.top-menu .topic-items div.child-menu {
+    display: none;
+    position: absolute;
+    top: 64px;
+    z-index: 99;
+    width: 250%;
+    background-color: transparent;
+}
+
+.top-menu .topic-items div.child-menu-content {
+    margin-top: 10px;
+    z-index: 99;
+    /*background-color: #515154;*/
+    background: linear-gradient(0.4turn,#3f87a6,  #f69d3c);
+    text-align: left;
+}
+
+.top-menu .topic-items div.child-menu-content:after {
+    content: "";
+    position: absolute;
+    border-right: 10px solid transparent;
+    border-left: 10px solid transparent;
+    border-bottom: 10px solid #515154;
+}
+
+.top-menu .topic-items:hover div.child-menu {
+    top:50px;
+    left: 0px;
+    display: block !important;
+}
+
+.top-menu .topic-items div.child-menu-content a {
+    display: block;
+    padding: 12px 16px;
+    line-height: 20px;
+    font-family: "Times New Roman";
+    font-size: 20px;
+    color: white;
+    cursor: pointer;
+    border-bottom: 1px solid #5c5c5c;
+}
+
+.popup-header-links li:hover{
+    border: 1px solid;
+    box-shadow: inset 0 0 20px rgba(255, 255, 255, .5), 0 0 20px rgba(255, 255, 255, .2);
+    outline-color: rgba(255, 255, 255, 0);
+    outline-offset: 15px;
+    text-shadow: 1px 1px 2px #427388;
+}
+
+/*///////////////////////////*/
+/*        Stickey header     */
+/*///////////////////////////*/
+
+/* Header */
+.header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(0.25turn,#ebf8e1, #3f87a6,  #f69d3c);
+    color: white;
+    z-index: 1000;
+    padding: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.3s ease; /* Thêm transition để mượt khi thay đổi */
+}
+
+.headerLeft {
+    flex: 3;
+    display: flex;
+    align-items: center;
+}
+
+.header-menu {
+    flex: 2;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.menu-toggle {
+    flex: 2;
+    display: block; /* Ẩn menu-toggle ban đầu */
+    justify-content: flex-end;
+    align-items: center;
+}
+
+/* Các phần còn lại của CSS không thay đổi */
+
+/* Responsive CSS */
+@media screen and (max-width: 768px) {
+    .header {
+        padding: 5px;
+    }
+
+    .header-menu {
+        display: block;
+    }
+
+    .menu-toggle {
+        display: flex; /* Hiển thị menu-toggle khi màn hình nhỏ hơn */
+    }
+
+    .menu-toggle ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: flex;
+    }
+
+    .menu-toggle li {
+        margin-right: 20px;
+    }
+
+    /* Các phần còn lại của CSS responsive */
+}
+/*///////////////////////////*/
+/*        Button Logout     */
+/*///////////////////////////*/
+.button-logout {
+    background-color: transparent; /* Nền trong suốt */
+    border: 0.5px solid transparent; /* Viền trong suốt */
+    color: white; /* Màu chữ trắng */
+    /*padding: 10px 20px; !* Padding cho button *!*/
+    cursor: pointer;
+    transition: all 0.3s ease; /* Hiệu ứng chuyển đổi màu và border */
+}
+
+.button-logout:hover {
+    background-color: transparent; /* Giữ nền trong suốt khi hover */
+    border: 0.5px solid white; /* Hiển thị viền trắng khi hover */
+    color: yellow; /* Màu chữ vàng khi hover */
+}
+
+
+#toggle {
+    display: none;
+    background: #353b48;
+    color: #fff;
+    text-align: right;
+    padding: 10px;
+    font-size: 20px;
+    cursor: pointer;
+    width: max-content;
+}
+
+@media screen and (max-width: 768px) {
+    .top-menu{
+        display: flex;
+    }
+    .header, .top-menu {
+        flex-direction: column;
+        text-align: center;
+    }
+    #toggle {
+        display: block;
+    }
+    /*.nav>.header>.headerLeft>.header-menu>.top-menu>li {
+        display: none;
+    }*/
+    .category-menu-items, .listbox, .popup-header-links>li{
+        display: none;
+    }
+}
+/*///////////////////////////*/
+/*       Slide banner        */
+/*///////////////////////////*/
+/* ------------ VARIABLES ------------ */
+:root{
+    /* FONT */
+    --font: 'Poppins', sans-serif;
+
+    /* COLORS */
+    --color: #9176FF;
+    --bg-color: #f4f4f4;
+}
+
+/* ------------ BASE ------------ */
+div>section>.mySwiper{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+section>.mySwiper{
+    font-family: var(--font);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    background-color: var(--bg-color);
+}
+
+/* ----------- SLIDER ------------ */
+.swiper {
+    width: 100%;
+    justify-content: flex-start; /* Thay đổi từ center thành flex-start */
+}
+
+.swiper-wrapper {
+    width: 100%;
+    height: 30em; /* Thay đổi thuộc tính này */
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+.card {
+    width: 100%;
+    height: 90%;
+    /*background-color: #fff;*/
+    border-radius: 2em;
+    box-shadow: 0 0 2em rgba(0, 0, 0, .2);
+    padding: 2em 1em;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    min-width: 20em; /* Thêm thuộc tính này */
+}
+
+.card__image{
+    width: 100%;
+    height: 100%;
+    border-radius: 2em;
+    border: 5px solid var(--color);
+    padding: 3px;
+    /*margin-bottom: 2em;*/
+}
+
+.card__image img{
+    width: 100%;
+    height: 100%;
+    border-radius: 2em;
+    object-fit: cover;
+}
+
+.big-banner {
+    background-image: url("../images/banner5.jpg");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    width: 100%;
+    height: 70vh;
+}
+@keyframes blink {
+    0% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.7;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+.big-banner:hover {
+    animation: blink 1s infinite;
+}
+
+/* ===== Scrollbar CSS ===== */
+/* Firefox */
+* {
+    scrollbar-width: auto;
+    scrollbar-color: #b5a1ce #b1c8ec;
+}
+
+/* Chrome, Edge, and Safari */
+*::-webkit-scrollbar {
+    width: 14px;
+}
+
+*::-webkit-scrollbar-track {
+    background: #b1c8ec;
+}
+
+*::-webkit-scrollbar-thumb {
+    background-color: #b5a1ce;
+    border-radius: 15px;
+    border: 2px groove #cc8ad0;
+}
+/*
+header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 9999;
+}*/
+
+.quick-link {
+    background-color: rgba(255, 255, 255, 0.6);
+    padding: 10px;
+}
+
+.quick-link a {
+    color: #000;
+    margin-left: 230px;
+    text-decoration: none;
+}
+
+/* Điều chỉnh CSS dựa trên kích thước màn hình */
+@media screen and (max-width: 768px) {
+    .quick-link {
+        padding: 5px;
+    }
+
+    .quick-link a {
+        margin-left: 150px;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    .quick-link {
+        padding: 2px;
+    }
+
+    .quick-link a {
+        margin-left: 50px;
+    }
+}

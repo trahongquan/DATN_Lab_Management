@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="https://www.thymeleaf.org/thyme leaf-extras-springsecurity5">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+<header-admin>
+    <nav class="container" style="margin: 20px; ">
+        <div class="user-role" style="justify-content: flex-start;">
+            <div class="d-flex" style="flex-direction: row">
+                <a th:href="@{/Handshop}" th:text="'Về trang chủ  ||'"> </a>
+                <form th:action="@{/logout}" method="POST">
+                    <input type="submit" value="Đăng xuất" class="button-logout" style="border: none; color: rgba(255,45,86,1); font-weight: bold"/>
+                </form>
+            </div>
+            User: <span sec:authentication="name"></span>
+            <br>
+            Role(s): <span sec:authentication="principal.authorities"></span> <br><br>
+        </div>
+        <div class="control-pannel" style="">
+            <ul class="nav nav-pills">
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Thêm mới
+                    </a>
+                    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                        <a class="dropdown-item" th:href="@{/Handshop/admin/addOrderImport}" >Thêm đơn nhập hàng</a>
+                        <a class="dropdown-item" th:href="@{/Handshop/admin/add}" >Thêm điện lẻ thoại mới</a>
+                        <a class="dropdown-item" th:href="@{/Handshop/admin/importExel}" >Import lô điện thoại</a>
+                        <a class="dropdown-item" th:href="@{/Handshop/admin/brandandcategory}">Thêm Brand hoặc Category</a>
+                    </div>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        QL Kho hàng
+                    </a>
+                    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                        <a class="dropdown-item" th:href="@{/Handshop/admin}">Tồn kho</a>
+                        <a class="dropdown-item" th:href="@{/Handshop/admin/soldphones}">Đã bán</a>
+                        <a class="dropdown-item" th:href="@{/Handshop/admin/soldPhonesWait}">Chờ duyệt</a>
+                    </div>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/Handshop/admin/OrderRequest}">Đơn đặt hàng</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/Handshop/admin/ProfitReport}">BC lợi nhuận</a>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        QL tài khoản
+                    </a>
+                    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                        <a class="dropdown-item" th:href="@{/Handshop/admin/AccCustomerManager}">QLTK Khách hàng</a>
+                        <a class="dropdown-item" th:href="@{/Handshop/admin/AccEmployeesManager}" sec:authorize="hasRole('ROLE_ADMIN')">QLTK Nhân viên</a>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </nav>
+</header-admin>
+</body>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> <!--Phải load jquery trước khi load bootstrap js-->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</html>

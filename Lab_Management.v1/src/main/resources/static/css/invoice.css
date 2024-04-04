@@ -1,0 +1,89 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f8f9fa;
+    margin: 0;
+    padding: 20px;
+    color: black;
+}
+
+.container-invoice {
+    max-width: 800px;
+    margin: 0 auto;
+    background-color: #fff;
+    padding: 20px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+.card{
+    width: 100%;
+    color: black;
+}
+
+.card{
+    padding: 0.5em ;
+    color: blue;
+    font-size: 20px;
+    font-weight: bold;
+}
+.card>.card{
+    font-size: 35px;
+}
+.card>div>p{
+    font-size: 25px;
+    font-family: "Montserrat";
+    font-weight: bold;
+    color: black;
+}
+
+.card-body {
+    padding: 10px;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.table th, .table td {
+    padding: 8px;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.table tfoot td {
+    font-weight: bold;
+}
+
+.table tfoot tr:last-child td {
+    border-top: 2px solid #0069d9;
+}
+
+.table tfoot tr:last-child td:first-child {
+    text-align: right;
+}
+
+.table tfoot tr:last-child td:last-child {
+    color: #0069d9;
+    border-color: #0062cc;
+}
+
+.highlight {
+    font-weight: bold;
+    color: #0069d9;
+}
+
+.mt-4 {
+    margin-top: 20px;
+}
+
+.btn-primary {
+    background-color: #007bff;
+    border-color: #007bff;
+    color: #fff;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.btn-primary:hover {
+    background-color: #0069d9;
+    border-color: #0062cc;
+}

@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Xóa Khách hàng</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <script src="/js/headernew/headernew.js"></script>
+</head>
+<body>
+<!--<div th:replace="admin/headerAdmin :: header-admin"></div>-->
+<delete-customer>
+    <div class="container" style="text-align: center">
+        <h1>Xóa Khách hàng</h1>
+        <p>Bạn có chắc chắn muốn xóa Khách hàng này không?</p>
+        <form th:object="${customer}" th:action="@{'/Handshop/admin/DeleteCustomer/' + ${customer.customerId}}"
+              method="Post">
+            <input type="hidden" th:field="*{customerId}"/> <!-- Trường ẩn để truyền id của nhân viên -->
+            <button type="submit" class="btn btn-danger" onclick="confirmDelete(this)">Xóa</button>
+            <a href="/employees/list" class="btn btn-secondary">Hủy</a>
+        </form>
+    </div>
+</delete-customer>
+</body>
+</html>

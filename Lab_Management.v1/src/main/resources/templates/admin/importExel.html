@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" >
+<head>
+    <meta charset="UTF-8">
+    <title>Import Danh sách điện thoại</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body>
+<import-Exel>
+    <!--<div th:replace="admin/headerAdmin :: header-admin"></div>-->
+    <a style="margin-left: 30px" th:href="@{'/Handshop/admin/download'}" type="button" class="btn-success">Dowload file exel mẫu</a>
+    <h4  class="alert alert-warning" role="alert"> Chú ý kiểm tra kỹ, đúng mẫu trước khi upload file! Nếu không sẽ xảy ra lỗi</h4>
+    <div>
+        <h2 style="text-align: center; margin: 50px; color: #FF5733; font-size: 2.5em;font-weight: 500; line-height: 1.2;">Nhập file exel: </h2>
+    </div>
+    <div style="display: flex; justify-content: center; align-content: center; margin-top:3%;">
+        <form th:action="@{'/Handshop/admin/importExel'}" method="post" enctype="multipart/form-data">
+            <div class="d-flex" style="justify-content: center">
+                <input id="fileInput" class="form-control" type="file" name="file" accept=".xlsx, .xls" onchange="enableImportButton()">
+                <button id="importButton" type="submit" class="btn btn-success" disabled>Import</button>
+            </div>
+        </form>
+    </div>
+</import-Exel>
+</body>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> <!--Phải load jquery trước khi load bootstrap js-->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</html>

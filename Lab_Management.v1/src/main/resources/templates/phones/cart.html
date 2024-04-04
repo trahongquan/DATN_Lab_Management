@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shopping Cart</title>
+    <!-- Link to Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="/css/stylesSupport.css">
+    <link rel="stylesheet" href="/css/styleCartPhone.css">
+    <style>
+        td{align-content: center;}
+    </style>
+    <!--<link rel="stylesheet" href="/css/Header.css">-->
+    <!--<link rel="stylesheet" th:href="@{/css/base2.min.css}">-->
+    <meta th:if="${isRedirected == true}" th:http-equiv="refresh" th:content="'1;/Handshop/cart'">
+    <!--<script src="/js/headernew/headernew.js"></script>-->
+</head>
+<body>
+<div th:replace="headernew :: header"></div>
+<br>
+<br>
+<div class="d-flex justify-content-center flex-column align-items-center" >
+    <div style="background-color: white; border-radius: 15px; padding: 15px">
+        <h2 style="font-size: 50px; font-weight: bold; color: #0056b3">Giỏ hàng</h2>
+    </div>
+    <div class="main-card mb-3 card d-flex justify-content-center bg-transparent">
+        <div class="card-body">
+            <table style="width: 100%;" id="example" class="table table-hover table-striped table-bordered">
+                <thead>
+                <tr>
+                    <th> STT </th>
+                    <th>Ảnh</th>
+                    <th>Tên SP</th>
+                    <th>Giá</th>
+                    <th>Số lượng</th>
+                    <th>Tổng tiền</th>
+                    <th><input type="checkbox" class="SelectAll" data-toggle="toggle" data-on="Có" data-off="Không" data-onstyle="success" data-offstyle="danger"></th>
+                    <!--<th><input type="checkbox" id="SelectAll"> Chọn/bỏ tất cả</th>-->
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="phoneCartDTO, iter : ${ListPhoneCartDTOFromListProductID}" th:data-phoneId="${phoneCartDTO.phoneId}" th:data-product-id="${phoneCartDTO.phoneId}">
+                    <!--<tr th:each="phoneCartDTO, iter : ${cart}">-->
+                    <td th:text="${iter.index + 1}"></td>
+                    <td>
+                        <a th:href="'/Handshop/ViewDetailPhone/' +${phoneCartDTO.phoneId}" >
+                            <img th:src="@{'/Images/' + ${phoneCartDTO.getImageName}}" alt="Product 1" width="100">
+                        </a>
+                    </td>
+                    <td>
+                        <a th:href="'/Handshop/ViewDetailPhone/' +${phoneCartDTO.phoneId}" >
+                            <p th:text="@{${phoneCartDTO.getPhoneName} + ' | ' + ${phoneCartDTO.getStorageCapacity.getCapacity} + 'GB | ' + ${phoneCartDTO.getRam.getCapacity} + 'GB' }" ></p>
+                        </a>
+                    </td>
+                    <td>
+                        <!--<strong><del><p id="cost" th:data-getSellPrice="${phoneCartDTO.getPriceDTO.getSellPrice}" th:data-Discount="${phoneCartDTO.getPriceDTO.Discount}"> </p></del></strong>-->
+                        <span class="price " th:value="${phoneCartDTO.getPrice}" th:text="${#numbers.formatCurrency(phoneCartDTO.getPrice)}"> </span></td>
+                    <td>
+                        <input type="number" class="form-control quantity" th:value="${phoneCartDTO.getQuantityorder}" >
+                    </td>
+                    <td class="price"><span class="total"></span></td>
+                    <!--<td class="price"><span class="total" th:text="@{'$'+${phoneCartDTO.getQuantityorder}*${phoneCartDTO.getPrice}}"></span></td>-->
+                    <td>
+                        <!--<input type="checkbox" class="SelectItem"> Chọn-->
+                        <input type="checkbox" class="SelectItem" data-toggle="toggle" data-on="Có" data-off="Không" data-onstyle="success" data-offstyle="danger">
+                        <button class="btn btn-danger remove">Bỏ</button>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="d-flex justify-content-around" style="width: 100%">
+        <button id="buy" class="btn btn-gradient-primary" style="font-weight: bold; font-size: 24px">Mua hàng</button>
+        <label style="margin: unset">Tổng tiền: <span id="totalAmount">0</span></label>
+    </div>
+</div>
+
+<!-- Link to Bootstrap and JavaScript libraries -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js"></script>
+<!--<script src="/js/cart.js"></script>-->
+<script src="/js/header.js"></script>
+<script src="/js/cart.js"></script>
+<script src="/js/ToggleSwitch/toggle-switch.js"></script>
+<script th:inline="javascript" >
+/**
+ * *******************************************
+ * // Chuyển các phone muốn mua (đc chọn) đến trang thanh toán
+ * *******************************************
+ * */
+$('#buy').click(function () {
+    var listphone = [[${ListPhoneCartDTOFromListProductID}]];
+    var selectedProducts = [];
+    var checkedItems = $('.SelectItem:checked');
+    // Lặp qua các hàng sản phẩm trong bảng
+    $(".SelectItem:checked").each(function () {
+        var row = $(this).closest("tr"); // Lấy hàng chứa checkbox đã được chọn
+        var phoneId = row.attr("data-phoneId"); // Lấy giá trị của thuộc tính th:data-Product-model
+        var quantity = row.find(".quantity").val(); // Lấy giá trị số lượng từ input quantity
+        var product = listphone.find(item => item.phoneId == phoneId);
+        product.quantityorder = quantity;
+        // Thêm thông tin sản phẩm vào mảng selectedProducts
+        selectedProducts.push(product);
+
+    });
+    var serializedData = JSON.stringify(selectedProducts);
+    localStorage.setItem('selectedProducts', serializedData);
+
+    var user = [[${#authentication.name}]];
+    // Lấy đường dẫn muốn chuyển hướng
+    var redirectURL = "/Handshop/order-item-payment?user=" + user;
+    // Thực hiện chuyển hướng
+    window.location.href = redirectURL;
+});
+
+/** /////////////////////////////////////// */
+/** Thông báo số lượng quá giới hạn (Chưa hoàn thiện) */
+/** /////////////////////////////////////// */
+
+</script>
+<br>
+<br>
+<br>
+<div th:replace="footer :: footer"></div>
+</body>
+</html>
