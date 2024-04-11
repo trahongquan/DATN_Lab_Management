@@ -5,7 +5,7 @@ import java.io.Serializable;
 
 @Entity
 @Table(name = "users", uniqueConstraints = @UniqueConstraint(columnNames = "Username"))
-public class users implements Serializable {
+public class Users implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -22,10 +22,10 @@ public class users implements Serializable {
     @Column(name = "enabled")
     private int enabled;
 
-    public users() {
+    public Users() {
     }
 
-    public users(int id, String username, String password, int people_id, int is_deleted, int enabled) {
+    public Users(int id, String username, String password, int people_id, int is_deleted, int enabled) {
         this.id = id;
         this.username = username;
         this.password = password;
@@ -34,7 +34,7 @@ public class users implements Serializable {
         this.enabled = enabled;
     }
 
-    public users(String username, String password, int people_id, int is_deleted, int enabled) {
+    public Users(String username, String password, int people_id, int is_deleted, int enabled) {
         this.username = username;
         this.password = password;
         this.people_id = people_id;

@@ -2,7 +2,7 @@ package LabManagement.service.users;
 
 
 import LabManagement.dao.UserRepository;
-import LabManagement.entity.users;
+import LabManagement.entity.Users;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -15,22 +15,22 @@ public class UserServiceImpl implements UserService {
     private UserRepository userRepository;
 
     @Override
-    public users findByUsername(String username) {
+    public Users findByUsername(String username) {
         return userRepository.findByUsername(username);
     }
 
     @Override
-    public List<users> getAllUsers() {
+    public List<Users> getAllUsers() {
         return userRepository.findAll();
     }
 
     @Override
-    public users createUser(users user) {
+    public Users createUser(Users user) {
         return userRepository.save(user);
     }
 
     @Override
-    public void updateUser(users user) {
+    public void updateUser(Users user) {
         userRepository.save(user);
     }
 
@@ -39,7 +39,7 @@ public class UserServiceImpl implements UserService {
         userRepository.deleteByUsername(username);
     }
     @Override
-    public void save(users user){
+    public void save(Users user){
         userRepository.save(user);
     };
 }

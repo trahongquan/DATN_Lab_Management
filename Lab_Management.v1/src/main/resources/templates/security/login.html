@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="https://www.thymeleaf.org/thyme leaf-extras-springsecurity5">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="https://www.thymeleaf.org/thyme leaf-extras-springsecurity5">
 
 <!-- Head -->
 <head>
@@ -9,50 +10,26 @@
     <!-- Meta-Tags -->
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <meta name="keywords" content="Existing Login Form Widget Responsive, Login Form Web Template, Flat Pricing Tables, Flat Drop-Downs, Sign-Up Web Templates, Flat Web Templates, Login Sign-up Responsive Web Template, Smartphone Compatible Web Template, Free Web Designs for Nokia, Samsung, LG, Sony Ericsson, Motorola Web Design">
+    <link rel="stylesheet" href="/css/popuo-box.css" type="text/css">
+    <link rel="stylesheet" href="/css/login.css" type="text/css">
+    <link rel="stylesheet" href="/css/stylesSupport.css" type="text/css">
+    <link rel="stylesheet" href="/css/Header.css" type="text/css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Quicksand:300,400,500,700" type="text/css">
 
-    <script src="/js/headernew/headernew.js"></script>
-
-    <!--<script type="application/x-javascript"> addEventListener("load", function() { setTimeout(hideURLbar, 0); }, false); function hideURLbar(){ window.scrollTo(0,1); } </script>
-    &lt;!&ndash; //Meta-Tags &ndash;&gt;
-
-    <link href="css/popuo-box.css" rel="stylesheet" type="text/css" media="all" />
-
-    <link rel="stylesheet" href="css/login.css" type="text/css" media="all">
-    <link rel="stylesheet" href="css/stylesSupport.css">
-
-    &lt;!&ndash; Fonts &ndash;&gt;
-    <link href="https://fonts.googleapis.com/css?family=Quicksand:300,400,500,700" rel="stylesheet">
-    &lt;!&ndash; //Fonts &ndash;&gt;
-    <link rel="stylesheet" href="/css/Header.css">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>-->
 </head>
-<!-- //Head -->
-
-<!-- Body -->
 <body>
-<div th:replace="headernew :: header"></div>
+    <!--<div id="header" th:replace="headernew :: header"></div>-->
+<header>
+    <div>
+        <img src="/images/logo_hvktqs.png" alt="logo" class="img-full-ss logox"/>
+    </div>
+</header>
 <br>
 <br>
 <br>
 <div class="w3layoutscontaineragileits">
-    <style>
-        @import url("/css/popuo-box.css");
-        @import url("/css/login.css");
-        @import url("/css/stylesSupport.css");
-        @import url("/css/Header.css");
-        @import url("https://fonts.googleapis.com/css?family=Quicksand:300,400,500,700");
-    </style>
-    <script type="application/x-javascript"> addEventListener("load", function() { setTimeout(hideURLbar, 0); }, false); function hideURLbar(){ window.scrollTo(0,1); } </script>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <h2>Login here</h2>
-    <form th:action="@{/authenticateTheUser}" method="post">
+    <form th:action="'/authenticateTheUser'" method="post">
         <div class="form-group">
             <div class="col-xs-15">
                 <div>
@@ -160,7 +137,11 @@
 
 
 <script type="text/javascript" src="js/jquery-2.1.4.min.js"></script>
-
+<script type="application/x-javascript"> addEventListener("load", function() { setTimeout(hideURLbar, 0); }, false); function hideURLbar(){ window.scrollTo(0,1); } </script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <!-- pop-up-box-js-file -->
 <script src="js/jquery.magnific-popup.js" type="text/javascript"></script>
 <!--//pop-up-box-js-file -->

@@ -1,19 +1,19 @@
 package LabManagement.service.users;
 
-import LabManagement.entity.users;
+import LabManagement.entity.Users;
 
 import java.util.List;
 
 public interface UserService {
 
-    users findByUsername(String username);
+    Users findByUsername(String username);
 
-    List<users> getAllUsers();
+    List<Users> getAllUsers();
 
-    users createUser(users user);
+    Users createUser(Users user);
 
-    void updateUser(users user);
+    void updateUser(Users user);
 
     void deleteUser(String username);
-    public void save(users user);
+    public void save(Users user);
 }

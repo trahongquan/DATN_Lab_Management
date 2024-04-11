@@ -1,7 +1,7 @@
 package LabManagement.service.authority;
 
 import LabManagement.dao.AuthorityRepository;
-import LabManagement.entity.authority;
+import LabManagement.entity.Authority;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -14,12 +14,12 @@ public class AuthorityServiceImpl implements AuthorityService {
     private AuthorityRepository authorityRepository;
 
     @Override
-    public List<authority> getAllAuthorities() {
+    public List<Authority> getAllAuthorities() {
         return authorityRepository.findAll();
     }
 
     @Override
-    public authority createAuthority(authority authority) {
+    public Authority createAuthority(Authority authority) {
         return authorityRepository.save(authority);
     }
 

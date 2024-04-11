@@ -5,7 +5,7 @@ import java.io.Serializable;
 
 @Entity
 @Table(name = "authorities")
-public class authority implements Serializable {
+public class Authority implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -18,16 +18,16 @@ public class authority implements Serializable {
     @Column(name = "authority", nullable = false)
     private String authority;
 
-    public authority() {
+    public Authority() {
     }
 
-    public authority(int id, String username, String authority) {
+    public Authority(int id, String username, String authority) {
         this.id = id;
         this.username = username;
         this.authority = authority;
     }
 
-    public authority(String username, String authority) {
+    public Authority(String username, String authority) {
         this.username = username;
         this.authority = authority;
     }

@@ -1,31 +1,19 @@
-/**
- * *******************************************
- * Truyền id sang model xóa:
- * *******************************************
- */
-/*{
-$(document).ready(function () {
-    $('.delete-button').on('click', function () {
-        var employeeId = $(this).data('employee-id');
-        $('#deleteEmployeeButton').attr('href', '/employees/delete/' + employeeId);
-        $('#deleteConfirmationModal').modal('show');
-    });
-});
-}*/
-/**
- * *******************************************
- * Thêm sp vào giỏ hàng khi nhập vào icon giỏ hàng:
- * *******************************************
- */
-$('.iconcart').on('click', function () {
-    var id = $(this).closest('div').attr('data-phoneid');
-    console.log(typeof id);
-    console.log(id);
-    console.log('Đã click ở đây, nhưng chưa xử lý hàm')
-});
-/**
- * *******************************************
- * ghi thêm bản ghi phone vào cookie và chyển tới view Cart
- * *******************************************
- */
+/*
+$(document).ready(function() {
+    // Lấy giá trị ban đầu của các select
+    var caSang = $("#ca_sang_as_201").val();
+    var caChieu = $("#ca_chieu_as_201").val();
 
+    // Xử lý khi thay đổi giá trị select
+    $("#ca_sang_as_201").change(function() {
+        caSang = $(this).val();
+        // Gửi dữ liệu ca sáng lên server
+
+    });
+
+    $("#ca_chieu_as_201").change(function() {
+        caChieu = $(this).val();
+        // Gửi dữ liệu ca chiều lên server
+
+    });
+});*/

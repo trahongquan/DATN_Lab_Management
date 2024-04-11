@@ -1,0 +1,49 @@
+mysqldump -u root -p mobileshopdb > mySQL_mobileshop_05.11.2023_bak.sql
+mysqldump -u root -p labManagement > mySQL_Lab_Management_05.04.2024_bak.sql
+
+=================
+mysql -u root -p -e "create database mobileshopdb";
+mysql -u root -p mobileshopdb < mySQL_mobileshop_04.10.2023_bak.sql
+===================================================================================================
+mysql -u root -p --default-character-set=utf8 -e "create database mobileshopdb3"
+mysql -u root -p --default-character-set=utf8 mobileshopdb3 < mySQL_mobileshop_12.12.2023_bak.sql
+
+==================================================
+1. setup container mysql qua cổng 3336
+
+docker pull mysql:8.0.30
+
+docker run --name mysql-container -e MYSQL_ROOT_PASSWORD=123456 -p 3336:3306 -d mysql:8.0.30
+
+docker exec -it mysql-container bash
+
+mysql -u root -p
+
+2. tạo netwwork với 2 container:
+docker network create my-network
+
+docker run --network my-network --name mysql-container -e MYSQL_ROOT_PASSWORD=123456 -d mysql:8.0.30
+
+docker run --network my-network --name mobileshop -p 8081:8081 mobileshop
+
+================================================
+1. setup mysql cho docker:
+
+CREATE USER 'root'@'%' IDENTIFIED BY '123456789';
+GRANT ALL PRIVILEGES ON *.* To 'root'@'%';
+FLUSH PRIVILEGES;
+
+select host, user from mysql.user;
+
+
+2. dockerfile:
+FROM mysql:8.0
+
+ENV MYSQL_DATABASE mobileshopdb4
+ENV MYSQL_USER root
+ENV MYSQL_PASSWORD 123456
+
+RUN echo "CREATE DATABASE IF NOT EXISTS $MYSQL_DATABASE;" | mysql -u root -p"$MYSQL_PASSWORD"
+
+COPY init.sql /docker-entrypoint-initdb.d/
+======================================

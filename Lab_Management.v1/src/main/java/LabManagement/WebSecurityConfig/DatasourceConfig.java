@@ -13,7 +13,6 @@ import javax.sql.DataSource;
 
 
 @Configuration
-//@EnableJpaRepositories(basePackages = "com.springbootmvcwithentity.demo.dao")
 @EnableJpaRepositories(basePackages = {"${spring.data.jpa.repository.packages}"})
 /**dùng để kết nối tới CSDL, được config trong application.properties*/
 

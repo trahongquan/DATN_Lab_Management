@@ -1,0 +1,27 @@
+1. Nhóm thí nghiệm
+id nhóm
+tên loại (Đào tạo, NCKH, SXCT)
+2. Loại thí nghiệm
+id Loại
+Tên loại thí nghiệm (Đồ án, BTL...)
+Mã nhóm thí nghiệm (int) => id nhóm
+Điểm đánh giá: (Điểm đồ án, điểm BTL)
+
+========
+4. Khai thác
+4.1. nội dung khai thác: 
+	id nội dung khai thác
+	tên nội dung khai thác
+	họ tên người đại diện khai thác
+	id loại thí nghiệm
+	số lượng người tham gia
+	list người thực hiện hoặc tên lớp
+4.2. Lịch khai thác
+	id khai thác
+	id nội dung khai thác
+	ngày khai thác
+	thời gian khai thác (số đơn vị thời gian tính theo giờ - tiết 45p)
+	trạng thái (chấp nhận, chưa chấp nhận, hủy)
+	ghi chú
+4.3. Trang thiết bị theo lịch khai thác
+	
