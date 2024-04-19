@@ -12,30 +12,33 @@
 
 </head>
 <body class="scroll-container">
-<form-phone>
+<equipment-form>
     <!--<div th:replace="admin/headerAdmin :: header-admin"></div>-->
-    <h1 style="margin-top: 50px; text-align: center;">Thêm điện thoại</h1><br>
+    <h1 style="margin-top: 50px; text-align: center;">Thêm thiết bị</h1><br>
     <div class="container">
-        <form th:object="${phone}" th:action="@{'/Handshop/admin/add'}" method="post" enctype="multipart/form-data">
+        <form th:action="@{'/Lab/admin/addEqui'}" method="post" enctype="multipart/form-data">
             <div>
                 <!-- Input for uploading an image -->
-                <div class="form-group">
+<!--                <div class="form-group">
                     <label for="image">Image:</label>
                     <input type="file" class="form-control" id="image" name="file" required>
-                </div>
+                </div>-->
                 <!-- Input for Phone Name -->
                 <div class="form-group">
-                    <label for="phoneName">Phone Name:</label>
-                    <input type="text" class="form-control" id="phoneName" name="phoneName" required th:field="*{phoneName}"
-                           th:placeholder="'Iphone SE'">
+                    <label for="EquiName">Phone Name:</label>
+                    <input type="text" class="form-control" id="EquiName" name="EquiName" required
+                           th:placeholder="'Máy hiện sóng'">
                 </div>
                 <!-- Input for Brand -->
                 <div class="form-group">
-                    <label th:for="@{'brand'}">Brand:</label>
-                    <select th:class="@{'form-control'}" th:id="@{'brand'}" th:name="@{'brandID'}" required th:field="*{brandId}">
-                        <option th:each="brand : ${brands}" th:value="${brand.BrandID}"
-                                th:text="${brand.BrandName}"></option>
-                    </select>
+                    <label for="series">Nhập đúng chuỗi seri như mẫu:</label>
+                    <input type="text" class="form-control" id="series" name="series" required
+                           th:placeholder="'[183749265, 572639184, 628473195, 475923618]'">
+                </div>
+                <div class="form-group">
+                    <label for="seriesFixed">Nhập đúng chuỗi seri như mẫu:</label>
+                    <input type="text" class="form-control" id="seriesFixed" name="seriesFixed" required
+                           th:placeholder="'[183749265, 572639184, 628473195, 475923618]'">
                 </div>
                 <!-- Input for Category (Dropdown) -->
                 <div class="form-group">
@@ -132,6 +135,6 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-</form-phone>
+</equipment-form>
 </body>
 </html>

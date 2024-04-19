@@ -975,31 +975,29 @@
                 </div>
 
                                                 <!--/////////////////////////////////-->
-                                                        <!-- Inventory -->
+                                                        <!-- Room Lab -->
                                                 <!--/////////////////////////////////-->
 
-                <div th:if="${(#request.requestURI == '/Lab/admin/Room' || #request.requestURI == '/Lab/admin/Room') && !(#strings.contains(#request.requestURI, 'searchAdmin'))}" class="app-main__inner">
-                    <div th:replace="admin/rooms.html :: room"></div>
+                <!--<div th:if="${(#request.requestURI == '/Lab/admin/Room' || #request.requestURI == '/Lab/admin/Room') && !(#strings.contains(#request.requestURI, 'searchAdmin'))}" class="app-main__inner">
+                    <div th:replace="admin/labs.html :: lab"></div>
+                </div>-->
+                <div th:if="${#request.requestURI == '/Lab/admin/Room'}" class="app-main__inner">
+                    <div th:replace="admin/labs.html :: lab"></div>
                 </div>
-                <div th:if="${(#request.requestURI == '/Lab/admin/listphone' || #request.requestURI == '/Lab/admin/listphone/') && !(#strings.contains(#request.requestURI, 'searchAdmin'))}" class="app-main__inner">
-                    <div th:replace="admin/list-phones.html :: list-phone"></div>
+                <div th:if="${#request.requestURI == '/Lab/admin/Room/add' }" class="app-main__inner">
+                    <div th:replace="admin/lab-form.html :: lab-form"></div>
                 </div>
-                <div th:if="${#request.requestURI == '/Lab/admin/soldphones' && !(#strings.contains(#request.requestURI, 'searchAdminSold'))}" class="app-main__inner">
-                    <div th:replace="admin/list-sold-phones.html :: list-sold-phone"></div>
-                </div>
-                <div th:if="${#strings.contains(#request.requestURI, '/Lab/admin/searchAdmin') && !(#strings.contains(#request.requestURI, 'searchAdminSold'))}" class="app-main__inner" style="display: flex; justify-content: center; align-content: center; flex-direction: column;">
-                    <div th:replace="admin/list-phones.html :: list-phone"></div>
-                </div>
-                <div th:if="${#strings.contains(#request.requestURI, '/Lab/admin/searchAdminSold')}" class="app-main__inner" style="display: flex; justify-content: center; align-content: center; flex-direction: column;">
-                    <div th:replace="admin/list-sold-phones.html :: list-sold-phone"></div>
-                </div>
-                <div th:if="${#strings.contains(#request.requestURI, '/Lab/admin/soldPhonesWait')}" class="app-main__inner" style="display: flex; justify-content: center; align-content: center; flex-direction: column;">
-                    <div th:replace="admin/list-sold-phones.html :: list-sold-phone"></div>
+                <div th:if="${#strings.contains(#request.requestURI, '/Lab/admin/room/showFormForUpdate/')}" class="app-main__inner">
+                    <div th:replace="admin/labs-edit-form.html :: form-edit-phone"></div>
                 </div>
 
                                                 <!--/////////////////////////////////-->
-                                                        <!-- Phone Detail -->
+                                                        <!-- Equipment -->
                                                 <!--/////////////////////////////////-->
+
+                <div th:if="${#request.requestURI == '/Lab/admin/Equipment'}" class="app-main__inner">
+                    <div th:replace="admin/equipments.html :: equipment"></div>
+                </div>
 
                 <div th:if="${#request.requestURI == '/Lab/admin/brand'}" class="app-main__inner" style="display: flex; justify-content: center; align-content: center; flex-direction: column;" >
                     <div th:replace="admin/add-Brand.html :: add-Brand"></div>
@@ -1117,29 +1115,35 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.bundle.min.js"
             crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/metismenu"></script>
-    <script th:src="@{/js/app.js}"></script>
-    <script th:src="@{/js/demo.js}"></script>
 
-                    <!--Chart-->
-    <!--<script th:src="@{/js/chart/init/apex-charts.js}" > </script>-->
-    <!--<script th:src="@{/js/chart/init/apex-series.js}" > </script>-->
-    <!--<script th:src="@{/js/chart/init/vendors-apex-charts.js}" > </script>-->
-
-                        <!--TABLES -->
-                        <!--DataTables-->
+    <!--TABLES -->
+    <!--DataTables-->
     <script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/datatables.net-bs4@1.10.19/js/dataTables.bootstrap4.min.js" crossorigin="anonymous"></script>
     <script src="https://cdn.datatables.net/responsive/2.2.3/js/dataTables.responsive.min.js" crossorigin="anonymous"></script>
     <script src="https://cdn.datatables.net/responsive/2.2.3/js/responsive.bootstrap.min.js" crossorigin="anonymous"></script>
-                    <!--Bootstrap Tables-->
+    <!--Bootstrap Tables-->
     <script th:src="@{/js/table/tablesInit.js}"></script>
-                        <!--Tables Init-->
+    <!--Tables Init-->
     <script th:src="@{/js/table/tablesVendors.js}"></script>
 
+
+
+    <!--Multiselect-->
+    <script th:src="@{/js/multiselect/bootstrap-multiselect.js}"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/js/select2.min.js"></script>
+    <script th:src="@{/js/multiselect/input-select.js}"></script>
+    <!--Input Mask-->
+    <script th:src="@{/js/multiselect/input-mask.js}"></script>
+    <script th:src="@{/js/multiselect/input-mask-init.js}"></script>
+
+    <script th:src="@{/js/app.js}"></script>
+    <script th:src="@{/js/demo.js}"></script>
+
                     <!-- Orther -->
-    <script th:src="@{/js/add-brand-category.js}"></script>
-    <script th:src="@{/js/importExel.js}"></script>
     <script th:src="@{/js/noticePopUp.js}"></script>
+
+
     <script>
         window.addEventListener('load', function() {
             // Lấy các phần tử cần click

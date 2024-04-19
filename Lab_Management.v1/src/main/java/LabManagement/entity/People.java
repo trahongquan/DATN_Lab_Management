@@ -24,11 +24,8 @@ public class People implements Serializable {
     @Column(name = "military_number", nullable = false)
     private long militaryNumber;
 
-    @Column(name = "email", nullable = false)
-    private String email;
-
-    @Column(name = "phone", nullable = false)
-    private String phone;
+    @Column(name = "contact", nullable = false)
+    private String contact;
 
     @Column(name = "is_delete", nullable = false)
     private int isDelete;
@@ -36,16 +33,27 @@ public class People implements Serializable {
     public People() {
     }
 
-    public People(String name, String rank, String unit, long militaryNumber, String email, String phone, int isDelete) {
+    public People(String name, String rank, String unit, long militaryNumber, String contact, int isDelete) {
         this.name = name;
         this.rank = rank;
         this.unit = unit;
         this.militaryNumber = militaryNumber;
-        this.email = email;
-        this.phone = phone;
+        this.contact = contact;
         this.isDelete = isDelete;
     }
-// Getters and Setters (omitted for brevity)
+
+    @Override
+    public String toString() {
+        return "People{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", rank='" + rank + '\'' +
+                ", unit='" + unit + '\'' +
+                ", militaryNumber=" + militaryNumber +
+                ", contact='" + contact + '\'' +
+                ", isDelete=" + isDelete +
+                '}';
+    }
 
     public int getId() {
         return id;
@@ -87,20 +95,12 @@ public class People implements Serializable {
         this.militaryNumber = militaryNumber;
     }
 
-    public String getEmail() {
-        return email;
+    public String getContact() {
+        return contact;
     }
 
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getPhone() {
-        return phone;
-    }
-
-    public void setPhone(String phone) {
-        this.phone = phone;
+    public void setContact(String contact) {
+        this.contact = contact;
     }
 
     public int getIsDelete() {
@@ -109,19 +109,5 @@ public class People implements Serializable {
 
     public void setIsDelete(int isDelete) {
         this.isDelete = isDelete;
-    }
-
-    @Override
-    public String toString() {
-        return "People{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", rank='" + rank + '\'' +
-                ", unit='" + unit + '\'' +
-                ", militaryNumber=" + militaryNumber +
-                ", email='" + email + '\'' +
-                ", phone='" + phone + '\'' +
-                ", isDelete=" + isDelete +
-                '}';
     }
 }

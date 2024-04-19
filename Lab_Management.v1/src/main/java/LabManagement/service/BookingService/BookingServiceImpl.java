@@ -40,8 +40,8 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<Booking> findAllByRoomId(int roomid){
-        List<Booking> bookings = bookingRepository.findAllByRoomId(roomid);
+    public List<Booking> findAllByLab_id(int labid){
+        List<Booking> bookings = bookingRepository.findAllByLabid(labid);
         if (bookings.isEmpty()){
             return new ArrayList<>();
         } else {return bookings;}

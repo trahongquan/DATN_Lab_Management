@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Phone</title>
+    <!-- Link to Bootstrap CSS for styling -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+
+</head>
+<body class="scroll-container">
+<form-edit-phone>
+    <style>
+        @import url("https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css");
+        .machine-block{border:1px solid #ccc;border-radius:8px;padding:20px;background-color:#f5f5f5;box-shadow:0 2px 4px rgba(0,0,0,0.1);transition:box-shadow 0.3s ease}
+        .machine-block:hover{box-shadow:0 4px 8px rgba(0,15,255,0.6)}
+        .machine-block h4{font-size:18px;font-weight:bold;margin-bottom:10px}
+        .machine-block p{margin-bottom:5px}
+        .machine-block ul{margin-top:10px;padding-left:20px}
+        .machine-block ul li{list-style-type:square}
+        .remove-button{padding: unset; border: unset; font-weight: bold; margin-bottom: 10px}
+        .remove-button:hover{color: red}
+    </style>
+<!--<div th:replace="admin/headerAdmin :: header-admin"></div>-->
+<h1 style="margin-top: 50px; text-align: center;">Cập nhật thông tin phòng thí nghiệm</h1><br>
+
+<div class="container">
+    <form th:object="${labDTO}" th:action="@{'/Lab/admin/showFormForUpdate/' + ${labDTO.getId}}" method="post" enctype="multipart/form-data">
+        <!-- Phone ID (hidden) -->
+        <input type="hidden" name="id" th:field="*{id}" />
+
+        <div class="form-group">
+            <label for="LabName">Tên phòng thí nghiệm:</label>
+            <input type="text" class="form-control" id="LabName" name="labName" th:field="*{labName}" required >
+        </div>
+
+        <div class="form-group">
+            <label for="Capacity">Brand:</label>
+            <input type="text" class="form-control" id="Capacity" name="capacity" th:field="*{capacity}" required >
+        </div>
+
+        <div class="form-group">
+            <label for="Location">Brand:</label>
+            <input type="text" class="form-control" id="Location" name="location" th:field="*{location}" required >
+        </div>
+
+        <div class="form-group">
+            <label for="Manager">Category:</label>
+            <select class="form-control" id="Manager" name="lab_managemet_id" th:field="*{lab_managemet_id}" required >
+                <option th:each="manager : ${Managers}" th:value="${manager.getId}" th:text="${manager.getName}"></option>
+            </select>
+        </div>
+        <br>
+        <div class="row">
+            <div th:each="machine : ${equipmentLabDTOs}" class="col-md-3 mb-3">
+                <div class="machine-block">
+                    <div class="d-flex flex-row justify-content-start">
+                        <h4 th:text="${machine.getName}"></h4>
+                        <button class="remove-button" onclick="removeEquipment()"> Bỏ </button>
+                    </div>
+                    <p>Số lượng: <span th:text="${#lists.size(machine.getEquipmentSerieList)}"></span></p>
+                    <p>Seri:</p>
+                    <ul>
+                        <li th:each="seri : ${machine.getEquipmentSerieList}">
+                            <span th:text="${seri}"></span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <br>
+        <!-- Submit button -->
+        <button type="submit" class="btn btn-primary">Save</button>
+    </form>
+</div>
+
+<!-- Link to Bootstrap JS and jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> <!--Phải load jquery trước khi load bootstrap js-->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</form-edit-phone>
+</body>
+</html>

@@ -11,10 +11,15 @@
 </head>
 <body class="scroll-container">
 
-<room><!--<div th:replace="admin/templateAdmin.html :: header-admin"></div>-->
-    <h1 style="margin-top: 50px; text-align: center;">Danh sách điện thoại </h1>
+<lab><!--<div th:replace="admin/templateAdmin.html :: header-admin"></div>-->
+    <h1 style="margin-top: 50px; text-align: center;">Danh sách phòng thí nghiệm </h1>
     <br>
-    <form th:action="@{/Lab/admin/searchAdmin}" method="post">
+    <div style="display:flex; justify-content:center; align-content: center">
+        <a href="/Lab/admin/Room/add">
+            <h5>Thêm phòng</h5>
+        </a>
+    </div>
+<!--    <form th:action="@{/Lab/admin/searchAdmin}" method="post">
         <div class="search-container"
              style="display: flex; flex-direction: row; justify-content: center; align-items: center;">
             <input style="min-width: 0px; max-width: 300px;" type="text" class="form-control  bg-transparent text-dark"
@@ -23,9 +28,9 @@
                 <span> 🔍 </span>
             </button>
         </div>
-    </form>
+    </form>-->
     <br>
-    <div th:if="${addphone}" style="display: flex; justify-content: flex-end; align-items: flex-end;
+<!--    <div th:if="${addphone}" style="display: flex; justify-content: flex-end; align-items: flex-end;
                                 position: fixed; bottom: 10px; right: 10px; background: linear-gradient(45deg, rgba(229,191,22,0.45), rgba(152,229,18,0.45))">
         <p id="successMessage" style="padding: 15px;
                                 border: 1px solid transparent;
@@ -34,9 +39,9 @@
                                 border-color: black;
                                 margin-bottom: 0;
                                 font-weight: bold;">Thao tác thành công (<span id="countdown">3</span>)</p>
-    </div>
+    </div>-->
     <div style="display:flex; justify-content:center; align-content: center">
-        <a href="/Handshop/admin/ExportInventory">
+        <a href="/Lab/admin/ExportLabs">
             <h5>Tài về danh sách</h5>
         </a>
     </div>
@@ -55,33 +60,33 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr th:each="room, iter : ${roomDTOS}">
-                        <td th:text="${room.getRoomName}"></td>
-                        <td th:text="${room.getCapacity}"></td>
-                        <td th:text="${room.getLocation}"></td>
-                        <td th:text="${room.getLeader.getName}"></td>
+                    <tr th:each="lab, iter : ${labDTOS}">
+                        <td th:text="${lab.getLabName}"></td>
+                        <td th:text="${lab.getCapacity}"></td>
+                        <td th:text="${lab.getLocation}"></td>
+                        <td th:text="${lab.getLab_managemet.getName}"></td>
                         <td>
                             <div class="d-flex" style="display: flex; justify-content: center; align-items: center;">
-                                <form th:action="@{'/Handshop/admin/showFormForUpdate/' + ${room.getId}}" method="get">
+                                <form th:action="@{'/Lab/admin/room/showFormForUpdate/' + ${lab.getId}}" method="get">
                                     <button type="submit" class="btn btn-info btn-sm mr-1">Chi tiết</button>
                                 </form>
-                                <form th:action="@{'/Handshop/admin/showFormForUpdate/' + ${room.getId}}" method="get">
-                                    <button type="submit" class="btn btn-info btn-sm mr-1">Sửa</button>
-                                </form>
-                                <form th:action="@{'/Handshop/admin/delete/' + ${room.getId}}" method="POST"
-                                      id="deletePhoneForm">
-                                    <button type="button" class="btn btn-danger btn-sm" onclick="confirmDelete(this)"
-                                            th:data="${room.getId}">Xóa
+                                <form th:action="@{'/Lab/admin/room/delete/' + ${lab.getId}}" method="POST" id="deletePhoneForm">
+                                    <button type="button" class="btn btn-danger btn-sm" onclick="confirmDelete(this)">
+                                        Xóa
                                     </button>
                                 </form>
+                                <script>
+                                    function confirmDelete(button) {
+                                        if (confirm("Bạn có chắc chắn muốn xóa?")) {
+                                            // Nếu người dùng chọn OK, gửi post để xóa
+                                            document.getElementById("deletePhoneForm").submit();
+                                        } else {
+                                            // Nếu người dùng chọn Cancel, không làm gì cả
+                                        }
+                                    }
+                                </script>
                             </div>
                         </td>
-                        <script>
-                            function confirmDelete(button) {
-                                var phoneID = button.getAttribute("data") + "";
-                                window.location.href = '/Handshop/admin/delete/' + phoneID;
-                            }
-                        </script>
                     </tr>
                 </tbody>
                 <tfoot>
@@ -116,6 +121,6 @@
     <script src="https://cdn.jsdelivr.net/npm/metismenu"></script>
     <script th:src="@{/js/app.js}"></script>
     <script th:src="@{/js/demo.js}"></script>
-</room>
+</lab>
 </body>
 </html>

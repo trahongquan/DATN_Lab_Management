@@ -26,10 +26,10 @@
                     </div>
                     <button type="submit" class="btn btn-primary">Đặt lịch</button>
                     <div class="choose-room">
-                        <div class="col-md-3" th:each="room : ${roomDTOS}">
+                        <div class="col-md-3" th:each="lab : ${labDTOS}">
                             <div class="card lab-card" >
                                 <div style="background-color: #007bff">
-                                    <div class="card-header" th:text="${room.getRoomName}"></div>
+                                    <div class="card-header" th:text="${lab.getLabName}"></div>
                                     <div>
                                         <a href="#">
                                             <button class="btn btn-primary" style="border: black thin;">xem chi tiết phòng</button>
@@ -38,7 +38,7 @@
                                 </div>
                                 <div class="card-body">
                                     <p class="lab-info"> Người phụ trách: </p>
-                                    <p class="lab-info" th:text="${room.getLeader.getRank + ' ' + room.getLeader.getName}"></p>
+                                    <p class="lab-info" th:text="${lab.getLab_managemet.getRank + ' ' + lab.getLab_managemet.getName}"></p>
                                     <div class="form-group">
                                         <label for="ca_sang">Ca sáng:</label>
                                         <select id="ca_sang" class="form-control">

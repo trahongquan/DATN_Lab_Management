@@ -1,57 +1,34 @@
-package LabManagement.entity;
+package LabManagement.dto;
 
 import LabManagement.ClassSuport.ToList;
+import LabManagement.entity.Equipment;
 
-import javax.persistence.*;
-import java.io.Serializable;
-import java.util.Arrays;
 import java.util.List;
 
-@Entity
-@Table(name = "equipment")
-public class Equipment implements Serializable {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
+public class EquipmentDTO {
     private int id;
-
-    @Column(name = "name", nullable = false)
     private String name;
-
-    @Column(name = "series", nullable = false)
     private String series;
-
-    @Column(name = "series_fixed")
+    private List<String> serieList;
     private String seriesFixed;
-
-    @Column(name = "description", nullable = false)
+    private List<String> serieFixedList;
     private String description;
-
-    @Column(name = "quantity", nullable = false)
     private int quantity;
-
-    @Column(name = "is_deleted", nullable = false)
     private int isDeleted;
 
-    public Equipment() {
+    public EquipmentDTO() {
     }
 
-    public Equipment(String name, String series, String seriesFixed, String description, int quantity, int isDeleted) {
-        this.name = name;
-        this.series = series;
-        this.seriesFixed = seriesFixed;
-        this.description = description;
-        this.quantity = quantity;
-        this.isDeleted = isDeleted;
-    }
-
-    public List<String> getSeriesAsList() {
-        return new ToList().StringToList(series);
-    }
-
-    public List<String> getSeriesFixedAsList() {
-        return new ToList().StringToList(seriesFixed);
+    public EquipmentDTO(Equipment equipment) {
+        this.id = equipment.getId();
+        this.name = equipment.getName();
+        this.series = equipment.getSeries();
+        this.serieList = new ToList().StringToList(series);
+        this.seriesFixed = equipment.getSeriesFixed();
+        this.serieFixedList = new ToList().StringToList(seriesFixed);
+        this.description = equipment.getDescription();
+        this.quantity = serieList.size();
+        this.isDeleted = equipment.getIsDeleted();
     }
 
     public int getId() {
@@ -78,12 +55,28 @@ public class Equipment implements Serializable {
         this.series = series;
     }
 
+    public List<String> getSerieList() {
+        return serieList;
+    }
+
+    public void setSerieList(List<String> serieList) {
+        this.serieList = serieList;
+    }
+
     public String getSeriesFixed() {
         return seriesFixed;
     }
 
     public void setSeriesFixed(String seriesFixed) {
         this.seriesFixed = seriesFixed;
+    }
+
+    public List<String> getSerieFixedList() {
+        return serieFixedList;
+    }
+
+    public void setSerieFixedList(List<String> serieFixedList) {
+        this.serieFixedList = serieFixedList;
     }
 
     public String getDescription() {
@@ -112,15 +105,16 @@ public class Equipment implements Serializable {
 
     @Override
     public String toString() {
-        return "Equipment{" +
+        return "EquipmentDTO{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
                 ", series='" + series + '\'' +
+                ", serieList=" + serieList +
                 ", seriesFixed='" + seriesFixed + '\'' +
+                ", serieFixedList=" + serieFixedList +
                 ", description='" + description + '\'' +
                 ", quantity=" + quantity +
                 ", isDeleted=" + isDeleted +
                 '}';
     }
 }
-

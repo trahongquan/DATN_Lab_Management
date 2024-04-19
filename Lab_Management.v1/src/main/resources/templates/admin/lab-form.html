@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+
+<html xmlns:th="http://www.thymeleaf.org">
+<!--<html xmlns:th="http://www.springframework.org/schema/data/jaxb">-->
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Phone</title>
+    <!-- Link to Bootstrap CSS for styling -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" th:href="@{/css/base2.min.css}">
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+
+</head>
+<body class="scroll-container">
+<lab-form>
+    <!--<div th:replace="admin/headerAdmin :: header-admin"></div>-->
+    <h1 style="margin-top: 50px; text-align: center;">Thêm phòng thí nghiệm</h1><br>
+    <div class="container">
+        <form th:action="@{'/Lab/admin/Room/add'}" method="post" enctype="multipart/form-data">
+            <div>
+                <!-- Input for uploading an image -->
+<!--                <div class="form-group">
+                    <label for="image">Image:</label>
+                    <input type="file" class="form-control" id="image" name="file" required>
+                </div>-->
+                <!-- Input for Phone Name -->
+                <div class="form-group">
+                    <label for="LabName">Tên phòng thí nghiệm:</label>
+                    <input type="text" class="form-control" id="LabName" name="LabName" required
+                           th:placeholder="'P205'">
+                </div>
+                <div class="form-group">
+                    <label for="LabCapacity">Sức chứa:</label>
+                    <input type="text" class="form-control" id="LabCapacity" name="LabCapacity" required
+                           th:placeholder="'60'">
+                </div>
+                <div class="form-group">
+                    <label for="LabLocation">Vị trí:</label>
+                    <input type="text" class="form-control" id="LabLocation" name="LabLocation" required
+                           th:placeholder="'60'">
+                </div>
+                <div class="form-group">
+                    <label for="Management">Category:</label>
+                    <select class="form-control" id="Management" name="Management" required>
+                        <option th:each="people : ${peoples}" th:value="${people.getId}"
+                                th:text="${people.getName}"></option>
+                    </select>
+                </div>
+                <div class="form-group col-md-6" style="padding: unset">
+                    <div class="main-card mb-3 card">
+                        <div class="card-body">
+                            <h5 class="card-title">Chọn thiết bị</h5>
+                            <select multiple="multiple" class="multiselect-dropdown form-control"
+                                    id="series" name="series" >
+                                <th:block th:each="equipment, iterStat : ${equipmentDTOS}">
+                                    <optgroup th:label="${equipment.getName}">
+                                        <th:block th:each="seri, seriStat : ${equipment.getSerieList}">
+                                            <option th:value="${seri}">[[${seri}]]</option>
+                                        </th:block>
+                                    </optgroup>
+                                </th:block>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary">Thêm</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Link to Bootstrap JS and jQuery -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</lab-form>
+</body>
+</html>

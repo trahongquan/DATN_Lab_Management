@@ -3,7 +3,6 @@ package LabManagement.entity;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.sql.Date;
-import java.sql.Timestamp;
 
 @Entity
 @Table(name = "booking")
@@ -14,32 +13,58 @@ public class Booking implements Serializable {
     @Column(name = "id")
     private int id;
 
-    @Column(name = "room_id", nullable = false)
-    private int roomId;
+    @Column(name = "lab_id", nullable = false)
+    private int labid;
 
-    @Column(name = "people_id", nullable = false)
-    private int peopleId;
+    @Column(name = "booking_equi_id", nullable = false)
+    private int booking_equi_id;
+
+    @Column(name = "content_id", nullable = false)
+    private int content_id;
 
     @Column(name = "booking_date", nullable = false)
-    private Date bookingDate;
+    private Date booking_Date;
 
-    @Column(name = "booking_status", nullable = false)
-    private int bookingStatus;
+    @Column(name = "comfirm_status", nullable = false)
+    private String confirm_Status;
 
-    @Column(name = "confirm_status", nullable = false)
-    private String confirmStatus;
+    @Column(name = "work_times", nullable = false)
+    private int work_times;
+
+    @Column(name = "note", nullable = false)
+    private String note;
+
+    @Column(name = "is_delete", nullable = false)
+    private int is_delete;
 
     public Booking() {
     }
 
-    public Booking(int roomId, int peopleId, Date bookingDate, int bookingStatus, String confirmStatus) {
-        this.roomId = roomId;
-        this.peopleId = peopleId;
-        this.bookingDate = bookingDate;
-        this.bookingStatus = bookingStatus;
-        this.confirmStatus = confirmStatus;
+    public Booking(int labid, int booking_equi_id, int content_id, Date booking_Date, String confirm_Status, int work_times, String note, int is_delete) {
+        this.labid = labid;
+        this.booking_equi_id = booking_equi_id;
+        this.content_id = content_id;
+        this.booking_Date = booking_Date;
+        this.confirm_Status = confirm_Status;
+        this.work_times = work_times;
+        this.note = note;
+        this.is_delete = is_delete;
     }
-    // Getters and Setters (omitted for brevity)
+
+    @Override
+    public String toString() {
+        return "Booking{" +
+                "id=" + id +
+                ", lab_id=" + labid +
+                ", booking_equi_id=" + booking_equi_id +
+                ", content_id=" + content_id +
+                ", booking_Date=" + booking_Date +
+                ", confirm_Status='" + confirm_Status + '\'' +
+                ", work_times=" + work_times +
+                ", note='" + note + '\'' +
+                ", is_delete=" + is_delete +
+                '}';
+    }
 
     public int getId() {
         return id;
@@ -49,56 +74,68 @@ public class Booking implements Serializable {
         this.id = id;
     }
 
-    public int getRoomId() {
-        return roomId;
+    public int getLabid() {
+        return labid;
     }
 
-    public void setRoomId(int roomId) {
-        this.roomId = roomId;
+    public void setLabid(int lab_id) {
+        this.labid = lab_id;
     }
 
-    public int getPeopleId() {
-        return peopleId;
+    public int getBooking_equi_id() {
+        return booking_equi_id;
     }
 
-    public void setPeopleId(int peopleId) {
-        this.peopleId = peopleId;
+    public void setBooking_equi_id(int booking_equi_id) {
+        this.booking_equi_id = booking_equi_id;
     }
 
-    public Date getBookingDate() {
-        return bookingDate;
+    public int getContent_id() {
+        return content_id;
     }
 
-    public void setBookingDate(Date bookingDate) {
-        this.bookingDate = bookingDate;
+    public void setContent_id(int content_id) {
+        this.content_id = content_id;
     }
 
-    public int getBookingStatus() {
-        return bookingStatus;
+    public Date getBooking_Date() {
+        return booking_Date;
     }
 
-    public void setBookingStatus(int bookingStatus) {
-        this.bookingStatus = bookingStatus;
+    public void setBooking_Date(Date booking_Date) {
+        this.booking_Date = booking_Date;
     }
 
-    public String getConfirmStatus() {
-        return confirmStatus;
+    public String getConfirm_Status() {
+        return confirm_Status;
     }
 
-    public void setConfirmStatus(String confirmStatus) {
-        this.confirmStatus = confirmStatus;
+    public void setConfirm_Status(String confirm_Status) {
+        this.confirm_Status = confirm_Status;
     }
 
-    @Override
-    public String toString() {
-        return "Booking{" +
-                "id=" + id +
-                ", roomId=" + roomId +
-                ", peopleId=" + peopleId +
-                ", bookingDate=" + bookingDate +
-                ", bookingStatus=" + bookingStatus +
-                ", confirmStatus='" + confirmStatus + '\'' +
-                '}';
+    public int getWork_times() {
+        return work_times;
+    }
+
+    public void setWork_times(int work_times) {
+        this.work_times = work_times;
+    }
+
+    public String getNote() {
+        return note;
+    }
+
+    public void setNote(String note) {
+        this.note = note;
+    }
+
+    public int getIs_delete() {
+        return is_delete;
+    }
+
+    public void setIs_delete(int is_delete) {
+        this.is_delete = is_delete;
     }
 }
 
