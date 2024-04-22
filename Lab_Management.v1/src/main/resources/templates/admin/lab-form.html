@@ -56,7 +56,7 @@
                                 <th:block th:each="equipment, iterStat : ${equipmentDTOS}">
                                     <optgroup th:label="${equipment.getName}">
                                         <th:block th:each="seri, seriStat : ${equipment.getSerieList}">
-                                            <option th:value="${seri}">[[${seri}]]</option>
+                                            <option th:value="${seri}" >[[${equipment.getName + '/'+seri}]]</option>
                                         </th:block>
                                     </optgroup>
                                 </th:block>

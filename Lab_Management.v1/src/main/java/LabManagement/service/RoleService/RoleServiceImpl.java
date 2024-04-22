@@ -1,6 +1,6 @@
 package LabManagement.service.RoleService;
 
-import LabManagement.entity.Role;
+import LabManagement.entity.Roles;
 import LabManagement.dao.RoleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -14,22 +14,22 @@ public class RoleServiceImpl implements RoleService {
     private RoleRepository roleRepository;
 
     @Override
-    public Role findByRoleId(int roleId) {
+    public Roles findByRoleId(int roleId) {
         return roleRepository.findById(roleId).orElse(null);
     }
 
     @Override
-    public List<Role> getAllRoles() {
+    public List<Roles> getAllRoles() {
         return roleRepository.findAll();
     }
 
     @Override
-    public Role createRole(Role role) {
+    public Roles createRole(Roles role) {
         return roleRepository.save(role);
     }
 
     @Override
-    public void updateRole(Role role) {
+    public void updateRole(Roles role) {
         roleRepository.save(role);
     }
 

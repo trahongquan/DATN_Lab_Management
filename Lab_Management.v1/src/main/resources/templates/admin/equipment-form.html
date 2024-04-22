@@ -38,9 +38,9 @@
                     <div class="inputseri d-flex flex-row flex-wrap justify-content-start">
                         <input type="search" class="form-control m-3 col-sm-6" id="series" name="series" required
                                th:placeholder="'seri mới'" style="font-weight: bold">
-                        <button type="button" class="btnremove btn btn-primary my-3 col-sm-2" onclick="removeSeri(this)"> - </button>
+                        <button type="button" class="btnremove btn btn-primary my-3 col-sm-2" onclick="removeSeri(this)"> <i class="fa fa-times-circle"> </i> </button>
                     </div>
-                    <button type="button" class="btn btn-primary m-3" onclick="addInput(this)"> + </button>
+                    <button type="button" class="btn btn-primary m-3" onclick="addInput(this)"> <i class="fa fa-plus-circle"></i> </button>
                 </div>
             </div>
             <style>
@@ -70,10 +70,13 @@
                     var btnremove = document.createElement('button');
                     btnremove.setAttribute('type', 'button');
                     btnremove.setAttribute('class', 'btnremove btn btn-primary my-3 col-sm-2');
-                    btnremove.textContent = '-';
                     btnremove.addEventListener('click', function() {
                         removeSeri(this);
                     });
+
+                    var icon_btnremove = document.createElement('i');
+                    icon_btnremove.setAttribute('class', 'fa fa-times-circle');
+                    btnremove.appendChild(icon_btnremove);
 
                     div_inputseri.appendChild(input);
                     div_inputseri.appendChild(btnremove);

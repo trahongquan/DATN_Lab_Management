@@ -27,37 +27,58 @@
 <h1 style="margin-top: 50px; text-align: center;">Cập nhật thông tin phòng thí nghiệm</h1><br>
 
 <div class="container">
-    <form th:object="${labDTO}" th:action="@{'/Lab/admin/showFormForUpdate/' + ${labDTO.getId}}" method="post" enctype="multipart/form-data">
-        <!-- Phone ID (hidden) -->
-        <input type="hidden" name="id" th:field="*{id}" />
+    <form th:object="${labDTO}" th:action="@{'/Lab/admin/room/showFormForUpdate/' + ${labDTO.getId}}" method="post" enctype="multipart/form-data">
+        <div class="row">
+            <div class="form-group col-md-6" >
+                <!-- Phone ID (hidden) -->
+                <input type="hidden" name="id" th:field="*{id}" />
 
-        <div class="form-group">
-            <label for="LabName">Tên phòng thí nghiệm:</label>
-            <input type="text" class="form-control" id="LabName" name="labName" th:field="*{labName}" required >
-        </div>
+                <div class="form-group">
+                    <label for="LabName">Tên phòng thí nghiệm:</label>
+                    <input type="text" class="form-control" id="LabName" name="labName" th:field="*{labName}" required >
+                </div>
 
-        <div class="form-group">
-            <label for="Capacity">Brand:</label>
-            <input type="text" class="form-control" id="Capacity" name="capacity" th:field="*{capacity}" required >
-        </div>
+                <div class="form-group">
+                    <label for="Capacity">Sức chứa:</label>
+                    <input type="text" class="form-control" id="Capacity" name="capacity" th:field="*{capacity}" required >
+                </div>
 
-        <div class="form-group">
-            <label for="Location">Brand:</label>
-            <input type="text" class="form-control" id="Location" name="location" th:field="*{location}" required >
-        </div>
+                <div class="form-group">
+                    <label for="Location">Vị trí:</label>
+                    <input type="text" class="form-control" id="Location" name="location" th:field="*{location}" required >
+                </div>
 
-        <div class="form-group">
-            <label for="Manager">Category:</label>
-            <select class="form-control" id="Manager" name="lab_managemet_id" th:field="*{lab_managemet_id}" required >
-                <option th:each="manager : ${Managers}" th:value="${manager.getId}" th:text="${manager.getName}"></option>
-            </select>
+                <div class="form-group">
+                    <label for="Manager">Phụ trách quản lý:</label>
+                    <select class="form-control" id="Manager" name="lab_managemet_id" th:field="*{lab_managemet_id}" required >
+                        <option th:each="manager : ${Managers}" th:value="${manager.getId}" th:text="${manager.getName}"></option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group col-md-6" style="margin-top: 5em" id="chosseSeries">
+                <div class="main-card mb-3 card">
+                    <div class="card-body">
+                        <h5 class="card-title">Chọn thêm thiết bị khác </h5>
+                        <select multiple="multiple" class="multiselect-dropdown form-control"
+                                id="series" name="series" >
+                            <th:block th:each="equipment, iterStat : ${equipmentDTOS}">
+                                <optgroup th:label="${equipment.getName}">
+                                    <th:block th:each="seri, seriStat : ${equipment.getSerieList}">
+                                        <option th:value="${seri}" >[[${equipment.getName + '/'+seri}]]</option>
+                                    </th:block>
+                                </optgroup>
+                            </th:block>
+                        </select>
+                    </div>
+                </div>
+            </div>
         </div>
         <!-- Submit button -->
         <button type="submit" class="btn btn-primary">Lưu</button>
     </form>
     <br>
     <br>
-    <h2>Các thiết bị có trong phòng thí nghiệm</h2>
+    <h2 th:text="${'Các thiết bị có trong phòng thí nghiệm (' + #lists.size(equipmentLabDTOs) + ')'}"></h2>
     <br>
     <div class="row">
         <div th:each="machine : ${equipmentLabDTOs}" class="col-md-3 mb-3">
@@ -69,7 +90,7 @@
                     <form th:action="@{/Lab/admin/room/removeEquiLab}" method="post">
                         <input type="hidden" th:value="${labDTO.getId}" name="LabId">
                         <input type="hidden" th:value="${machine.getId}" name="removeEquiLab">
-                        <button type="submit"  class="remove-button" onclick="removeEquipment()"> Bỏ </button>
+                        <button type="submit"  class="remove-button"> Bỏ </button>
                     </form>
                 </div>
                 <p>Số lượng: <span th:text="${#lists.size(machine.getEquipmentSerieList)}"></span></p>
@@ -83,9 +104,7 @@
         </div>
         <div class="col-md-2 mb-3">
             <div class="machine-block">
-                <a href="/Lab/admin/room/addEqui">
-                    <img src="https://png.pngtree.com/png-vector/20230316/ourmid/pngtree-plus-sign-line-icon-vector-png-image_6650590.png" alt="Thêm">
-                </a>
+                <img src="https://png.pngtree.com/png-vector/20230316/ourmid/pngtree-plus-sign-line-icon-vector-png-image_6650590.png" alt="Thêm" onclick="addEqui()" style="cursor: pointer">
             </div>
         </div>
     </div>
@@ -96,6 +115,27 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        function addEqui() {
+            var seriesElement = $('#chosseSeries');
+
+            // Thêm thuộc tính CSS để phóng to phần tử
+            seriesElement.css({
+                'transform': 'scale(1.2)',
+                'transition': 'transform 0.3s ease-in-out', // Thêm transition
+            });
+
+            // Xóa thuộc tính CSS sau 2 giây sử dụng setTimeout
+            setTimeout(function() {
+                seriesElement.css({
+                    'transform': 'none',
+                });
+            }, 1000);
+
+            // Gọi sự kiện focus để mở danh sách các lựa chọn
+            seriesElement.focus();
+        }
+    </script>
 </form-edit-phone>
 </body>
 </html>

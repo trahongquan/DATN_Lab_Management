@@ -37,92 +37,33 @@
                 <div class="d-flex flex-row flex-wrap justify-content-start row">
                     <th:block th:each="seri : ${equipment.getEquipmentSerieList}">
                         <div class="inputseri d-flex flex-row flex-wrap justify-content-start">
+                            <button type="button" class="btnremove btn btn-primary my-3 col-sm-2" onclick="Seri2Fix(this)"> <i class="fa fa-wrench"></i> </button>
                             <input type="search" class="form-control m-3 col-sm-6" id="series" name="series" required
                                    th:value="${seri}" style="font-weight: bold">
-                            <button type="button" class="btnremove btn btn-primary my-3 col-sm-2" onclick="removeSeri(this)"> - </button>
+                            <button type="button" class="btnremove btn btn-primary my-3 col-sm-2" onclick="removeSeri(this)"> <i class="fa fa-times-circle"></i> </button>
                         </div>
                     </th:block>
-                    <button type="button" class="btn btn-primary m-3" onclick="addInput(this)"> + </button>
+                    <button type="button" class="btn btn-primary m-3" onclick="addInput(this)"> <i class="fa fa-plus-circle"></i> </button>
                 </div>
             </div>
-            <div class="form-group seriesDiv ">
+            <div class="form-group seriesDiv">
                 <h4 for="series">Danh sách seri máy đã qua sửa chữa:</h4>
-                <div class="d-flex flex-row flex-wrap justify-content-start row">
+                <div class="d-flex flex-row flex-wrap justify-content-start row seriesFixedDiv">
                     <th:block th:each="seri : ${equipment.getEquipmentSerieFixedList}">
                         <div class="inputseri d-flex flex-row flex-wrap justify-content-start">
                             <input type="search" class="form-control m-3 col-sm-6" id="seriesfixed" name="seriesfixed" required
                                    th:value="${seri}" style="font-weight: bold">
-                            <button type="button" class="btnremove btn btn-primary my-3 col-sm-2" onclick="removeSeri(this)"> - </button>
+                            <button type="button" class="btnremove btn btn-primary my-3 col-sm-2" onclick="removeSeri(this)"> <i class="fa fa-times-circle"></i>  </button>
                         </div>
                     </th:block>
-                    <button type="button" class="btn btn-primary m-3" onclick="addInputseriesfixed(this)"> + </button>
+                    <button type="button" class="btn btn-primary m-3" onclick="addInputseriesfixed(this)"> <i class="fa fa-plus-circle"></i> </button>
                 </div>
             </div>
             <style>
                 .inputseri:hover {
-                    box-shadow: -2em 0 5px 2px rgba(0, 0, 125, 0.2);
+                    box-shadow: -1.5em 0 5px 2px rgba(0, 0, 125, 0.2);
                 }
             </style>
-            <script>
-                function removeSeri(button) {
-                    var inputseriDiv = button.parentNode;
-                    inputseriDiv.remove();
-                }
-                function addInput(button) {
-                    var formGroup = button.parentNode;
-                    var div_inputseri = document.createElement('div');
-                    div_inputseri.classList.add('inputseri');
-                    div_inputseri.setAttribute('class', 'inputseri d-flex flex-row flex-wrap justify-content-start');
-
-                    var input = document.createElement('input');
-                    input.type = 'text';
-                    input.setAttribute('class', 'form-control m-3 col-sm-6');
-                    input.name = 'series';
-                    input.required = true;
-                    input.setAttribute('style', 'font-weight : bold');
-                    input.setAttribute('placeholder', "seri mới");
-
-                    var btnremove = document.createElement('button');
-                    btnremove.setAttribute('type', 'button');
-                    btnremove.setAttribute('class', 'btnremove btn btn-primary my-3 col-sm-2');
-                    btnremove.textContent = '-';
-                    btnremove.addEventListener('click', function() {
-                        removeSeri(this);
-                    });
-
-                    div_inputseri.appendChild(input);
-                    div_inputseri.appendChild(btnremove);
-
-                    formGroup.insertBefore(div_inputseri, button);
-                }
-                function addInputseriesfixed(button) {
-                    var formGroup = button.parentNode;
-                    var div_inputseri = document.createElement('div');
-                    div_inputseri.classList.add('inputseri');
-                    div_inputseri.setAttribute('class', 'inputseri d-flex flex-row flex-wrap justify-content-start');
-
-                    var input = document.createElement('input');
-                    input.type = 'text';
-                    input.setAttribute('class', 'form-control m-3 col-sm-6');
-                    input.name = 'seriesfixed';
-                    input.required = true;
-                    input.setAttribute('style', 'font-weight : bold');
-                    input.setAttribute('placeholder', "seri mới");
-
-                    var btnremove = document.createElement('button');
-                    btnremove.setAttribute('type', 'button');
-                    btnremove.setAttribute('class', 'btnremove btn btn-primary my-3 col-sm-2');
-                    btnremove.textContent = '-';
-                    btnremove.addEventListener('click', function() {
-                        removeSeri(this);
-                    });
-
-                    div_inputseri.appendChild(input);
-                    div_inputseri.appendChild(btnremove);
-
-                    formGroup.insertBefore(div_inputseri, button);
-                }
-            </script>
             <button type="submit" class="btn btn-primary">Sửa</button>
         </form>
     </div>
@@ -131,6 +72,8 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <script th:src="@{/js/equipment-edit-form.js}"></script>
 </equipment-edit-form>
 </body>
 </html>

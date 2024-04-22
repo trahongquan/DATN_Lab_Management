@@ -45,15 +45,16 @@
                         <th>Tên máy</th>
                         <th>Số lượng</th>
                         <th>Máy qua sửa chữa</th>
-                        <th>Tiểu sử</th>
-                        <th>Action</th>
+                        <th>Mô tả</th>
+                        <th>Thao tác</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr th:each="equi, iter : ${allEquipment}">
                         <td th:text="${equi.getName}"></td>
                         <td th:text="${#lists.size(equi.getEquipmentSerieList)}"></td>
-                        <td th:text="${equi.getName}"></td>
+                        <td th:if="${#lists.size(equi.getEquipmentSerieFixedList) == 0}" ><i class="fa fa-times"></i></td>
+                        <td th:unless="${#lists.size(equi.getEquipmentSerieFixedList) == 0}" ><i class="fa fa-check"></i></td>
                         <td th:text="${equi.getName}"></td>
                         <td>
                             <div class="d-flex" style="display: flex; justify-content: center; align-items: center;">
@@ -72,10 +73,10 @@
                 <tfoot>
                 <tr>
                     <th>Tên máy</th>
-                    <th>Số lượn</th>
+                    <th>Số lượng</th>
                     <th>Máy qua sửa chữa</th>
-                    <th>Tiểu sử</th>
-                    <th>Action</th>
+                    <th>Mô tả</th>
+                    <th>Thao tác</th>
                 </tr>
                 </tfoot>
             </table>

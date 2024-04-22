@@ -24,6 +24,11 @@ public class AuthorityServiceImpl implements AuthorityService {
     }
 
     @Override
+    public Authority findAuthorityByUsername(String username) {
+        return authorityRepository.findByUsername(username);
+    }
+
+    @Override
     public void deleteAuthority(String username) {
         authorityRepository.deleteByUsername(username);
     }

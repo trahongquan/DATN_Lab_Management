@@ -914,7 +914,7 @@
                                 </a>
                                 <ul>
                                     <li>
-                                        <a href="/Lab/admin/AddManager">
+                                        <a href="/Lab/admin/Manager/add">
                                             <i class="metismenu-icon">
                                             </i>Thêm mới
                                         </a>
@@ -1005,49 +1005,22 @@
                     <div th:replace="admin/equipment-edit-form.html :: equipment-edit-form"></div>
                 </div>
 
-                <div th:if="${#request.requestURI == '/Lab/admin/brand'}" class="app-main__inner" style="display: flex; justify-content: center; align-content: center; flex-direction: column;" >
-                    <div th:replace="admin/add-Brand.html :: add-Brand"></div>
-                </div>
-                <div th:if="${#request.requestURI == '/Lab/admin/category'}" class="app-main__inner" style="display: flex; justify-content: center; align-content: center; flex-direction: column;">
-                    <div th:replace="admin/add-Category.html :: add-Category"></div>
-                </div>
-                <div th:if="${#request.requestURI == '/Lab/admin/color'}" class="app-main__inner" style="display: flex; justify-content: center; align-content: center; flex-direction: column;">
-                    <div th:replace="admin/add-Color.html :: add-color"></div>
-                </div>
-                <div th:if="${#request.requestURI == '/Lab/admin/OS'}" class="app-main__inner" style="display: flex; justify-content: center; align-content: center; flex-direction: column;">
-                    <div th:replace="admin/add-OperationSystem.html :: add-OS"></div>
-                </div>
-                <div th:if="${#request.requestURI == '/Lab/admin/RAM'}" class="app-main__inner" style="display: flex; justify-content: center; align-content: center; flex-direction: column;">
-                    <div th:replace="admin/add-RAM.html :: add-ram"></div>
-                </div>
-                <div th:if="${#request.requestURI == '/Lab/admin/StorageCapacity'}" class="app-main__inner" style="display: flex; justify-content: center; align-content: center; flex-direction: column;">
-                    <div th:replace="admin/add-StorageCapacity.html :: add-StorageCapacity"></div>
-                </div>
-                <div th:if="${#request.requestURI == '/Lab/admin/model'}" class="app-main__inner" style="display: flex; justify-content: center; align-content: center; flex-direction: column;">
-                    <div th:replace="admin/add-Model.html :: add-model"></div>
-                </div>
-
                                                 <!--/////////////////////////////////-->
-                                                            <!-- Phone -->
+                                                            <!-- Manager -->
                                                 <!--/////////////////////////////////-->
 
-                <div th:if="${#strings.contains(#request.requestURI, '/Lab/admin/importExel')}" class="app-main__inner" style="display: flex; justify-content: center; align-content: center; flex-direction: column;">
-                    <div th:replace="admin/importExel.html :: import-Exel"></div>
+                <div th:if="${#request.requestURI == '/Lab/admin/Manager'}" class="app-main__inner" style="display: flex; justify-content: center; align-content: center; flex-direction: column;">
+                    <div th:replace="managers/managers.html :: manager"></div>
                 </div>
-                <div th:if="${#request.requestURI == '/Lab/admin/selectModel'}" class="app-main__inner" style="display: flex; justify-content: center; align-content: center; flex-direction: column;">
-                    <div th:replace="admin/selectModel.html :: select-Model"></div>
+                <div th:if="${#request.requestURI == '/Lab/admin/Manager/add'}" class="app-main__inner" style="display: flex; justify-content: center; align-content: center; flex-direction: column;">
+                    <div th:replace="managers/manager-form.html :: manager-form"></div>
                 </div>
-                <div th:if="${#request.requestURI == '/Lab/admin/add'}" class="app-main__inner" >
-                    <div th:replace="admin/form-phone.html :: form-phone"></div>
-                </div>
-                <div th:if="${#strings.contains(#request.requestURI, '/Lab/admin/showFormForUpdate')}" class="app-main__inner" style="display: flex; justify-content: center; align-content: center; flex-direction: column;">
-                    <div th:replace="admin/form-edit-phone.html :: form-edit-phone"></div>
-                </div>
-                <div th:if="${#strings.contains(#request.requestURI, '/Lab/admin/delete')}" class="app-main__inner" style="display: flex; justify-content: center; align-content: center; flex-direction: column;">
-                    <div th:replace="admin/delete.html :: delete-phone"></div>
+                <div th:if="${#strings.contains(#request.requestURI, '/Lab/admin/Manager/showFormForUpdate/')}" class="app-main__inner">
+                    <div th:replace="managers/manager-edit-form.html :: manager-edit-form"></div>
                 </div>
 
-                                                <!--/////////////////////////////////-->
+
+                <!--/////////////////////////////////-->
                                                         <!-- Order & Profit -->
                                                 <!--/////////////////////////////////-->
 
@@ -1147,7 +1120,7 @@
     <script th:src="@{/js/demo.js}"></script>
 
                     <!-- Orther -->
-    <script th:src="@{/js/noticePopUp.js}"></script>
+    <!--<script th:src="@{/js/noticePopUp.js}"></script>-->
 
 
     <script>

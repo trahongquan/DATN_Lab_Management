@@ -8,6 +8,8 @@ public interface UserService {
 
     Users findByUsername(String username);
 
+    Users findByPeopleId(int id);
+
     List<Users> getAllUsers();
 
     Users createUser(Users user);
@@ -15,5 +17,6 @@ public interface UserService {
     void updateUser(Users user);
 
     void deleteUser(String username);
+
     public void save(Users user);
 }

@@ -10,5 +10,7 @@ public interface AuthorityService {
 
     Authority createAuthority(Authority authority);
 
+    Authority findAuthorityByUsername(String username);
+
     void deleteAuthority(String username);
 }

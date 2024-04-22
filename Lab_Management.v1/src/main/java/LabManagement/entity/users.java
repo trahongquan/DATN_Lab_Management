@@ -16,7 +16,7 @@ public class Users implements Serializable {
     @Column(name = "password")
     private String password;
     @Column(name = "people_id")
-    private int people_id;
+    private int peopleid;
 //    @Column(name = "is_deleted")
 //    private int is_deleted;
     @Column(name = "enabled")
@@ -25,19 +25,19 @@ public class Users implements Serializable {
     public Users() {
     }
 
-    public Users(int id, String username, String password, int people_id, /*int is_deleted,*/ int enabled) {
+    public Users(int id, String username, String password, int peopleid, /*int is_deleted,*/ int enabled) {
         this.id = id;
         this.username = username;
         this.password = password;
-        this.people_id = people_id;
+        this.peopleid = peopleid;
 //        this.is_deleted = is_deleted;
         this.enabled = enabled;
     }
 
-    public Users(String username, String password, int people_id, /*int is_deleted,*/ int enabled) {
+    public Users(String username, String password, int peopleid, /*int is_deleted,*/ int enabled) {
         this.username = username;
         this.password = password;
-        this.people_id = people_id;
+        this.peopleid = peopleid;
 //        this.is_deleted = is_deleted;
         this.enabled = enabled;
     }
@@ -66,12 +66,12 @@ public class Users implements Serializable {
         this.password = password;
     }
 
-    public int getPeople_id() {
-        return people_id;
+    public int getPeopleid() {
+        return peopleid;
     }
 
-    public void setPeople_id(int people_id) {
-        this.people_id = people_id;
+    public void setPeopleid(int people_id) {
+        this.peopleid = people_id;
     }
 
 //    public int getIs_deleted() {

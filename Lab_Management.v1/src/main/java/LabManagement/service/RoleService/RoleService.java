@@ -1,18 +1,18 @@
 package LabManagement.service.RoleService;
 
-import LabManagement.entity.Role;
+import LabManagement.entity.Roles;
 
 import java.util.List;
 
 public interface RoleService {
 
-    Role findByRoleId(int roleId);
+    Roles findByRoleId(int roleId);
 
-    List<Role> getAllRoles();
+    List<Roles> getAllRoles();
 
-    Role createRole(Role role);
+    Roles createRole(Roles role);
 
-    void updateRole(Role role);
+    void updateRole(Roles role);
 
     void deleteRole(int roleId);
 }

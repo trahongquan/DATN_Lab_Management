@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Information</title>
+    <!-- Link to Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <!-- Custom CSS -->
+    <style>
+        .container {
+            margin-top: 50px;
+        }
+    </style>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+
+</head>
+<body>
+<!--<div th:replace="admin/headerAdmin :: header-admin"></div>-->
+<manager-form>
+    <div class="container">
+        <h2>Thêm cán bộ quản lý phòng thí nghiệm mới</h2>
+        <br>
+        <br>
+        <form th:action="@{/Lab/admin/Manager/add}" method="POST">
+            <div class="row d-flex justify-content-between">
+                <div class="d-flex flex-column justify-content-between col-6">
+                    <div class="form-group">
+                        <label for="name">Họ tên:</label>
+                        <input type="text" class="form-control" id="name" name="name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="rank">Cấp bậc:</label>
+                        <select class="form-control" id="rank" name="rank" required>
+                            <option value="Thiếu úy">Thiếu úy</option>
+                            <option value="Trung úy">Trung úy</option>
+                            <option value="Thượng úy">Thượng úy</option>
+                            <option value="Đại úy">Đại úy</option>
+                            <option value="Thiếu tá">Thiếu tá</option>
+                            <option value="Trung tá">Trung tá</option>
+                            <option value="Thượng tá">Thượng tá</option>
+                            <option value="Đại tá">Đại tá</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="unit">Đơn vị:</label>
+                        <input type="text" class="form-control" id="unit" name="unit" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="militaryNumber">Số hiệu QN:</label>
+                        <input type="number" class="form-control password" id="militaryNumber" name="militaryNumber" required>
+                    </div>
+                </div>
+                <div class="d-flex flex-column justify-content-between col-6">
+                    <div class="form-group">
+                        <label for="contact">Liên lạc:</label>
+                        <input type="text" class="form-control" id="contact" name="contact" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="username">Tên đăng nhập:</label>
+                        <input type="text" class="form-control password" id="username" name="username" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Mật khẩu:</label>
+                        <input type="password" class="form-control password" id="password" name="password" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="authority">Quyền đăng nhập:</label>
+                        <select class="form-control" id="authority" name="authority" required>
+                            <th:block th:each="role : ${roles}">
+                                <option th:value="${role.role}">[[${role.role}]]</option>
+                            </th:block>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary">Thêm cán bộ</button>
+        </form>
+    </div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> <!--Phải load jquery trước khi load bootstrap js-->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</manager-form>
+</body>
+</html>

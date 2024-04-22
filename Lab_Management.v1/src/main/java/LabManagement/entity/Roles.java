@@ -4,8 +4,8 @@ import javax.persistence.*;
 import java.io.Serializable;
 
 @Entity
-@Table(name = "role")
-public class Role implements Serializable {
+@Table(name = "roles")
+public class Roles implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -15,10 +15,10 @@ public class Role implements Serializable {
     @Column(name = "role", nullable = false)
     private String role;
 
-    public Role() {
+    public Roles() {
     }
 
-    public Role(String role) {
+    public Roles(String role) {
         this.role = role;
     }
 // Getters and Setters (omitted for brevity)
@@ -41,7 +41,7 @@ public class Role implements Serializable {
 
     @Override
     public String toString() {
-        return "Role{" +
+        return "Roles{" +
                 "id=" + id +
                 ", role='" + role + '\'' +
                 '}';

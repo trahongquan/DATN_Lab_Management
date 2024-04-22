@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>List of Employees</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+<!--<div th:replace="admin/headerAdmin :: header-admin"></div>-->
+<div class="container">
+    <manager>
+        <a href="/Lab/admin/Manager/add">
+            <button type="button" class="btn btn-primary font-bold font-size-xlg">Thêm người Quản lý</button>
+        </a>
+
+        <h1>Danh sách cán bộ quản lý phòng thí nghiệm</h1>
+        <div class="main-card mb-3 card">
+            <div class="card-body">
+                <table style="width: 100%;" id="example" class="table table-hover table-striped table-bordered">
+                    <thead>
+                    <tr>
+                        <th>Tên</th>
+                        <th>Cấp bậc</th>
+                        <th>Đơn vị</th>
+                        <th>Số hiệu QN</th>
+                        <th>Liên lạc</th>
+                        <th>Tên đăng nhập</th>
+                        <th>Quyền đăng nhập</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="manager : ${managerDTOS}">
+                        <td th:text="${manager.getName}"></td>
+                        <td th:text="${manager.getRank}"></td>
+                        <td th:text="${manager.getUnit}"></td>
+                        <td th:text="${manager.getMilitaryNumber}"></td>
+                        <td th:text="${manager.getContact}"></td>
+                        <td th:text="${manager.getUser.getUsername}"></td>
+                        <td th:text="${manager.getAuthority.getAuthority}"></td>
+                        <!--<td th:if="${manager.hireEndDate != null}" th:text="'✅ ' + ${manager.hireEndDate}"> </td>-->
+                        <!--<td th:if="${manager.hireEndDate == null}"> ❌ </td>-->
+                        <td>
+                            <div class="d-flex" style="display: flex; justify-content: center; align-items: center;">
+                                <form th:action="@{'/Lab/admin/Manager/showFormForUpdate/' + ${manager.getId}}"
+                                      method="get">
+                                    <button type="submit" class="btn btn-info btn-sm mr-1">Chi tiết</button>
+                                </form>
+                                <form th:action="@{'/Lab/admin/Manager/showFormForUpdate/' + ${manager.getId}}"
+                                      method="POST" >
+                                    <button type="button" class="btn btn-danger btn-sm"
+                                            onclick="return comfirm('Bạn có chắc chắn muốn xóa?')">Xóa
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    </tbody>
+                    <tfoot>
+                    <tr>
+                        <th>Tên</th>
+                        <th>Cấp bậc</th>
+                        <th>Đơn vị</th>
+                        <th>Số hiệu QN</th>
+                        <th>Liên lạc</th>
+                        <th>Tên đăng nhập</th>
+                        <th>Quyền đăng nhập</th>
+                    </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> <!--Phải load jquery trước khi load bootstrap js-->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</manager>
+</div>
+</body>
+</html>
