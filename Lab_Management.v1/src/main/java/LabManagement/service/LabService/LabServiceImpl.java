@@ -36,7 +36,7 @@ public class LabServiceImpl implements LabService {
     @Override
     public void deleteLab(int roomId) {
         Lab lab = findByLabId(roomId);
-        lab.setIsDelete(0);
+        lab.setIsDelete(1);
         updateLab(lab);
     }
 }

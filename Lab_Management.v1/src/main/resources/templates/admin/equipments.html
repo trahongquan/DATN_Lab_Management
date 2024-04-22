@@ -14,16 +14,11 @@
 <equipment><!--<div th:replace="admin/templateAdmin.html :: header-admin"></div>-->
     <h1 style="margin-top: 50px; text-align: center;">Danh sách các thiết bị </h1>
     <br>
-<!--    <form th:action="@{/Lab/admin/searchAdmin}" method="post">
-        <div class="search-container"
-             style="display: flex; flex-direction: row; justify-content: center; align-items: center;">
-            <input style="min-width: 0px; max-width: 300px;" type="text" class="form-control  bg-transparent text-dark"
-                   name="inputdatasearch" placeholder="Nhập từ khóa tìm kiếm">
-            <button class="search-button  bg-transparent text-dark" type="submit" style="max-width: max-content">
-                <span> 🔍 </span>
-            </button>
-        </div>
-    </form>-->
+    <div style="display:flex; justify-content:center; align-content: center">
+        <a href="/Lab/admin/Equipment/add">
+            <button type="button" class="btn btn-primary font-bold font-size-xlg">Thêm Thiết bị</button>
+        </a>
+    </div>
     <br>
 <!--    <div th:if="${addphone}" style="display: flex; justify-content: flex-end; align-items: flex-end;
                                 position: fixed; bottom: 10px; right: 10px; background: linear-gradient(45deg, rgba(229,191,22,0.45), rgba(152,229,18,0.45))">
@@ -57,29 +52,19 @@
                 <tbody>
                     <tr th:each="equi, iter : ${allEquipment}">
                         <td th:text="${equi.getName}"></td>
-                        <td th:text="${equi.getQuantity}"></td>
+                        <td th:text="${#lists.size(equi.getEquipmentSerieList)}"></td>
                         <td th:text="${equi.getName}"></td>
                         <td th:text="${equi.getName}"></td>
                         <td>
                             <div class="d-flex" style="display: flex; justify-content: center; align-items: center;">
-                                <form th:action="@{'/Lab/admin/showFormForUpdate/' + ${equi.getId}}" method="get">
+                                <form th:action="@{'/Lab/admin/Equipment/showFormForUpdate/' + ${equi.getId}}" method="get">
                                     <button type="submit" class="btn btn-info btn-sm mr-1">Chi tiết</button>
                                 </form>
-                                <form th:action="@{'/Lab/admin/delete/' + ${equi.getId}}" method="POST" id="deletePhoneForm">
-                                    <button type="button" class="btn btn-danger btn-sm" onclick="confirmDelete(this)">
+                                <form th:action="@{'/Lab//admin/Equipment/delete/' + ${equi.getId}}" method="POST">
+                                    <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Bạn có chắc chắn muốn xóa?')">
                                         Xóa
                                     </button>
                                 </form>
-                                <script>
-                                    function confirmDelete(button) {
-                                        if (confirm("Bạn có chắc chắn muốn xóa?")) {
-                                            // Nếu người dùng chọn OK, gửi post để xóa
-                                            document.getElementById("deletePhoneForm").submit();
-                                        } else {
-                                            // Nếu người dùng chọn Cancel, không làm gì cả
-                                        }
-                                    }
-                                </script>
                             </div>
                         </td>
                     </tr>

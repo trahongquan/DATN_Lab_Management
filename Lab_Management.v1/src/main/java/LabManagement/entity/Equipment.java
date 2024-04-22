@@ -1,6 +1,7 @@
 package LabManagement.entity;
 
 import LabManagement.ClassSuport.ToList;
+import LabManagement.service.EquipmentService.EquipmentService;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -95,7 +96,7 @@ public class Equipment implements Serializable {
     }
 
     public int getQuantity() {
-        return quantity;
+        return new ToList().StringToList(series).size();
     }
 
     public void setQuantity(int quantity) {
@@ -109,6 +110,46 @@ public class Equipment implements Serializable {
     public void setIsDeleted(int isDeleted) {
         this.isDeleted = isDeleted;
     }
+
+
+    public void setEquipmentSeries(String equipmentSeries) {
+        this.series = equipmentSeries;
+    }
+
+    public List<String> getEquipmentSerieList() {
+        return new ToList().StringToList(series);
+    }
+
+    public List<String> getEquipmentSerieFixedList() {
+        return new ToList().StringToList(seriesFixed);
+    }
+
+
+    public void AddSeri(EquipmentService equipmentService, String seri){
+        List<String> seriesList = new ToList().StringToList(series);
+        seriesList.add(seri);
+        this.setEquipmentSeries(seriesList.toString());
+        equipmentService.updateEquipment(this);
+    }
+    public void DelSeri(EquipmentService equipmentService, String seri){
+        List<String> seriesList = new ToList().StringToList(series);
+        seriesList.remove(seri);
+        this.setEquipmentSeries(seriesList.toString());
+        equipmentService.updateEquipment(this);
+    }
+    public void AddSeriFixed(EquipmentService equipmentService, String seri){
+        List<String> seriesList = new ToList().StringToList(seriesFixed);
+        seriesList.add(seri);
+        this.setEquipmentSeries(seriesList.toString());
+        equipmentService.updateEquipment(this);
+    }
+    public void DelSeriFixed(EquipmentService equipmentService, String seri){
+        List<String> seriesList = new ToList().StringToList(seriesFixed);
+        seriesList.remove(seri);
+        this.setEquipmentSeries(seriesList.toString());
+        equipmentService.updateEquipment(this);
+    }
+
 
     @Override
     public String toString() {

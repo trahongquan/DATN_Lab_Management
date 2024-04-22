@@ -16,7 +16,7 @@
     <br>
     <div style="display:flex; justify-content:center; align-content: center">
         <a href="/Lab/admin/Room/add">
-            <h5>Thêm phòng</h5>
+            <button type="button" class="btn btn-primary font-bold font-size-xlg">Thêm phòng</button>
         </a>
     </div>
 <!--    <form th:action="@{/Lab/admin/searchAdmin}" method="post">
@@ -70,21 +70,11 @@
                                 <form th:action="@{'/Lab/admin/room/showFormForUpdate/' + ${lab.getId}}" method="get">
                                     <button type="submit" class="btn btn-info btn-sm mr-1">Chi tiết</button>
                                 </form>
-                                <form th:action="@{'/Lab/admin/room/delete/' + ${lab.getId}}" method="POST" id="deletePhoneForm">
-                                    <button type="button" class="btn btn-danger btn-sm" onclick="confirmDelete(this)">
+                                <form th:action="@{'/Lab/admin/room/delete/' + ${lab.getId}}" method="POST">
+                                    <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Bạn có chắc chắn muốn xóa?')">
                                         Xóa
                                     </button>
                                 </form>
-                                <script>
-                                    function confirmDelete(button) {
-                                        if (confirm("Bạn có chắc chắn muốn xóa?")) {
-                                            // Nếu người dùng chọn OK, gửi post để xóa
-                                            document.getElementById("deletePhoneForm").submit();
-                                        } else {
-                                            // Nếu người dùng chọn Cancel, không làm gì cả
-                                        }
-                                    }
-                                </script>
                             </div>
                         </td>
                     </tr>

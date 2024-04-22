@@ -32,6 +32,10 @@ import java.util.stream.Collectors;
 @SpringBootApplication
 @RequestMapping("/Lab")
 public class LabController {
+    String template = "admin/templateAdmin";
+    public String Redirect(String url){
+        return "redirect:/Lab/"+ url;
+    }
 
     private UserService userService;
     private AuthorityService authorityService;
@@ -105,15 +109,15 @@ public class LabController {
         List<LabDTO> roomDTOS = Labs2LabDTOsAndDateBookings(rooms);
         model.addAttribute("roomDTOS", roomDTOS);
 //        System.out.println(roomDTOS);
-        return "/admin/templateAdmin";
+        return template;
     }
     @GetMapping("/admin/Room")
     public String RoomList(Model model/*,@RequestParam(value = "addphone", defaultValue = "false") boolean addphone*/) {
         List<Lab> labs = labService.getAllLabs();
         List<LabDTO> labDTOS = Labs2LabDTOsAndDateBookings(labs);
-        model.addAttribute("labDTOS", labDTOS);
+        model.addAttribute("labDTOS", labDTOS.stream().filter(labDTO -> labDTO.getIsDeleted()==0).collect(Collectors.toList()));
 //        model.addAttribute("addphone", addphone); /** cách xử lý ở backEnd*/
-        return "admin/templateAdmin";
+        return template;
     }
     private List<String> GetUsedSeries(){
         List<EquipmentLab> equipmentLabs = equipmentLabService.getAllEquipmentLabs();
@@ -150,7 +154,7 @@ public class LabController {
         model.addAttribute("peoples", peoples);
         model.addAttribute("equipmentDTOS", equipmentDTOS);
         //        model.addAttribute("addphone", addphone); /** cách xử lý ở backEnd*/
-        return "admin/templateAdmin";
+        return template;
     }
 
     private int DelSeriInEquiBySeri(String seri) {
@@ -205,9 +209,20 @@ public class LabController {
         return equipmentLabDTOS;
     }
 
+    @PostMapping("/admin/room/removeEquiLab")
+    public String removeEquiLab(@RequestParam("LabId") int LabId,
+                                @RequestParam("removeEquiLab") int removeEquiLab){
+        EquipmentLab equipmentLabRemove = equipmentLabService.getEquipmentLabById(removeEquiLab);
+        Equipment equipment = equipmentService.findByEquipmentId(equipmentLabRemove.getEquipmentId());
+        equipmentLabRemove.getEquipmentSerieList().forEach(item -> {
+            equipment.AddSeri(equipmentService, item);
+        });
+        equipmentLabService.deleteEquipmentLab(removeEquiLab);
+        return Redirect("admin/room/showFormForUpdate/"+LabId);
+    }
 
     @GetMapping("/admin/room/showFormForUpdate/{id}")
-    public String RoomList(Model model, @PathVariable(value = "id") int id) {
+    public String RoomDetail(Model model, @PathVariable(value = "id") int id) {
         Lab lab = labService.findByLabId(id);
         LabDTO labDTO = Lab2LabDTO(lab);
         List<People> Managers = peopleService.getAllPeople();
@@ -217,14 +232,65 @@ public class LabController {
         model.addAttribute("labDTO", labDTO);
         model.addAttribute("equipmentLabDTOs", equipmentLabDTOs);
 //        model.addAttribute("addphone", addphone); /** cách xử lý ở backEnd*/
-        return "admin/templateAdmin";
+        return template;
+    }
+
+    @PostMapping("/admin/room/delete/{id}")
+    public String DelLab(@PathVariable("id") int id ){
+        labService.deleteLab(id);
+        return Redirect("admin/Room");
+    }
+
+
+    @GetMapping("/admin/Equipment/add")
+    public String AddEquipment(){
+        return template;
+    }
+    @PostMapping("/admin/Equipment/add")
+    public String AddEquipment(/*,@RequestParam(value = "addphone", defaultValue = "false") boolean addphone*/
+                               @RequestParam("name") String name,
+                               @RequestParam("description") String description,
+                               @RequestParam("series") List<String> series) {
+        Equipment equipment = equipmentService.createEquipment(new Equipment(name, series.toString(), "[]", description, series.size(),0));
+
+        return Redirect("admin/Equipment");
     }
 
     @GetMapping({"/admin/Equipment"})
     public String EquipmentList(Model model/*,@RequestParam(value = "addphone", defaultValue = "false") boolean addphone*/) {
         List<Equipment> allEquipment = equipmentService.getAllEquipment();
-        model.addAttribute("allEquipment", allEquipment); /** cách xử lý ở backEnd*/
-        return "admin/templateAdmin";
+        model.addAttribute("allEquipment", allEquipment.stream().filter(equipment -> equipment.getIsDeleted()==0).collect(Collectors.toList()));
+        return template;
+    }
+
+    @GetMapping("/admin/Equipment/showFormForUpdate/{id}")
+    public String EquipmentDetail(Model model, @PathVariable(value = "id") int id) {
+        Equipment equipment = equipmentService.findByEquipmentId(id);
+        model.addAttribute("equipment", equipment);
+        return template;
+    }
+
+    @PostMapping("/admin/Equipment/showFormForUpdate/{id}")
+    public String EquipmentDetailPost(@PathVariable(value = "id") int id,
+                                      @RequestParam("name") String name,
+                                      @RequestParam("description") String description,
+                                      @RequestParam(value = "series", defaultValue = "") List<String> series,
+                                      @RequestParam(value = "seriesfixed", defaultValue = "") List<String> seriesfixed) {
+        Equipment equipment = equipmentService.findByEquipmentId(id);
+        equipment.setName(name);
+        equipment.setDescription(description);
+        equipment.setSeries(series.toString());
+        equipment.setSeriesFixed(seriesfixed.toString());
+        equipment.setQuantity(series.size());
+        equipmentService.updateEquipment(equipment);
+        return Redirect("admin/Equipment");
+    }
+
+
+    @PostMapping("/admin/Equipment/delete/{id}")
+    public String DelEquipment(@PathVariable("id") int id ){
+        equipmentService.deleteEquipment(id);
+        return Redirect("admin/Equipment");
     }
 //    @GetMapping({"/admin/Approve"})
 //    @GetMapping({"/admin/Pendding"})

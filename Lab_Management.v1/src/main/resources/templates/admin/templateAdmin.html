@@ -998,6 +998,12 @@
                 <div th:if="${#request.requestURI == '/Lab/admin/Equipment'}" class="app-main__inner">
                     <div th:replace="admin/equipments.html :: equipment"></div>
                 </div>
+                <div th:if="${#request.requestURI == '/Lab/admin/Equipment/add'}" class="app-main__inner">
+                    <div th:replace="admin/equipment-form.html :: equipment-form"></div>
+                </div>
+                <div th:if="${#strings.contains(#request.requestURI, '/Lab/admin/Equipment/showFormForUpdate/')}" class="app-main__inner">
+                    <div th:replace="admin/equipment-edit-form.html :: equipment-edit-form"></div>
+                </div>
 
                 <div th:if="${#request.requestURI == '/Lab/admin/brand'}" class="app-main__inner" style="display: flex; justify-content: center; align-content: center; flex-direction: column;" >
                     <div th:replace="admin/add-Brand.html :: add-Brand"></div>

@@ -35,7 +35,9 @@ public class EquipmentServiceImpl implements EquipmentService {
 
     @Override
     public void deleteEquipment(int equipmentId) {
-        equipmentRepository.deleteById(equipmentId);
+        Equipment equipment = findByEquipmentId(equipmentId);
+        equipment.setIsDeleted(1);
+        updateEquipment(equipment);
     }
 }
 
