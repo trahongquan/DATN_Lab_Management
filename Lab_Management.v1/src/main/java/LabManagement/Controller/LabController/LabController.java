@@ -35,8 +35,13 @@ import java.util.stream.Collectors;
 @RequestMapping("/Lab")
 public class LabController {
     String template = "admin/templateAdmin";
-    public String Redirect(String url){
-        return "redirect:/Lab/"+ url;
+    public String Redirect(String url, Object success) {
+        if (success instanceof Boolean) {
+            String successParam = "?success=" + success;
+            return "redirect:/Lab/" + url + successParam;
+        } else {
+            return "redirect:/Lab/" + url;
+        }
     }
 
     private UserService userService;
@@ -88,16 +93,19 @@ public class LabController {
     }
 
     @GetMapping({"/",""})
-    public String getPhones(Model model) {
-        List<Lab> labs = labService.getAllLabs();
+    public String getLabs(Model model) {
+        List<Lab> labs = labService.getAllLabs().stream()
+                .filter(lab -> (lab.getIsDelete()!=1))
+                .collect(Collectors.toList());
         List<LabDTO> labDTOS = Labs2LabDTOsAndDateBookings(labs);
         model.addAttribute("labDTOS", labDTOS);
         return "index";
     }
-//    @GetMapping({"/",""})
-//    public String getPhones(Model model) {
-//        return "index";
-//    }
+    @GetMapping("/LabDetail/{id}")
+    public String getLabDetail(Model model, @PathVariable("id") int id) {
+        RoomDetail(model, id, false);
+        return "booking/booking-lab";
+    }
 
 
 
@@ -120,11 +128,11 @@ public class LabController {
                                         /** Room Lab*/
     /******************************************************************************************/
     @GetMapping("/admin/Room")
-    public String RoomList(Model model/*,@RequestParam(value = "addphone", defaultValue = "false") boolean addphone*/) {
+    public String RoomList(Model model, @RequestParam(value = "success", defaultValue = "false") boolean success) {
         List<Lab> labs = labService.getAllLabs();
         List<LabDTO> labDTOS = Labs2LabDTOsAndDateBookings(labs);
         model.addAttribute("labDTOS", labDTOS.stream().filter(labDTO -> labDTO.getIsDeleted()==0).collect(Collectors.toList()));
-//        model.addAttribute("addphone", addphone); /** cách xử lý ở backEnd*/
+        model.addAttribute("success", success);
         return template;
     }
     private List<String> GetUsedSeries(){
@@ -154,12 +162,13 @@ public class LabController {
     }
 
     @GetMapping("/admin/Room/add")
-    public String AddRoom(Model model/*,@RequestParam(value = "addphone", defaultValue = "false") boolean addphone*/) {
+    public String AddRoom(Model model, @RequestParam(value = "success", defaultValue = "false") boolean success) {
         List<People> peoples = peopleService.getAllPeople();
         List<String> usedSeries = GetUsedSeries();
         List<EquipmentDTO> equipmentDTOS =  GetEquisDTO_SeriNoUsed(usedSeries);
         model.addAttribute("peoples", peoples);
         model.addAttribute("equipmentDTOS", equipmentDTOS);
+        model.addAttribute("success", success);
         //        model.addAttribute("addphone", addphone); /** cách xử lý ở backEnd*/
         return template;
     }
@@ -185,7 +194,7 @@ public class LabController {
                              @RequestParam("LabCapacity") int LabCapacity,
                              @RequestParam("LabLocation") String LabLocation,
                              @RequestParam("Management") int Managementid,
-                             @RequestParam("series") List<String> selectedSeries) {
+                             @RequestParam(value = "series", defaultValue = "") List<String> selectedSeries) {
         Lab lab = labService.createLab(new Lab(LabName, LabCapacity, LabLocation, Managementid, 0));
         for (String seri : selectedSeries) {
             int equi_id = DelSeriInEquiBySeri(seri);
@@ -196,7 +205,7 @@ public class LabController {
                 equipmentLab.AddSeri(equipmentLabService, seri);
             }
         }
-        return "redirect:/Lab/admin/Room/add";
+        return Redirect("/admin/Room",true);
     }
     private List<EquipmentDTO> Equis2EquiDTOS(List<Equipment> equipments){
         List<EquipmentDTO> equipmentDTOS = new ArrayList<>();
@@ -225,11 +234,12 @@ public class LabController {
             equipment.AddSeri(equipmentService, item);
         });
         equipmentLabService.deleteEquipmentLab(removeEquiLab);
-        return Redirect("admin/room/showFormForUpdate/"+LabId);
+        return Redirect("admin/room/showFormForUpdate/"+LabId,true);
     }
 
     @GetMapping("/admin/room/showFormForUpdate/{id}")
-    public String RoomDetail(Model model, @PathVariable(value = "id") int id) {
+    public String RoomDetail(Model model, @PathVariable(value = "id") int id,
+                            @RequestParam(value = "success", defaultValue = "false") boolean success) {
         Lab lab = labService.findByLabId(id);
         LabDTO labDTO = Lab2LabDTO(lab);
         List<People> Managers = peopleService.getAllPeople();
@@ -241,7 +251,7 @@ public class LabController {
         model.addAttribute("labDTO", labDTO);
         model.addAttribute("equipmentLabDTOs", equipmentLabDTOs);
         model.addAttribute("equipmentDTOS", equipmentDTOS);
-//        model.addAttribute("addphone", addphone); /** cách xử lý ở backEnd*/
+        model.addAttribute("success", success);
         return template;
     }
 
@@ -284,18 +294,26 @@ public class LabController {
         lab.setLab_managemet_id(lab_managemet_id);
         labService.updateLab(lab);
         RemoveFromEquiSeriAndAddSeri2EquiLab(equipmentService, equipmentLabService, series, lab);
-        return Redirect("admin/room/showFormForUpdate/"+id);
+        return Redirect("admin/room/showFormForUpdate/"+id,true);
     }
 
     @PostMapping("/admin/room/delete/{id}")
     public String DelLab(@PathVariable("id") int id ){
         labService.deleteLab(id);
-        return Redirect("admin/Room");
+        return Redirect("admin/Room",true);
     }
 
     /******************************************************************************************/
                                             /** Equipment */
     /******************************************************************************************/
+
+    @GetMapping({"/admin/Equipment"})
+    public String EquipmentList(Model model, @RequestParam(value = "success", defaultValue = "false") boolean success) {
+        List<Equipment> allEquipment = equipmentService.getAllEquipment();
+        model.addAttribute("allEquipment", allEquipment.stream().filter(equipment -> equipment.getIsDeleted()==0).collect(Collectors.toList()));
+        model.addAttribute("success",success);
+        return template;
+    }
 
     @GetMapping("/admin/Equipment/add")
     public String AddEquipment(){
@@ -308,14 +326,7 @@ public class LabController {
                                @RequestParam("series") List<String> series) {
         Equipment equipment = equipmentService.createEquipment(new Equipment(name, series.toString(), "[]", description, series.size(),0));
 
-        return Redirect("admin/Equipment");
-    }
-
-    @GetMapping({"/admin/Equipment"})
-    public String EquipmentList(Model model/*,@RequestParam(value = "addphone", defaultValue = "false") boolean addphone*/) {
-        List<Equipment> allEquipment = equipmentService.getAllEquipment();
-        model.addAttribute("allEquipment", allEquipment.stream().filter(equipment -> equipment.getIsDeleted()==0).collect(Collectors.toList()));
-        return template;
+        return Redirect("admin/Equipment",true);
     }
 
     @GetMapping("/admin/Equipment/showFormForUpdate/{id}")
@@ -338,13 +349,13 @@ public class LabController {
         equipment.setSeriesFixed(seriesfixed.toString());
         equipment.setQuantity(series.size());
         equipmentService.updateEquipment(equipment);
-        return Redirect("admin/Equipment");
+        return Redirect("admin/Equipment",true);
     }
 
     @PostMapping("/admin/Equipment/delete/{id}")
     public String DelEquipment(@PathVariable("id") int id ){
         equipmentService.deleteEquipment(id);
-        return Redirect("admin/Equipment");
+        return Redirect("admin/Equipment",true);
     }
 
     /******************************************************************************************/
@@ -363,10 +374,16 @@ public class LabController {
     }
 
     @GetMapping({"/admin/Manager"})
-    public String Manager(Model model){
-        List<People> managers = peopleService.getAllPeople();
+    public String Manager(Model model, @RequestParam(value = "success", defaultValue = "false") boolean success){
+        List<People> managers = peopleService.getAllPeople()
+                .stream()
+                .filter(people -> {
+                    return people.getIsDelete()==0 && !CheckRole(people, "ROLE_TEACHER");
+                })
+                .collect(Collectors.toList());
         List<PeopleDTO> managerDTOS = Peoples2PeopleDTOs(managers);
         model.addAttribute("managerDTOS", managerDTOS);
+        model.addAttribute("success",success);
         return template;
     }
 
@@ -377,8 +394,7 @@ public class LabController {
         return template;
     }
     @PostMapping("/admin/Manager/add")
-    public String AddManager(/*,@RequestParam(value = "addphone", defaultValue = "false") boolean addphone*/
-                            @RequestParam("name") String name,
+    public String AddManager(@RequestParam("name") String name,
                             @RequestParam("rank") String rank,
                             @RequestParam("unit") String unit,
                             @RequestParam("militaryNumber") long militaryNumber,
@@ -393,7 +409,7 @@ public class LabController {
         authorityService.createAuthority(authority);
         Users user = new Users(username, passwordEncoder.encode(password), people.getId(), 1);
         userService.createUser(user);
-        return Redirect("admin/Manager");
+        return Redirect("admin/Manager",true);
     }
 
     @GetMapping("/admin/Manager/showFormForUpdate/{id}")
@@ -433,7 +449,151 @@ public class LabController {
         if(!password.equals("Không có mk đâu")) user.setPassword(passwordEncoder.encode(password));
         userService.save(user);
 
-        return Redirect("admin/Manager");
+        return Redirect("admin/Manager",true);
+    }
+
+    @PostMapping("/admin/Manager/delete/{id}")
+    public String DelManager(@PathVariable("id") int id ){
+        peopleService.deletePeople(id);
+        return Redirect("admin/Manager",true);
+    }
+
+
+    /******************************************************************************************/
+                                            /** Teacher */
+    /******************************************************************************************/
+
+    private boolean CheckRole(People people, String role){
+        return authorityService.findAuthorityByUsername(
+                        userService
+                                .findByPeopleId(people.getId())
+                                .getUsername()
+                ).getAuthority()
+                        .equals(role);
+    }
+
+    @GetMapping({"/admin/Teacher"})
+    public String Teacher(Model model, @RequestParam(value = "success", defaultValue = "false") boolean success){
+        List<People> teacher = peopleService.getAllPeople()
+                .stream()
+                .filter(people -> {
+                    return people.getIsDelete()==0 && CheckRole(people,"ROLE_TEACHER");
+                })
+                .collect(Collectors.toList());
+        List<PeopleDTO> teacherDTOS = Peoples2PeopleDTOs(teacher);
+        model.addAttribute("teacherDTOS", teacherDTOS);
+        model.addAttribute("success",success);
+        return template;
+    }
+
+    @GetMapping("/admin/Teacher/add")
+    public String AddTeacher(Model model){
+        List<Roles> roles = roleService.getAllRoles();
+        model.addAttribute("roles", roles);
+        return template;
+    }
+    @PostMapping("/admin/Teacher/add")
+    public String AddTeacher(@RequestParam("name") String name,
+                            @RequestParam("rank") String rank,
+                            @RequestParam("unit") String unit,
+                            @RequestParam("militaryNumber") long militaryNumber,
+                            @RequestParam("contact") String contact,
+                            @RequestParam("username") String username,
+                            @RequestParam("password") String password,
+                            @RequestParam("authority") String role) {
+        AddManager(name, rank, unit, militaryNumber, contact, username, password, role);
+        return Redirect("admin/Teacher",true);
+    }
+
+    @GetMapping("/admin/Teacher/showFormForUpdate/{id}")
+    public String TeacherDetail(Model model, @PathVariable(value = "id") int id) {
+        ManagerDetail(model,id);
+        return template;
+    }
+
+    @PostMapping("/admin/Teacher/showFormForUpdate/{id}")
+    public String TeacherDetailPost(@PathVariable(value = "id") int id,
+                                    @RequestParam("name") String name,
+                                    @RequestParam("rank") String rank,
+                                    @RequestParam("unit") String unit,
+                                    @RequestParam("militaryNumber") long militaryNumber,
+                                    @RequestParam("contact") String contact,
+                                    @RequestParam("username") String username,
+                                    @RequestParam("password") String password,
+                                    @RequestParam("authority") String role) {
+        ManagerDetailPost(id, name, rank, unit, militaryNumber, contact, username, password, role);
+        return Redirect("admin/Teacher",true);
+    }
+
+    @PostMapping("/admin/Teacher/delete/{id}")
+    public String DelTeacher(@PathVariable("id") int id ){
+        peopleService.deletePeople(id);
+        return Redirect("admin/Teacher",true);
+    }
+
+    /******************************************************************************************/
+                                            /** Role */
+    /******************************************************************************************/
+
+    @GetMapping({"/admin/Role"})
+    public String Role(Model model,
+                       @RequestParam(value = "success", defaultValue = "false") boolean success){
+        List<Roles> roles = roleService.getAllRoles();
+        model.addAttribute("roles", roles);
+        model.addAttribute("success", success);
+        return template;
+    }
+
+    @PostMapping("/admin/Role/add")
+    public String AddRole(Model model, @RequestParam("role") String roleSt) {
+        try {
+            Roles role = new Roles(roleSt);
+            roleService.createRole(role);
+            return Redirect("admin/Role",true);
+        } catch (Exception e){
+            return Redirect("admin/Role",false);
+        }
+    }
+
+    @PostMapping("/admin/Role/delete")
+    public String DelRole(Model model, @RequestParam("roleid") int roleid) {
+        try {
+            roleService.deleteRole(roleid);
+            return Redirect("admin/Role",true);
+        } catch (Exception e){
+            return Redirect("admin/Role",false);
+        }
+    }
+
+    /******************************************************************************************/
+                                            /** Role */
+    /******************************************************************************************/
+
+
+    @GetMapping({"/admin/myAccount/{username}"})
+    public String Role(Model model, @PathVariable("username") String username,
+                       @RequestParam(value = "changedPassfalse", defaultValue = "false") boolean changedPassfalse,
+                       @RequestParam(value = "success", defaultValue = "false") boolean success){
+        Users user = userService.findByUsername(username);
+        People people = peopleService.findByPeopleId(user.getPeopleid());
+        model.addAttribute("peopleDTO",People2PeopleDTO(people) );
+        model.addAttribute("success", success);
+        model.addAttribute("changedPassfalse", changedPassfalse);
+        return template;
+    }
+
+    @PostMapping("/admin/myAccount")
+    public String AdminChangePass(@RequestParam("oldpass") String oldpass,
+                                  @RequestParam("username") String username,
+                                  @RequestParam("password") String password){
+        Users user = userService.findByUsername(username);
+        if(passwordEncoder.matches(oldpass,user.getPassword())){
+            user.setPassword(passwordEncoder.encode(password));
+            userService.save(user);
+            return Redirect("admin/myAccount/"+username,true);
+        } else {
+            return "redirect:/Lab/admin/myAccount/"+username+"?changedPassfalse=true";
+        }
     }
 
 //    @GetMapping({"/admin/Approve"})

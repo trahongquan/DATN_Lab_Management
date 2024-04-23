@@ -25,10 +25,13 @@
     </div>
 </header>
 <br>
-<br>
+    <div style="background: rgba(174,250,255,0.6); padding: 0.5em">
+        <h2 style="font-size: 2.5em; color: red; margin: 1em">Hệ thống quản lý </h2>
+        <h2 style="font-size: 2.5em; color: red; margin: 1em">Phòng thí nghiệm, thực nghiệm</h2>
+    </div>
 <br>
 <div class="w3layoutscontaineragileits">
-    <h2>Login here</h2>
+    <h2>Xin mời đăng nhập</h2>
     <form th:action="'/authenticateTheUser'" method="post">
         <div class="form-group">
             <div class="col-xs-15">
@@ -37,15 +40,15 @@
                     <div th:if="${param.error}">
                         <div class="alert alert-danger col-xs-offset-1 col-xs-10" style="color: red ; margin: 10px; font-weight: bold">
                             <b>
-                                Invalid username and password.
+                                Thông tin tài khoản hoặc mật khẩu không chính xác
                             </b>
                         </div>
                     </div>
                     <!-- Check for Logout -->
                     <div th:if="${param.logout}">
                         <div class="alert alert-success col-xs-offset-1 col-xs-10" style="color: mediumvioletred; margin: 10px; font-weight: bold">
-                            <b>
-                                You have been logged out
+                            <b style="color: red; font-size: 1em">
+                                Bạn đã đăng xuất
                             </b>
                         </div>
                     </div>
@@ -63,7 +66,7 @@
         </ul>
         <div class="aitssendbuttonw3ls">
             <input type="submit" value="LOGIN">
-            <p style="color: #c9c3f7" > To register new account <span>→</span> <a class="w3_play_icon1" href="#small-dialog1"> Click Here</a></p>
+            <p style="color: #c9c3f7" > Đăng kí tài khoản cho giáo viên mới<span>→</span> <a class="w3_play_icon1" href="#small-dialog1"> tại đây</a></p>
             <div class="clear"></div>
         </div>
     </form>

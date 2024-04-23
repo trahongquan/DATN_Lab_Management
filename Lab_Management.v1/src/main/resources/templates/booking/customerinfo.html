@@ -10,98 +10,19 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <script src="/js/header.js"></script>
     <script src="/js/headernew/headernew.js"></script>
-    <style>
-        .passCustomer:focus {
-            border: 1px solid black;
-        }
-        .container {
-            max-width: 960px;
-            margin: 0 auto;
-        }
 
-        h1,h2 {
-            text-align: center;
-            color: white;
-            /*-webkit-text-stroke: 0.6px black;*/
-            background-color: rgba(0,0,0,0.1);
-            color: #cc6633;
-            /*color: white;*/
-        }
-
-        .row {
-            display: flex;
-            flex-wrap: wrap;
-            margin: 0 -15px;
-        }
-
-        .col-md-6 {
-            flex: 0 0 50%;
-            padding: 0 15px;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        th, td {
-            padding: 8px;
-            border: 1px solid #ccc;
-        }
-
-        th {
-            background-color: #eee;
-        }
-
-        .table-account-info th:first-child {
-            width: 20%;
-        }
-
-        .table-account-info td:first-child {
-            font-weight: bold;
-        }
-
-        /* CSS for overall styling */
-
-        body {
-            font-family: sans-serif;
-            font-size: 1rem;
-        }
-
-        /** Đơn hàng */
-
-        .table-container {
-            display: flex;
-            justify-content: center;
-        }
-        .table {
-            width: 90%; /* hoặc bạn có thể chỉ định kích thước cụ thể khác phù hợp với nội dung của bạn */
-        }
-        td, th {
-            white-space: nowrap;
-            text-align: center;
-            vertical-align: middle; /* Thêm thuộc tính này để căn giữa theo chiều dọc */
-        }
-        .wrap{
-            white-space: unset;
-        }
-        h1{
-            margin-top: 50px;
-            text-align: center;
-        }
-        tbody, td{
-            background: white
-        }
-    </style>
 
 </head>
 <body >
 <div th:replace="headernew :: header"></div>
 
+<style>
+    .passCustomer:focus{border:1px solid black;}.container{max-width:960px;margin:0 auto;}.row{display:flex;flex-wrap:wrap;margin:0 -15px;}.col-md-6{flex:0 0 50%;padding:0 15px;}.table{width:100%;border-collapse:collapse;}.th,.td{padding:8px;border:1px solid #ccc;}.th{background-color:#eee;}.table-account-info th:first-child{width:20%;}.table-account-info td:first-child{font-weight:bold;}.body{font-family:sans-serif;font-size:1rem;}.table-container{display:flex;justify-content:center;}.table{width:90%;}.td,.th{white-space:nowrap;text-align:center;vertical-align:middle;}.wrap{white-space:unset;}.h1{margin-top:50px;text-align:center;}.tbody,.td{background:white;}
+</style>
 <div class="container"  style="margin-top: 100px">
     <div style="display: flex; justify-content: center">
         <h1>Thông tin tài khoản</h1>
-        <a th:href="'/Handshop/UpdateCustomerInfo/'+${customer.customerId}">
+        <a th:href="'/Lab/admin/myAccount'+${customer.customerId}">
             <img src="/images/edit.png" alt="edit profile" style="width: 48px; height: 48px; margin: fill">
         </a>
     </div>

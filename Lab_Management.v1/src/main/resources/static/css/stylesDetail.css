@@ -65,6 +65,7 @@
 .scroll-container {
     width: 100%; /* Đặt kích thước tối đa cho container */
     overflow-x: auto; /* Hiển thị thanh trượt ngang khi cần thiết */
+
 }
 
 

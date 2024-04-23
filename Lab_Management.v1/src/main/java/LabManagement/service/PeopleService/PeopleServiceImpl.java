@@ -34,7 +34,9 @@ public class PeopleServiceImpl implements PeopleService {
 
     @Override
     public void deletePeople(int peopleId) {
-        peopleRepository.deleteById(peopleId);
+        People people = findByPeopleId(peopleId);
+        people.setIsDelete(1);
+        peopleRepository.save(people);
     }
 }
 

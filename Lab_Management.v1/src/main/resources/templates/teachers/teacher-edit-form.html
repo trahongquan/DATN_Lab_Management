@@ -17,12 +17,12 @@
 </head>
 <body>
 <!--<div th:replace="admin/headerAdmin :: header-admin"></div>-->
-<manager-edit-form>
+<teacher-edit-form>
     <div class="container">
-        <h2>Thông tin cán bộ quản lý </h2>
+        <h2>Thông tin giáo viên</h2>
         <br>
         <br>
-        <form th:object="${manager}" th:action="'/Lab/admin/Manager/showFormForUpdate/' + ${manager.getId}" method="POST">
+        <form th:object="${manager}" th:action="'/Lab/admin/Teacher/showFormForUpdate/' + ${manager.getId}" method="POST">
             <div class="row d-flex justify-content-between">
                 <div class="d-flex flex-column justify-content-between col-6">
                     <div class="form-group">
@@ -99,6 +99,6 @@
             });
         });
     </script>
-</manager-edit-form>
+</teacher-edit-form>
 </body>
 </html>

@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Phone</title>
+    <!-- Link to Bootstrap CSS for styling -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/base2.min.css">
+    <link rel="stylesheet" href="/css/styles.css">
+    <style>
+        .machine-block{border:1px solid #ccc;border-radius:8px;padding:20px;background-color:#f5f5f5;box-shadow:0 2px 4px rgba(0,0,0,0.1);transition:box-shadow 0.3s ease}
+        .machine-block:hover{box-shadow:0 4px 8px rgba(0,15,255,0.6)}
+        .machine-block h4{font-size:18px;font-weight:bold;margin-bottom:10px}
+        .machine-block p{margin-bottom:5px}
+        .machine-block ul{margin-top:10px;padding-left:20px}
+        .machine-block ul li{list-style-type:square}
+        .machine-block img {max-width: 100%;max-height: 100%;}
+        .remove-button{padding: unset; border: unset; font-weight: bold; margin-bottom: 10px}
+        .remove-button:hover{color: red}
+        label{color: black; font-weight: bold}
+    </style>
+</head>
+<body class="scroll-container">
+<booking-lab>
+    <div th:replace="headernew::header"></div>
+    <h1 style="margin-top: 50px; text-align: center;">Chi tiết phòng thí nghiệm</h1><br>
+
+    <div class="container" style="background-color: rgba(230,239,255,0.6); padding: 2em; border-radius: 3em">
+        <form th:object="${labDTO}" th:action="@{'/Lab/admin/room/showFormForUpdate/' + ${labDTO.getId}}" method="post" enctype="multipart/form-data">
+            <div class="row justify-content-around ">
+                <div class="form-group col-5" >
+                    <!-- Phone ID (hidden) -->
+                    <input type="hidden" name="id" th:field="*{id}" />
+                    <div class="form-group">
+                        <label for="LabName">Tên phòng thí nghiệm:</label>
+                        <input type="text" class="form-control" id="LabName" name="labName" th:field="*{labName}" required >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="Capacity">Sức chứa:</label>
+                        <input type="text" class="form-control" id="Capacity" name="capacity" th:field="*{capacity}" required >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="Location">Vị trí:</label>
+                        <input type="text" class="form-control" id="Location" name="location" th:field="*{location}" required >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="Manager">Phụ trách quản lý:</label>
+                        <select class="form-control" id="Manager" name="lab_managemet_id" th:field="*{lab_managemet_id}" required >
+                            <option th:each="manager : ${Managers}" th:value="${manager.getId}" th:text="${manager.getName}"></option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group col-5" style="margin-top: 5em" id="chosseSeries">
+                    <div class="main-card mb-3 card">
+                        <div class="card-body">
+                            <h5 class="card-title">Chọn thêm thiết bị khác </h5>
+                            <select multiple="multiple" class="multiselect-dropdown form-control"
+                                    id="series" name="series" >
+                                <th:block th:each="equipment, iterStat : ${equipmentDTOS}">
+                                    <optgroup th:label="${equipment.getName}">
+                                        <th:block th:each="seri, seriStat : ${equipment.getSerieList}">
+                                            <option th:value="${seri}" >[[${equipment.getName + '/'+seri}]]</option>
+                                        </th:block>
+                                    </optgroup>
+                                </th:block>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Submit button -->
+            <button type="submit" class="btn btn-primary">Lưu</button>
+        </form>
+        <br>
+        <br>
+        <h2 th:text="${'Các thiết bị có trong phòng thí nghiệm (' + #lists.size(equipmentLabDTOs) + ')'}"></h2>
+        <br>
+        <div class="row">
+            <div th:each="machine : ${equipmentLabDTOs}" class="col-md-3 mb-3">
+                <div class="machine-block">
+                    <div class="d-flex flex-row justify-content-between">
+                        <div>
+                            <h4 th:text="${machine.getName}"></h4>
+                        </div>
+                        <form th:action="@{/Lab/admin/room/removeEquiLab}" method="post">
+                            <input type="hidden" th:value="${labDTO.getId}" name="LabId">
+                            <input type="hidden" th:value="${machine.getId}" name="removeEquiLab">
+                            <button type="submit"  class="remove-button"> Bỏ </button>
+                        </form>
+                    </div>
+                    <p>Số lượng: <span th:text="${#lists.size(machine.getEquipmentSerieList)}"></span></p>
+                    <p>Seri:</p>
+                    <ul>
+                        <li th:each="seri : ${machine.getEquipmentSerieList}">
+                            <span th:text="${seri}"></span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="col-md-2 mb-3">
+                <div class="machine-block">
+                    <img src="https://png.pngtree.com/png-vector/20230316/ourmid/pngtree-plus-sign-line-icon-vector-png-image_6650590.png" alt="Thêm" onclick="addEqui()" style="cursor: pointer">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--CORE-->
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"
+            integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.bundle.min.js"
+            crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/metismenu"></script>
+
+    <!--Multiselect-->
+    <script th:src="@{/js/multiselect/bootstrap-multiselect.js}"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/js/select2.min.js"></script>
+    <script th:src="@{/js/multiselect/input-select.js}"></script>
+    <!--Input Mask-->
+    <script th:src="@{/js/multiselect/input-mask.js}"></script>
+    <script th:src="@{/js/multiselect/input-mask-init.js}"></script>
+
+    <script>
+        function addEqui() {
+            var seriesElement = $('#chosseSeries');
+
+            // Thêm thuộc tính CSS để phóng to phần tử
+            seriesElement.css({
+                'transform': 'scale(1.2)',
+                'transition': 'transform 0.3s ease-in-out', // Thêm transition
+            });
+
+            // Xóa thuộc tính CSS sau 2 giây sử dụng setTimeout
+            setTimeout(function() {
+                seriesElement.css({
+                    'transform': 'none',
+                });
+            }, 1000);
+
+            // Gọi sự kiện focus để mở danh sách các lựa chọn
+            seriesElement.focus();
+        }
+    </script>
+</booking-lab>
+</body>
+</html>

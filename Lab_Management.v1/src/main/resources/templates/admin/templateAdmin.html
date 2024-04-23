@@ -4,6 +4,7 @@
     <title>Template Admin</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta charset="utf-8">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" th:href="@{/css/base2.min.css}">
 </head>
 <body>
@@ -936,7 +937,7 @@
                                 </a>
                                 <ul>
                                     <li>
-                                        <a href="/Lab/admin/AddTeacher">
+                                        <a href="/Lab/admin/Teacher/add">
                                             <i class="metismenu-icon">
                                             </i>Thêm mới
                                         </a>
@@ -968,7 +969,7 @@
                 </div>
             </div>
             <div class="app-main__outer">
-
+                <div th:replace="admin/add-nocite.html :: notice"></div>
 
                 <div th:if="${#request.requestURI == '/Lab/admin/Dashboard'}" class="app-main__inner">
                     <div th:replace="admin/Dashboard.html :: dashboard"></div>
@@ -1019,71 +1020,40 @@
                     <div th:replace="managers/manager-edit-form.html :: manager-edit-form"></div>
                 </div>
 
-
-                <!--/////////////////////////////////-->
-                                                        <!-- Order & Profit -->
+                                                <!--/////////////////////////////////-->
+                                                            <!-- Teacher -->
                                                 <!--/////////////////////////////////-->
 
-                <div th:if="${#strings.contains(#request.requestURI, '/Lab/admin/OrderRequestWait')}" class="app-main__inner" style="display: flex; justify-content: center; align-content: center; flex-direction: column;">
-                    <div th:replace="admin/order-request-wait.html :: order-request-wait"></div>
+                <div th:if="${#request.requestURI == '/Lab/admin/Teacher'}" class="app-main__inner" style="display: flex; justify-content: center; align-content: center; flex-direction: column;">
+                    <div th:replace="teachers/teachers.html :: teacher"></div>
                 </div>
-                <div th:if="${#strings.contains(#request.requestURI, '/Lab/admin/OrderRequestDone')}" class="app-main__inner" style="display: flex; justify-content: center; align-content: center; flex-direction: column;">
-                    <div th:replace="admin/order-request-done.html :: order-request-done"></div>
+                <div th:if="${#request.requestURI == '/Lab/admin/Teacher/add'}" class="app-main__inner" style="display: flex; justify-content: center; align-content: center; flex-direction: column;">
+                    <div th:replace="teachers/teacher-form.html :: teacher-form"></div>
                 </div>
-                <div th:if="${#strings.contains(#request.requestURI, '/Lab/admin/OrderRequestReject')}" class="app-main__inner" style="display: flex; justify-content: center; align-content: center; flex-direction: column;">
-                    <div th:replace="admin/order-request-reject.html :: order-request-reject"></div>
+                <div th:if="${#strings.contains(#request.requestURI, '/Lab/admin/Teacher/showFormForUpdate/')}" class="app-main__inner">
+                    <div th:replace="teachers/teacher-edit-form.html :: teacher-edit-form"></div>
                 </div>
-                <div th:if="${#strings.contains(#request.requestURI, '/Lab/admin/rejectOrder')}" class="app-main__inner" style="display: flex; justify-content: center; align-content: center; flex-direction: column;">
-                    <div th:replace="admin/rejectOrderForm.html :: reject-Order-Form"></div>
-                </div>
-                <div th:if="${#request.requestURI == '/Lab/admin/ProfitReport'}" class="app-main__inner" style="display: flex; justify-content: center; align-content: center; flex-direction: column;">
-                    <div th:replace="admin/ProfitReportAccees.html :: profit-report"></div>
-                </div>
+
                                                 <!--/////////////////////////////////-->
-                                                            <!-- Customer -->
+                                                            <!-- Role -->
                                                 <!--/////////////////////////////////-->
 
-                <div th:if="${#request.requestURI == '/Lab/admin/register'}" class="app-main__inner" style="display: flex; justify-content: center; align-content: center; flex-direction: column;">
-                    <div th:replace="customer/registration-form.html :: registration-form"></div>
+
+                <div th:if="${#request.requestURI == '/Lab/admin/Role'}" class="app-main__inner" style="display: flex; justify-content: center; align-content: center; flex-direction: column;">
+                    <div th:replace="managers/roles.html :: role"></div>
                 </div>
-                <div th:if="${#strings.contains(#request.requestURI, '/Lab/admin/UpdateCustomerInfo')}" class="app-main__inner" style="display: flex; justify-content: center; align-content: center; flex-direction: column;">
-                    <div th:replace="customer/form-edit-customer.html :: form-edit-customer"></div>
-                </div>
-                <div th:if="${#strings.contains(#request.requestURI, '/Lab/admin/DeleteCustomer')}" class="app-main__inner" style="display: flex; justify-content: center; align-content: center; flex-direction: column;">
-                    <div th:replace="customer/delete.html :: delete-customer"></div>
-                </div>
-                <div th:if="${#request.requestURI == '/Lab/admin/AccCustomerManager'}" class="app-main__inner" style="display: flex; justify-content: center; align-content: center; flex-direction: column;">
-                    <div th:replace="admin/AccManager.html :: AccManager"></div>
+                <div th:if="${#strings.contains(#request.requestURI, '/Lab/admin/myAccount/')}" class="app-main__inner">
+                    <div th:replace="managers/account-info :: account-info"></div>
                 </div>
 
                                                 <!--/////////////////////////////////-->
                                                             <!-- Employees -->
                                                 <!--/////////////////////////////////-->
 
-                <div th:if="${#request.requestURI == '/Lab/admin/AccEmployeesManager/add'}" class="app-main__inner" style="display: flex; justify-content: center; align-content: center; flex-direction: column;">
-                    <div th:replace="employees/form-employee.html :: form-employee"></div>
-                </div>
-                <div th:if="${#request.requestURI == '/Lab/admin/AccEmployeesManager'}" class="app-main__inner" style="display: flex; justify-content: center; align-content: center; flex-direction: column;">
-                    <div th:replace="employees/list-employees.html :: list-employees"></div>
-                </div>
-                <div th:if="${#strings.contains(#request.requestURI, 'Lab/admin/AccEmployeesManager/showFormForUpdate')}" class="app-main__inner" style="display: flex; justify-content: center; align-content: center; flex-direction: column;">
-                    <div th:replace="employees/form-edit-employee.html :: form-edit-employee"></div>
-                </div>
-                <div th:if="${#strings.contains(#request.requestURI, 'Lab/admin/AccEmployeesManager/delete')}" class="app-main__inner" style="display: flex; justify-content: center; align-content: center; flex-direction: column;">
-                    <div th:replace="employees/delete.html :: delete-employe"></div>
-                </div>
-                <div th:if="${#strings.contains(#request.requestURI, '/Lab/admin/myAccount')}" class="app-main__inner" style="display: flex; justify-content: center; align-content: center; flex-direction: column;">
-                    <div th:replace="employees/employeinfo.html::employeinfo"></div>
-                </div>
-                <div th:if="${#strings.contains(#request.requestURI, '/Lab/admin/UpdateEmp/')}" class="app-main__inner" style="display: flex; justify-content: center; align-content: center; flex-direction: column;">
-                    <div th:replace="employees/form-edit-employee.html::form-edit-employee"></div>
-                </div>
-
             </div>
         </div>
         <!--MAIN PAGE END-->
     </div>
-
 <!--SCRIPTS INCLUDES-->
 
 </header-admin>
@@ -1120,7 +1090,7 @@
     <script th:src="@{/js/demo.js}"></script>
 
                     <!-- Orther -->
-    <!--<script th:src="@{/js/noticePopUp.js}"></script>-->
+    <script th:src="@{/js/noticePopUp.js}"></script>
 
 
     <script>
@@ -1138,12 +1108,6 @@
                 nightskyBeachElement.click();
             }
         });
-        function formatCurrency(number) {
-            return number.toLocaleString('vi-VN', {
-                style: 'currency',
-                currency: 'VND',
-            });
-        }
     </script>
 </body>
 </html>

@@ -18,44 +18,46 @@
 <main>
     <div class="container">
         <div class="row">
-            <div class="col-md-12">
-                <form action="#">
+            <div class="col-12">
+                <form action="#" >
                     <div class="form-group choose-datetime">
                         <label for="date" style="color: black; padding: 10px; font-weight: bold;font-size: 2em;">Chọn ngày:</label>
                         <input type="date" id="date" class="form-control" style="max-width: 20em">
                     </div>
                     <button type="submit" class="btn btn-primary">Đặt lịch</button>
-                    <div class="choose-room">
-                        <div class="col-md-3" th:each="lab : ${labDTOS}">
-                            <div class="card lab-card" >
+                    <div class="choose-room d-flex justify-content-around align-content-center">
+                        <div class="col-3" th:each="lab : ${labDTOS}" style="border-radius:1em 1em 65px 65px">
+                            <div class="card lab-card" style="border-radius:50px" >
                                 <div style="background-color: #007bff">
                                     <div class="card-header" th:text="${lab.getLabName}"></div>
                                     <div>
-                                        <a href="#">
-                                            <button class="btn btn-primary" style="border: black thin;">xem chi tiết phòng</button>
+                                        <a th:href="'/Lab/LabDetail/'+${lab.getId}">
+                                            <button type="button" class="btn btn-primary" style="border: black thin;">xem chi tiết phòng</button>
                                         </a>
                                     </div>
                                 </div>
                                 <div class="card-body">
                                     <p class="lab-info"> Người phụ trách: </p>
-                                    <p class="lab-info" th:text="${lab.getLab_managemet.getRank + ' ' + lab.getLab_managemet.getName}"></p>
-                                    <div class="form-group">
-                                        <label for="ca_sang">Ca sáng:</label>
-                                        <select id="ca_sang" class="form-control">
-                                            <option >Xin mời chọn</option>
-                                            <option >Đã được đặt</option>
-                                            <option value="1">Chọn</option>
-                                            <option value="0">Không</option>
-                                        </select>
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="ca_chieu">Ca chiều:</label>
-                                        <select id="ca_chieu" class="form-control">
-                                            <option selected >Xin mời chọn</option>
-                                            <option >Đã được đặt</option>
-                                            <option value="1">Chọn</option>
-                                            <option value="0">Không</option>
-                                        </select>
+                                    <strong>
+                                        <p class="lab-info" th:text="${lab.getLab_managemet.getRank + ' ' + lab.getLab_managemet.getName}"></p>
+                                    </strong>
+                                    <div class="row">
+                                        <div class="form-group col-6">
+                                            <label >Ca sáng:</label>
+                                            <div>
+                                                <span class="icon-checkzzz casangV" style="display: none"> ✅ </span>
+                                                <span class="icon-checkzzz casangX" style="display: block"> ❌ </span>
+                                                <span class="icon-checkzzz casangO" style="display: none"> 🕓 </span>
+                                            </div>
+                                        </div>
+                                        <div class="form-group col-6">
+                                            <label > Ca chiều:</label>
+                                            <div>
+                                                <span class="icon-checkzzz cachieuV" style="display: none"> ✅ </span>
+                                                <span class="icon-checkzzz cachieuX" style="display: block"> ❌ </span>
+                                                <span class="icon-checkzzz cachieuO" style="display: none"> 🕓 </span>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>

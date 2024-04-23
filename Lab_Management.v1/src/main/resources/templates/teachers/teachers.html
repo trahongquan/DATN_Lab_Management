@@ -2,21 +2,19 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>List of Employees</title>
+    <title>Quản lý giáo viên</title>
     <link rel="stylesheet" th:href="@{/css/styles.css}">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 </head>
 <body>
 <!--<div th:replace="admin/headerAdmin :: header-admin"></div>-->
 <div class="container">
-    <manager>
-        <h1 style="margin-top: 50px; text-align: center;" th:text="'Danh sách cán bộ quản lý phòng thí nghiệm' "></h1>
-        <h1 style=" text-align: center; font-size: 2em" th:text="'Số lượng: ' + ${#lists.size(managerDTOS)}"></h1>
-        <br>
-        <a href="/Lab/admin/Manager/add">
-            <button type="button" class="btn btn-primary font-bold font-size-xlg">Thêm người Quản lý</button>
+    <teacher>
+        <h1 style="margin-top: 50px; text-align: center;" th:text="'Danh sách giáo viên' "></h1>
+        <h1 style=" text-align: center; font-size: 2em" th:text="'Số lượng: ' + ${#lists.size(teacherDTOS)}"></h1>
+        <a href="/Lab/admin/Teacher/add">
+            <button type="button" class="btn btn-primary font-bold font-size-xlg">Thêm giáo viên</button>
         </a>
-        <br>
         <div class="main-card mb-3 card">
             <div class="card-body">
                 <table style="width: 100%;" id="example" class="table table-hover table-striped table-bordered">
@@ -32,7 +30,7 @@
                     </tr>
                     </thead>
                     <tbody>
-                    <tr th:each="manager : ${managerDTOS}">
+                    <tr th:each="manager : ${teacherDTOS}">
                         <td th:text="${manager.getName}"></td>
                         <td th:text="${manager.getRank}"></td>
                         <td th:text="${manager.getUnit}"></td>
@@ -44,11 +42,11 @@
                         <!--<td th:if="${manager.hireEndDate == null}"> ❌ </td>-->
                         <td>
                             <div class="d-flex" style="display: flex; justify-content: center; align-items: center;">
-                                <form th:action="@{'/Lab/admin/Manager/showFormForUpdate/' + ${manager.getId}}"
+                                <form th:action="@{'/Lab/admin/Teacher/showFormForUpdate/' + ${manager.getId}}"
                                       method="get">
                                     <button type="submit" class="btn btn-info btn-sm mr-1">Chi tiết</button>
                                 </form>
-                                <form th:action="@{'/Lab/admin/Manager/showFormForUpdate/' + ${manager.getId}}"
+                                <form th:action="@{'/Lab/admin/Teacher/showFormForUpdate/' + ${manager.getId}}"
                                       method="POST" >
                                     <button type="button" class="btn btn-danger btn-sm"
                                             onclick="return comfirm('Bạn có chắc chắn muốn xóa?')">Xóa
@@ -75,7 +73,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> <!--Phải load jquery trước khi load bootstrap js-->
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-</manager>
+</teacher>
 </div>
 </body>
 </html>

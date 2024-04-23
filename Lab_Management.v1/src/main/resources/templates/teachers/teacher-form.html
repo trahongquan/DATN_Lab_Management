@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Thông tin giáo viên</title>
+    <title>Thêm giáo viên</title>
     <!-- Link to Bootstrap CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <!-- Custom CSS -->
@@ -17,17 +17,17 @@
 </head>
 <body>
 <!--<div th:replace="admin/headerAdmin :: header-admin"></div>-->
-<manager-edit-form>
+<teacher-form>
     <div class="container">
-        <h2>Thông tin cán bộ quản lý </h2>
+        <h2>Thêm cán giáo viên mới</h2>
         <br>
         <br>
-        <form th:object="${manager}" th:action="'/Lab/admin/Manager/showFormForUpdate/' + ${manager.getId}" method="POST">
+        <form th:action="@{/Lab/admin/Teacher/add}" method="POST">
             <div class="row d-flex justify-content-between">
                 <div class="d-flex flex-column justify-content-between col-6">
                     <div class="form-group">
                         <label for="name">Họ tên:</label>
-                        <input type="text" class="form-control" id="name" name="name" th:value="*{getName}" required>
+                        <input type="text" class="form-control" id="name" name="name" required>
                     </div>
                     <div class="form-group">
                         <label for="rank">Cấp bậc:</label>
@@ -44,27 +44,25 @@
                     </div>
                     <div class="form-group">
                         <label for="unit">Đơn vị:</label>
-                        <input type="text" class="form-control" id="unit" name="unit" th:value="*{getUnit}" required>
+                        <input type="text" class="form-control" id="unit" name="unit" required>
                     </div>
                     <div class="form-group">
                         <label for="militaryNumber">Số hiệu QN:</label>
-                        <input type="number" class="form-control password" id="militaryNumber"
-                               th:value="*{getMilitaryNumber}" name="militaryNumber" required>
+                        <input type="number" class="form-control password" id="militaryNumber" name="militaryNumber" required>
                     </div>
                 </div>
                 <div class="d-flex flex-column justify-content-between col-6">
                     <div class="form-group">
                         <label for="contact">Liên lạc:</label>
-                        <input type="text" class="form-control" id="contact" name="contact" th:value="*{getContact}" required>
+                        <input type="text" class="form-control" id="contact" name="contact" required>
                     </div>
                     <div class="form-group">
                         <label for="username">Tên đăng nhập:</label>
-                        <input class="form-control" type="text" th:value="*{getUser.getUsername}" id="username" disabled="true" required>
-                        <input type="hidden" class="form-control" name="username" th:value="*{getUser.getUsername}" required>
+                        <input type="text" class="form-control password" id="username" name="username" required>
                     </div>
                     <div class="form-group">
                         <label for="password">Mật khẩu:</label>
-                        <input type="password" class="form-control password" id="password" name="password" th:value="'Không có mk đâu'" required>
+                        <input type="password" class="form-control password" id="password" name="password" required>
                     </div>
                     <div class="form-group">
                         <label for="authority">Quyền đăng nhập:</label>
@@ -74,31 +72,14 @@
                             </th:block>
                         </select>
                     </div>
-
                 </div>
             </div>
-            <button type="submit" class="btn btn-primary">Sửa Thông tin</button>
+            <button type="submit" class="btn btn-primary">Thêm cán bộ</button>
         </form>
     </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> <!--Phải load jquery trước khi load bootstrap js-->
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    <script th:inline="javascript">
-        $(document).ready(function() {
-            var managerAuthority = [[${manager.getAuthority.getAuthority}]];
-            $('#authority option').each(function() {
-                if ($(this).val() === managerAuthority) {
-                    $(this).prop('selected', true);
-                }
-            });
-            var rank = [[${manager.getRank}]]
-            $('#rank option').each(function() {
-                if ($(this).val() === rank) {
-                    $(this).prop('selected', true);
-                }
-            });
-        });
-    </script>
-</manager-edit-form>
+</teacher-form>
 </body>
 </html>

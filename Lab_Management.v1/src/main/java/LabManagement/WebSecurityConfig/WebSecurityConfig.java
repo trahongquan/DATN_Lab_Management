@@ -41,7 +41,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         http
                 .authorizeRequests()
                 /** Tất cả các request tới web đều phải authorize - kiểm tra quyền*/
-                .antMatchers("/Lab/admin/AccEmployeesManager/**").access("hasRole('ROLE_ADMIN')")
+                .antMatchers("/Lab/admin/Manager/**").access("hasRole('ROLE_ADMIN')")
                 .antMatchers("/Lab/admin/**").access("hasAnyRole('ROLE_ADMIN','ROLE_MANAGER')")
                 /** ' ** ' để có thể authorize các link con phía sau*/
                 .antMatchers("/Lab/**").access("hasAnyRole('ROLE_ADMIN','ROLE_MANAGER','ROLE_TEACHER')")
