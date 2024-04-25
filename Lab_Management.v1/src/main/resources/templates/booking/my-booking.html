@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="https://www.thymeleaf.org/thyme leaf-extras-springsecurity5">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đặt lịch phòng thí nghiệm</title>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" ></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" ></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" ></script>
+    <!--<script src="js/script.js"></script>-->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" >
+    <link rel="stylesheet" href="/css/base2.min.css">
+    <link rel="stylesheet" href="/css/styles.css">
+
+</head>
+<body>
+<div th:replace="headernew::header"></div>
+<main>
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <form action="#" >
+                    <div class="choose-room d-flex justify-content-around align-content-center">
+                        <div class="col-3" th:each="booking : ${bookingDTOs}" style="border-radius:1em 1em 65px 65px">
+                            <div class="card lab-card" style="border-radius:50px" >
+                                <div>
+                                    <style>
+                                        .alert{color: black; font-weight: bold}
+                                    </style>
+                                    <div th:if="${booking.confirm_Status=='Đang chờ duyệt'}" class="alert bg-yellow" role="alert">
+                                        <span>🕓</span>
+                                        <span th:text="${booking.confirm_Status}"></span>
+                                    </div>
+                                    <div th:if="${booking.confirm_Status=='Đã xác nhận'}" class="alert bg-green" role="alert">
+                                        <span class="lnr-checkmark-circle"></span>
+                                        <span th:text="${booking.confirm_Status}"></span>
+                                    </div>
+                                    <div th:if="${booking.confirm_Status=='Bị từ chối'}" class="alert bg-danger" role="alert">
+                                        <span class="fa">❌</span>
+                                        <span th:text="${booking.confirm_Status}"></span>
+                                    </div>
+                                </div>
+                                <div style="background-color: #007bff">
+                                    <div class="card-header justify-content-center" th:text="${booking.lab.labName}"></div>
+                                    <div>
+                                        <button th:data="${booking.id}" type="button" class="btn btn-primary btn-booking" style="border: black thin;">Xem chi tiết</button>
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <div>
+                                        <span class="lab-info text-primary" th:text="'Tên '+${booking.experimentReport.reportType} +': '"> </span>
+                                        <span class="lab-info" th:text="${booking.content.name}"></span>
+                                    </div>
+                                    <br>
+                                    <div>
+                                        <span class="lab-info text-primary"> Tên lớp: </span>
+                                        <span class="lab-info" th:text="${booking.content.name}"></span>
+                                    </div>
+                                    <br>
+                                    <div class="date-info" th:value="${booking.confirm_Status}">
+                                        <span class="lab-info"> Ngày đặt: </span>
+                                        <span class="lab-info strong" th:text="${booking.booking_Date}"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</main>
+<br>
+<br>
+<br>
+<script th:inline="javascript">
+    $(document).ready(function() {
+        var Status = {
+            APPROVE: "Đã xác nhận",
+            PENDDING: "Đang chờ duyệt",
+            CANCEL: "Bị từ chối"
+        };
+        var dateInfo = $('.date-info');
+        dateInfo.each(function() {
+            var confirmStatus = $(this).attr('value');
+            if (confirmStatus === Status.APPROVE) {
+                $(this).css({
+                    'color' : 'green'
+                })
+            } else if (confirmStatus === Status.CANCEL) {
+                $(this).css({
+                    'color' : 'red'
+                })
+            } else if (confirmStatus === Status.PENDDING) {
+                $(this).css({
+                    'color' : 'rgb(203 154 42)'
+                })
+            }
+        });
+    });
+</script>
+</body>
+</html>
+

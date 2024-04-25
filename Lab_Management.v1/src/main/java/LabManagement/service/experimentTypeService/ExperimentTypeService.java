@@ -9,4 +9,5 @@ public interface ExperimentTypeService {
     void deleteExperimentType(int id);
     List<ExperimentType> getAllExperimentTypes();
     ExperimentType getExperimentTypeById(int id);
+    List<ExperimentType> findAllByExperimentGroupId(int id);
 }

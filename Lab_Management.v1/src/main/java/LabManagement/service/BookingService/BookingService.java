@@ -17,4 +17,6 @@ public interface BookingService {
     void deleteBooking(int bookingId);
 
     List<Booking> findAllByLab_id(int labid);
+
+    Booking findByContent_id(int id);
 }

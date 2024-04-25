@@ -15,20 +15,22 @@ public class ExperimentType implements Serializable {
     @Column(name = "type_name", nullable = false)
     private String typeName;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    /*@ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "experiment_group_id", nullable = false)
     private ExperimentGroup experimentGroup;
 
-    @Column(name = "scores", nullable = false)
-    private double scores;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "experiment_report_id", nullable = false)
+    private ExperimentReport experimentReport;*/
 
-    public ExperimentType() {
+    @Column(name = "experiment_group_id", nullable = false)
+    private int experimentGroupId;
+        public ExperimentType() {
     }
 
-    public ExperimentType(String typeName, ExperimentGroup experimentGroup, double scores) {
+    public ExperimentType(String typeName, int experimentGroupId) {
         this.typeName = typeName;
-        this.experimentGroup = experimentGroup;
-        this.scores = scores;
+        this.experimentGroupId = experimentGroupId;
     }
 
     @Override
@@ -36,8 +38,7 @@ public class ExperimentType implements Serializable {
         return "ExperimentType{" +
                 "id=" + id +
                 ", typeName='" + typeName + '\'' +
-                ", experimentGroup=" + experimentGroup +
-                ", scores=" + scores +
+                ", experimentGroupId=" + experimentGroupId +
                 '}';
     }
 
@@ -57,19 +58,12 @@ public class ExperimentType implements Serializable {
         this.typeName = typeName;
     }
 
-    public ExperimentGroup getExperimentGroup() {
-        return experimentGroup;
+    public int getExperimentGroupId() {
+        return experimentGroupId;
     }
 
-    public void setExperimentGroup(ExperimentGroup experimentGroup) {
-        this.experimentGroup = experimentGroup;
+    public void setExperimentGroupId(int experimentGroupId) {
+        this.experimentGroupId = experimentGroupId;
     }
 
-    public double getScores() {
-        return scores;
-    }
-
-    public void setScores(double scores) {
-        this.scores = scores;
-    }
 }

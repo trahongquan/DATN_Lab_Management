@@ -23,25 +23,43 @@ public class Content implements Serializable {
     @Column(name = "experiment_type", nullable = false)
     private int experimentType;
 
+    @Column(name = "experiment_report", nullable = false)
+    private int experimentReport;
+
     @Column(name = "class_name", nullable = false)
     private String className;
 
     @Column(name = "amount_of_people", nullable = false)
     private int amountOfPeople;
 
-    @Column(name = "list_id_Participants", nullable = false)
+    @Column(name = "list_id_Participants", nullable = true)
     private String listIdParticipants;
 
     public Content() {
     }
 
-    public Content(String name, int reservationistId, int experimentType, String className, int amountOfPeople, String listIdParticipants) {
+    public Content(String name, int reservationistId, int experimentType, int experimentReport, String className, int amountOfPeople, String listIdParticipants) {
         this.name = name;
         this.reservationistId = reservationistId;
         this.experimentType = experimentType;
+        this.experimentReport = experimentReport;
         this.className = className;
         this.amountOfPeople = amountOfPeople;
         this.listIdParticipants = listIdParticipants;
+    }
+
+    @Override
+    public String toString() {
+        return "Content{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", reservationistId=" + reservationistId +
+                ", experimentType=" + experimentType +
+                ", experimentReport=" + experimentReport +
+                ", className='" + className + '\'' +
+                ", amountOfPeople=" + amountOfPeople +
+                ", listIdParticipants='" + listIdParticipants + '\'' +
+                '}';
     }
 
     public int getId() {
@@ -76,6 +94,14 @@ public class Content implements Serializable {
         this.experimentType = experimentType;
     }
 
+    public int getExperimentReport() {
+        return experimentReport;
+    }
+
+    public void setExperimentReport(int experimentReport) {
+        this.experimentReport = experimentReport;
+    }
+
     public String getClassName() {
         return className;
     }
@@ -98,18 +124,5 @@ public class Content implements Serializable {
 
     public void setListIdParticipants(String listIdParticipants) {
         this.listIdParticipants = listIdParticipants;
-    }
-
-    @Override
-    public String toString() {
-        return "Content{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", reservationistId=" + reservationistId +
-                ", experimentType=" + experimentType +
-                ", className='" + className + '\'' +
-                ", amountOfPeople=" + amountOfPeople +
-                ", listIdParticipants='" + listIdParticipants + '\'' +
-                '}';
     }
 }

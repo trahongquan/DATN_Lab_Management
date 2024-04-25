@@ -1,5 +1,6 @@
 package LabManagement.dto;
 
+import LabManagement.ClassSuport.DateAndStatusLab;
 import LabManagement.entity.Booking;
 import LabManagement.entity.Lab;
 import LabManagement.entity.People;
@@ -16,12 +17,13 @@ public class LabDTO {
     private int isDeleted;
     private People lab_managemet;
     List<Booking> bookings;
-    List<Date> Datebookings;
+    List<Date> dateBookings;
+    List<DateAndStatusLab> dateAndStatusLab;
 
     public LabDTO() {
     }
 
-    public LabDTO(int id, String labName, int capacity, String location, int lab_managemet_id, int isDeleted, People lab_managemet, List<Booking> bookings, List<Date> datebookings) {
+    public LabDTO(int id, String labName, int capacity, String location, int lab_managemet_id, int isDeleted, People lab_managemet, List<Booking> bookings, List<Date> dateBookings) {
         this.id = id;
         this.labName = labName;
         this.capacity = capacity;
@@ -30,7 +32,7 @@ public class LabDTO {
         this.isDeleted = isDeleted;
         this.lab_managemet = lab_managemet;
         this.bookings = bookings;
-        Datebookings = datebookings;
+        this.dateBookings = dateBookings;
     }
 
     public LabDTO(Lab lab, People lab_managemet) {
@@ -42,7 +44,7 @@ public class LabDTO {
         this.isDeleted = lab.getIsDelete();
         this.lab_managemet = lab_managemet;
     }
-    public LabDTO(Lab lab, People lab_managemet, List<Booking> bookings) {
+/*    public LabDTO(Lab lab, People lab_managemet, List<Booking> bookings) {
         this.id = lab.getId();
         this.labName = lab.getLabName();
         this.capacity = lab.getCapacity();
@@ -51,9 +53,9 @@ public class LabDTO {
         this.isDeleted = lab.getIsDelete();
         this.lab_managemet = lab_managemet;
         this.bookings = bookings;
-    }
+    }*/
 
-    public LabDTO(Lab lab, List<Date> Datebookings, People lab_managemet) {
+    public LabDTO(Lab lab, List<Date> dateBookings, People lab_managemet) {
         this.id = lab.getId();
         this.labName = lab.getLabName();
         this.capacity = lab.getCapacity();
@@ -61,7 +63,18 @@ public class LabDTO {
         this.lab_managemet_id = lab.getLab_managemet_id();
         this.isDeleted = lab.getIsDelete();
         this.lab_managemet = lab_managemet;
-        this.Datebookings = Datebookings;
+        this.dateBookings = dateBookings;
+    }
+
+    public LabDTO(Lab lab, People lab_managemet, List<DateAndStatusLab> dateAndStatusLab) {
+        this.id = lab.getId();
+        this.labName = lab.getLabName();
+        this.capacity = lab.getCapacity();
+        this.location = lab.getLocation();
+        this.lab_managemet_id = lab.getLab_managemet_id();
+        this.isDeleted = lab.getIsDelete();
+        this.lab_managemet = lab_managemet;
+        this.dateAndStatusLab = dateAndStatusLab;
     }
 
     public int getId() {
@@ -128,11 +141,19 @@ public class LabDTO {
         this.bookings = bookings;
     }
 
-    public List<Date> getDatebookings() {
-        return Datebookings;
+    public List<Date> getDateBookings() {
+        return dateBookings;
     }
 
-    public void setDatebookings(List<Date> datebookings) {
-        Datebookings = datebookings;
+    public void setDateBookings(List<Date> dateBookings) {
+        this.dateBookings = dateBookings;
+    }
+
+    public List<DateAndStatusLab> getDateAndStatusLab() {
+        return dateAndStatusLab;
+    }
+
+    public void setDateAndStatusLab(List<DateAndStatusLab> dateAndStatusLab) {
+        this.dateAndStatusLab = dateAndStatusLab;
     }
 }

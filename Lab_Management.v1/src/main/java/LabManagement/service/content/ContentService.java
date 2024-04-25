@@ -9,4 +9,5 @@ public interface ContentService {
     void deleteContent(int id);
     List<Content> getAllContents();
     Content getContentById(int id);
+    List<Content> findAllByReservationistId(int id);
 }

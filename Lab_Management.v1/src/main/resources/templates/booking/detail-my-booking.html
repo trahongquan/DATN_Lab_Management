@@ -22,12 +22,12 @@
     </style>
 </head>
 <body class="scroll-container">
-<booking-lab>
+<my-booking-lab>
     <div th:replace="headernew::header"></div>
     <h1 style="margin-top: 50px; text-align: center;">Chi tiết phòng thí nghiệm</h1><br>
 
     <div class="container" style="background-color: rgba(230,239,255,0.6); padding: 2em; border-radius: 3em">
-        <form th:object="${labDTO}" th:action="@{'/Lab/LabDetail/' + ${labDTO.getId}+'?username='+${#authentication.name}}" method="post" enctype="multipart/form-data">
+        <form th:object="${labDTO}" th:action="@{'/Lab/LabDetail/' + ${labDTO.getId}}" method="post" enctype="multipart/form-data">
             <div class="row justify-content-around p-2">
                 <div class="form-group col-5" >
                     <div class="form-group">
@@ -272,6 +272,6 @@
     </script>
     <br>
     <br>
-</booking-lab>
+</my-booking-lab>
 </body>
 </html>

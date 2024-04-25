@@ -16,11 +16,8 @@ public class Booking implements Serializable {
     @Column(name = "lab_id", nullable = false)
     private int labid;
 
-    @Column(name = "booking_equi_id", nullable = false)
-    private int booking_equi_id;
-
     @Column(name = "content_id", nullable = false)
-    private int content_id;
+    private int contentid;
 
     @Column(name = "booking_date", nullable = false)
     private Date booking_Date;
@@ -40,10 +37,9 @@ public class Booking implements Serializable {
     public Booking() {
     }
 
-    public Booking(int labid, int booking_equi_id, int content_id, Date booking_Date, String confirm_Status, int work_times, String note, int is_delete) {
+    public Booking(int labid, int contentid, Date booking_Date, String confirm_Status, int work_times, String note, int is_delete) {
         this.labid = labid;
-        this.booking_equi_id = booking_equi_id;
-        this.content_id = content_id;
+        this.contentid = contentid;
         this.booking_Date = booking_Date;
         this.confirm_Status = confirm_Status;
         this.work_times = work_times;
@@ -56,8 +52,7 @@ public class Booking implements Serializable {
         return "Booking{" +
                 "id=" + id +
                 ", lab_id=" + labid +
-                ", booking_equi_id=" + booking_equi_id +
-                ", content_id=" + content_id +
+                ", content_id=" + contentid +
                 ", booking_Date=" + booking_Date +
                 ", confirm_Status='" + confirm_Status + '\'' +
                 ", work_times=" + work_times +
@@ -82,20 +77,12 @@ public class Booking implements Serializable {
         this.labid = lab_id;
     }
 
-    public int getBooking_equi_id() {
-        return booking_equi_id;
+    public int getContentid() {
+        return contentid;
     }
 
-    public void setBooking_equi_id(int booking_equi_id) {
-        this.booking_equi_id = booking_equi_id;
-    }
-
-    public int getContent_id() {
-        return content_id;
-    }
-
-    public void setContent_id(int content_id) {
-        this.content_id = content_id;
+    public void setContentid(int content_id) {
+        this.contentid = content_id;
     }
 
     public Date getBooking_Date() {

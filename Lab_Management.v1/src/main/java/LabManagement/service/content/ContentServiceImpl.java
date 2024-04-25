@@ -36,4 +36,9 @@ public class ContentServiceImpl implements ContentService {
     public Content getContentById(int id) {
         return contentRepository.findById(id).orElse(null);
     }
+
+    @Override
+    public List<Content> findAllByReservationistId(int id){
+        return contentRepository.findAllByReservationistId(id);
+    }
 }

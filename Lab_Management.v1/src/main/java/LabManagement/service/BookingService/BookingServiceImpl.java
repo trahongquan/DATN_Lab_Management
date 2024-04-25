@@ -46,5 +46,10 @@ public class BookingServiceImpl implements BookingService {
             return new ArrayList<>();
         } else {return bookings;}
     }
+
+    @Override
+    public Booking findByContent_id(int id){
+        return bookingRepository.findByContentid(id);
+    }
 }
 

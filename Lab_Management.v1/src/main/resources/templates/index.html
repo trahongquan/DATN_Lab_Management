@@ -10,8 +10,8 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" ></script>
     <script src="js/script.js"></script>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" >
+    <link rel="stylesheet" href="/css/base2.min.css">
     <link rel="stylesheet" href="css/styles.css">
-
 </head>
 <body>
 <div th:replace="headernew::header"></div>
@@ -24,24 +24,48 @@
                         <label for="date" style="color: black; padding: 10px; font-weight: bold;font-size: 2em;">Chọn ngày:</label>
                         <input type="date" id="date" class="form-control" style="max-width: 20em">
                     </div>
-                    <button type="submit" class="btn btn-primary">Đặt lịch</button>
+                    <!--<button type="submit" class="btn btn-primary">Đặt lịch</button>-->
                     <div class="choose-room d-flex justify-content-around align-content-center">
                         <div class="col-3" th:each="lab : ${labDTOS}" style="border-radius:1em 1em 65px 65px">
                             <div class="card lab-card" style="border-radius:50px" >
                                 <div style="background-color: #007bff">
-                                    <div class="card-header" th:text="${lab.getLabName}"></div>
+                                    <div class="card-header justify-content-center" th:text="${lab.getLabName}"></div>
                                     <div>
-                                        <a th:href="'/Lab/LabDetail/'+${lab.getId}">
-                                            <button type="button" class="btn btn-primary" style="border: black thin;">xem chi tiết phòng</button>
-                                        </a>
+                                        <!--<a th:href="'/Lab/LabDetail/'+${lab.getId}">-->
+                                            <button th:data="${lab.getId}" type="button" class="btn btn-primary btn-booking" style="border: black thin;">Đặt phòng</button>
+                                        <!--</a>-->
                                     </div>
                                 </div>
                                 <div class="card-body">
-                                    <p class="lab-info"> Người phụ trách: </p>
-                                    <strong>
-                                        <p class="lab-info" th:text="${lab.getLab_managemet.getRank + ' ' + lab.getLab_managemet.getName}"></p>
-                                    </strong>
-                                    <div class="row">
+                                    <p class="lab-info text-primary"> Người phụ trách: </p>
+                                    <p class="lab-info" th:text="${lab.getLab_managemet.getRank + ' ' + lab.getLab_managemet.getName}"></p>
+                                    <div>
+                                        <span class="lab-info text-primary">Liên hệ:</span>
+                                        <span class="lab-info" th:text="${lab.getLab_managemet.getContact}"></span>
+                                    </div>
+                                    <br>
+                                    <div>
+                                        <style>
+                                            .alert{color: black; font-weight: bold; display: none; cursor: pointer} .text-status{color: white}
+                                        </style>
+                                        <div class="alert bg-yellow" th:value="${lab.getId}" role="alert">
+                                            <span>🕓</span>
+                                            <span class="text-status">Đang chờ duyệt</span>
+                                        </div>
+                                        <div class="alert bg-green" th:value="${lab.getId}" role="alert">
+                                            <span class="lnr-checkmark-circle"></span>
+                                            <span class="text-status">Đã được đặt</span>
+                                        </div>
+                                        <div class="alert bg-danger" th:value="${lab.getId}" role="alert">
+                                            <span class="fa">❌</span>
+                                            <span class="text-status">Bị từ chối</span>
+                                        </div>
+                                        <div class="alert bg-primary" th:value="${lab.getId}" role="alert">
+                                            <span class="fa fa-plus-circle"></span>
+                                            <span class="text-status">Chọn ngay</span>
+                                        </div>
+                                    </div>
+                                    <!--<div class="row">
                                         <div class="form-group col-6">
                                             <label >Ca sáng:</label>
                                             <div>
@@ -58,7 +82,7 @@
                                                 <span class="icon-checkzzz cachieuO" style="display: none"> 🕓 </span>
                                             </div>
                                         </div>
-                                    </div>
+                                    </div>-->
                                 </div>
                             </div>
                         </div>
@@ -73,35 +97,98 @@
 <br>
 <script th:inline="javascript">
     $(document).ready(function() {
+        var currentDate = new Date().toISOString().split('T')[0];
+        var username = [[${#authentication.name}]];
+        $('#date').val(currentDate);
+        $('#date').attr('min', currentDate);
+        $(".btn-booking").click(function() {
+            var dateValue = $("#date").val();
+            // var parentCard = $(this).closest(".lab-card");
+            // var labId = parentCard.find("a").attr("href").split("/").pop();
+            var labId = $(this).attr('data');
+            console.log(labId)
+            // Chuyển đến trang view tiếp theo và truyền giá trị ngày và labId qua URL
+            window.location.href = "/Lab/LabDetail/"+labId+"?date=" +  (dateValue) + "&username=" + encodeURIComponent(username);
+        });
+
+        /**********************************************************************************
+         *
+         * ********************************************************************************/
+
+        var Status = {
+            APPROVE: "Đã xác nhận",
+            PENDDING: "Đang chờ duyệt",
+            CANCEL: "Bị từ chối"
+        };
+
+        var dateAndStatusLabsList = [[${dateAndStatusLabsList}]]
+
         $('#date').change(function() {
-            const selectedDate = $(this).val();
-            console.log(selectedDate);
+            checkDateAndStatus();
+        });
+        function setDisplay(i, green, yellow, danger, primary) {
+            var yellowAlert = $('.alert.bg-yellow');
+            var greenAlert = $('.alert.bg-green');
+            var dangerAlert = $('.alert.bg-danger');
+            var primaryAlert = $('.alert.bg-primary');
+            var btnBooking = $('.btn-booking');
 
-            var roomDTOS = [[${roomDTOS}]];
-            // var roomDTOS = JSON.parse('${roomDTOS}');
-            var casang = $('#ca_sang');
-            var caChieu = $('#ca_chieu');
-            for (var i = 0; i < roomDTOS.length; i++) {
-            console.log('roomDTOS: '+i);
-                // if(roomDTOS[i].datebookings.length)
-                for (var j = 0; j < roomDTOS[i].datebookings.length; j++) {
-                    // roomDTOS[i].Datebookings[j]
-                    console.log('roomDTOS[i].Datebookings[j]: '+j);
-                    if (selectedDate === roomDTOS[i].datebookings[j]) {
-                        console.log('selectedDate matches datebookings[' + j + ']');
+            greenAlert.eq(i).css('display', green);
+            yellowAlert.eq(i).css('display', yellow);
+            dangerAlert.eq(i).css('display', danger);
+            primaryAlert.eq(i).css('display', primary);
+            /*btnBooking.forEach(btn => {
+                btn.prop('disabled', false);
+            })*/
+            /*for (var j = 0; j < btnBooking.length(); j++) {
+                btnBooking.eq(j).attr('disabled', false);
+            }
+            if(green==='block' || yellow==='block') {
+                btnBooking.eq(i).attr('disabled', true);
+            }*/
+        }
+        function checkDateAndStatus() {
+            var dateValue = $("#date").val();
+            for (var i = 0; i < dateAndStatusLabsList.length; i++) {
+                var dateAndStatusLabs = dateAndStatusLabsList[i];
+                if(dateAndStatusLabs.length === 0){
+                    setDisplay(i,'none', 'none', 'none', 'block');
+                }
+                // console.log('============= i='+i+' ===========');
+                for (var j = 0; j < dateAndStatusLabs.length; j++) {
+                    var dateAndStatusLab = dateAndStatusLabs[j];
+                    // console.log('============= j='+j+' ===========');
+                    // console.log(dateAndStatusLab.date);
+                    // console.log(dateAndStatusLab.status);
 
-                    }else {
-
+                    if(dateValue === dateAndStatusLab.date){
+                        // console.log(true);
+                        switch (dateAndStatusLab.status) {
+                            case Status.APPROVE :
+                                setDisplay(i,'block', 'none', 'none', 'none');
+                                break;
+                            case Status.PENDDING :
+                                // Xử lý khi status là CANCEL
+                                setDisplay(i,'none', 'block', 'none', 'none');
+                                break;
+                            case Status.CANCEL :
+                                // setDisplay(i,'none', 'none', 'block', 'none');
+                                setDisplay(i,'none', 'none', 'none', 'block');
+                                // Xử lý khi status là PENDING
+                                break;
+                            default:
+                                // Xử lý khi status không khớp với bất kỳ trường hợp nào
+                                break;
+                        }
+                        break
+                    } else {
+                        setDisplay(i,'none', 'none', 'none', 'block');
                     }
                 }
             }
-        });
-
-
+        }
+        $('#date').trigger('change');
     });
-
-
-
 </script>
 </body>
 </html>

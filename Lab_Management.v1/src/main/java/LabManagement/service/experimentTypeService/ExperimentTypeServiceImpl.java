@@ -33,6 +33,11 @@ public class ExperimentTypeServiceImpl implements ExperimentTypeService {
     }
 
     @Override
+    public List<ExperimentType> findAllByExperimentGroupId(int id) {
+        return experimentTypeRepository.findAllByExperimentGroupId(id);
+    }
+
+    @Override
     public ExperimentType getExperimentTypeById(int id) {
         return experimentTypeRepository.findById(id).orElse(null);
     }

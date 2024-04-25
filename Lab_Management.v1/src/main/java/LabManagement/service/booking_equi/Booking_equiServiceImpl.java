@@ -36,6 +36,16 @@ public class Booking_equiServiceImpl implements Booking_equiService {
     }
 
     @Override
+    public List<Booking_equi> findByBookingId(int id){
+        return booking_equiRepository.findAllByBookingId(id);
+    }
+
+    @Override
+    public Booking_equi findByBookingIdAndAndEquipmentId(int id1, int id2){
+        return booking_equiRepository.findByBookingIdAndAndEquipmentId(id1, id2);
+    }
+
+    @Override
     public Booking_equi getBookingEquipmentById(int id) {
         return booking_equiRepository.findById(id).orElse(null);
     }

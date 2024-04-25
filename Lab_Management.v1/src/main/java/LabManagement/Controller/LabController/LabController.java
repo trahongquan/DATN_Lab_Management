@@ -1,11 +1,8 @@
 package LabManagement.Controller.LabController;
 
-import LabManagement.ClassSuport.ToList;
+import LabManagement.ClassSuport.*;
 import LabManagement.dao.*;
-import LabManagement.dto.EquipmentDTO;
-import LabManagement.dto.EquipmentLabDTO;
-import LabManagement.dto.LabDTO;
-import LabManagement.dto.PeopleDTO;
+import LabManagement.dto.*;
 import LabManagement.entity.*;
 import LabManagement.service.BookingService.BookingService;
 import LabManagement.service.EquipmentService.EquipmentService;
@@ -14,7 +11,11 @@ import LabManagement.service.RoleService.RoleService;
 import LabManagement.service.LabService.LabService;
 import LabManagement.service.authority.AuthorityService;
 import LabManagement.service.booking_equi.Booking_equiService;
+import LabManagement.service.content.ContentService;
 import LabManagement.service.equipmentLab.EquipmentLabService;
+import LabManagement.service.experimentGroupService.ExperimentGroupService;
+import LabManagement.service.experimentReportService.ExperimentReportService;
+import LabManagement.service.experimentTypeService.ExperimentTypeService;
 import LabManagement.service.users.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -24,10 +25,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.sql.Date;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Controller
@@ -48,20 +46,25 @@ public class LabController {
     private AuthorityService authorityService;
     private BookingService bookingService;
     private BookingRepository bookingRepository;
+    private ContentService contentService;
     private EquipmentService equipmentService;
     private EquipmentLabService equipmentLabService;
     private Booking_equiService booking_equiService;
     private PeopleService peopleService;
     private RoleService roleService;
     private LabService labService;
-    PasswordEncoder passwordEncoder;
+    private ExperimentGroupService experimentGroupService;
+    private ExperimentTypeService experimentTypeService;
+    private ExperimentReportService experimentReportService;
+    private PasswordEncoder passwordEncoder;
 
     @Autowired
-    public LabController(UserService userService, AuthorityService authorityService, BookingService bookingService, BookingRepository bookingRepository, EquipmentService equipmentService, EquipmentLabService equipmentLabService, Booking_equiService booking_equiService, PeopleService peopleService, RoleService roleService, LabService labService, PasswordEncoder passwordEncoder) {
+    public LabController(UserService userService, AuthorityService authorityService, BookingService bookingService, BookingRepository bookingRepository, ContentService contentService, EquipmentService equipmentService, EquipmentLabService equipmentLabService, Booking_equiService booking_equiService, PeopleService peopleService, RoleService roleService, LabService labService, PasswordEncoder passwordEncoder, ExperimentGroupService experimentGroupService, ExperimentTypeService experimentTypeService, ExperimentReportService experimentReportService) {
         this.userService = userService;
         this.authorityService = authorityService;
         this.bookingService = bookingService;
         this.bookingRepository = bookingRepository;
+        this.contentService = contentService;
         this.equipmentService = equipmentService;
         this.equipmentLabService = equipmentLabService;
         this.booking_equiService = booking_equiService;
@@ -69,6 +72,9 @@ public class LabController {
         this.roleService = roleService;
         this.labService = labService;
         this.passwordEncoder = passwordEncoder;
+        this.experimentTypeService = experimentTypeService;
+        this.experimentGroupService = experimentGroupService;
+        this.experimentReportService = experimentReportService;
     }
 
     /******************************************************************************************************/
@@ -79,16 +85,16 @@ public class LabController {
         People people = peopleService.findByPeopleId(lab.getLab_managemet_id());
         return new LabDTO(lab,people);
     }
-    private LabDTO Lab2LabDTOandDateBookings(Lab lab){
+    private LabDTO Lab2LabDTOandDateAndStatus(Lab lab){
         People people = peopleService.findByPeopleId(lab.getLab_managemet_id());
         List<Booking> bookings = bookingService.findAllByLab_id(lab.getId());
-        List<Date> dateBookings = new LinkedList<>();
-        if(!bookings.isEmpty()){bookings.forEach(booking -> dateBookings.add(booking.getBooking_Date()));}
-        return new LabDTO(lab,dateBookings,people);
+        List<DateAndStatusLab> dateAndStatusLab = new ArrayList<>();
+        if(!bookings.isEmpty()){bookings.forEach(booking -> dateAndStatusLab.add(new DateAndStatusLab(booking.getBooking_Date(),booking.getConfirm_Status())));}
+        return new LabDTO(lab,people,dateAndStatusLab);
     }
-    private List<LabDTO> Labs2LabDTOsAndDateBookings(List<Lab> labs){
+    private List<LabDTO> Labs2LabDTOsAndDateAndStatus(List<Lab> labs){
         List<LabDTO> labDTOS = new LinkedList<>();
-        labs.forEach(lab -> labDTOS.add(Lab2LabDTOandDateBookings(lab)));
+        labs.forEach(lab -> labDTOS.add(Lab2LabDTOandDateAndStatus(lab)));
         return labDTOS;
     }
 
@@ -97,18 +103,150 @@ public class LabController {
         List<Lab> labs = labService.getAllLabs().stream()
                 .filter(lab -> (lab.getIsDelete()!=1))
                 .collect(Collectors.toList());
-        List<LabDTO> labDTOS = Labs2LabDTOsAndDateBookings(labs);
+        List<LabDTO> labDTOS = Labs2LabDTOsAndDateAndStatus(labs);
+        List<List<DateAndStatusLab>> dateAndStatusLabsList = new ArrayList<>();
+        labDTOS.forEach(labDTO -> dateAndStatusLabsList.add(labDTO.getDateAndStatusLab()));
+//        labDTOS.forEach(labDTO -> dateAndStatusLabsList.add(new DateAndStatusLabList(labDTO.getDateAndStatusLab())));
+        System.out.println(dateAndStatusLabsList);
+        System.out.println(dateAndStatusLabsList.get(0));
+        model.addAttribute("dateAndStatusLabsList", dateAndStatusLabsList);
         model.addAttribute("labDTOS", labDTOS);
         return "index";
     }
     @GetMapping("/LabDetail/{id}")
-    public String getLabDetail(Model model, @PathVariable("id") int id) {
-        RoomDetail(model, id, false);
+    public String getLabDetail(Model model, @PathVariable("id") int id,
+                               @RequestParam("date") Date date,
+                               @RequestParam("username") String username,
+                               @RequestParam(value = "success", defaultValue = "false") boolean success) {
+        Lab lab = labService.findByLabId(id);
+        LabDTO labDTO = Lab2LabDTO(lab);
+        List<EquipmentLabDTO> equipmentLabDTOs = EquiLabs2EquiLabDTOs(equipmentLabService.findAllByLabId(id));
+        List<Booking_equi> bookingEquiDTOs = new ArrayList<>();
+        List<ExperimentGroup> experimentGroups = experimentGroupService.getAllExperimentGroups();
+        List<ExperimentType> experimentTypes = experimentTypeService.getAllExperimentTypes();
+        List<ExperimentReport> experimentReports = experimentReportService.getAllExperimentReports();
+        /*List<People> reservationists = peopleService.getAllPeople().stream()
+                                            .filter(people ->
+                                                people.getIsDelete()!=1 &&
+                                                    (CheckRole(people, "ROLE_RESERVATIONIST")
+                                                    || CheckRole(people, "ROLE_TEACHER"))
+                                            ).collect(Collectors.toList());*/
+        List<People> reservationists = new ArrayList<>();
+        reservationists.add(FindPeopleByUsername(username));
+                model.addAttribute("labDTO", labDTO);
+        model.addAttribute("equipmentLabDTOs", equipmentLabDTOs);
+        model.addAttribute("bookingEquiDTOs", bookingEquiDTOs);
+        model.addAttribute("experimentReports", experimentReports);
+        model.addAttribute("experimentTypes", experimentTypes);
+        model.addAttribute("experimentGroups", experimentGroups);
+        model.addAttribute("reservationists", reservationists);
+        model.addAttribute("date", date);
+        model.addAttribute("success", success);
         return "booking/booking-lab";
     }
 
+    @PostMapping("/LabDetail/{id}")
+    public String PostLabDetail(Model model, @PathVariable("id") int id,
+                                @RequestParam("username") String username,
+                                @RequestParam("date") Date date,
+                                @RequestParam("name") String name,
+                                @RequestParam("experiment_group") int experiment_groupId,
+                                @RequestParam("experiment_type") int experiment_typeId,
+                                @RequestParam("experiment_report") int experiment_reportId,
+                                @RequestParam("reservationist") int reservationistId,
+                                @RequestParam("class_name") String class_name,
+                                @RequestParam("amount_of_people") int amount_of_people,
+                                @RequestParam(value = "series", defaultValue = "") List<String> series,
+                                @RequestParam("work_time") int work_time,
+                                @RequestParam("note") String note) {
+        Lab lab = labService.findByLabId(id); LabDTO labDTO = Lab2LabDTO(lab);
+        List<EquipmentLab> equipmentLabs = equipmentLabService.findAllByLabId(id);
+        List<EquipmentLab> equipmentLabsCoppy = new ArrayList<>(equipmentLabs);
+        Content content = contentService.saveContent(new Content(name, reservationistId, experiment_typeId, experiment_reportId, class_name, amount_of_people, "[]"));
+        Booking booking = bookingService.createBooking(new Booking(id,content.getId(),date, new ComfirmStatus().PENDDING, work_time, note,0));
+        List<Booking_equi> booking_equis = new ArrayList<>();
+        series.forEach(seri -> {
+            equipmentLabsCoppy.forEach( equipmentLab -> {
+                equipmentLab.getEquipmentSerieList().forEach(equiLab_seri -> {
+                    if(equiLab_seri.equals(seri)){
+                        Booking_equi booking_equi = booking_equiService.findByBookingIdAndAndEquipmentId(booking.getId(),equipmentLab.getEquipmentId()) != null
+                                                    ? booking_equiService.findByBookingIdAndAndEquipmentId(booking.getId(),equipmentLab.getEquipmentId())
+                                                    : new Booking_equi(equipmentLab.getEquipmentId(),"[]", booking.getId());
+                        booking_equi.AddSeri(booking_equiService,seri);
+                        equipmentLab.getEquipmentSerieList().remove(seri);
+                        booking_equis.add(booking_equi);
+                    }
+                });
+            });
+        });
 
+        List<ExperimentType> experimentTypes = experimentTypeService.getAllExperimentTypes();
+        List<ExperimentReport> experimentReports = experimentReportService.getAllExperimentReports();
+        List<ExperimentGroup> experimentGroups = experimentGroupService.getAllExperimentGroups();
+        List<People> reservationists = peopleService.getAllPeople().stream()
+                .filter(people ->
+                        people.getIsDelete()!=1 &&
+                                (CheckRole(people, "ROLE_RESERVATIONIST")
+                                        || CheckRole(people, "ROLE_TEACHER"))
+                ).collect(Collectors.toList());
 
+        List<EquipmentLabDTO> equipmentLabDTOs = EquiLabs2EquiLabDTOs(equipmentLabsCoppy);
+
+        model.addAttribute("equipmentLabDTOs", equipmentLabDTOs);
+        model.addAttribute("labDTO", labDTO);
+        model.addAttribute("bookingEquiDTOs", booking_equis);
+        model.addAttribute("experimentGroups", experimentGroups);
+        model.addAttribute("experimentReports", experimentReports);
+        model.addAttribute("experimentTypes", experimentTypes);
+        model.addAttribute("reservationists", reservationists);
+        model.addAttribute("date", date);
+
+//        return "booking/booking-lab";
+        return Redirect("mybooking"+"?username="+username,"");
+    }
+
+    private List<String> GetUsedSeriesOfBookingEquiment(int bookingId){
+        List<Booking_equi> booking_equis = booking_equiService.findByBookingId(bookingId);
+        List<String> usedSeries = new ArrayList<>();
+        booking_equis.forEach(booking_equi -> {
+            booking_equi.getEquipmentSerieList().forEach(item -> {
+                usedSeries.add(item);
+            });
+        });
+        return usedSeries;
+    }
+    private List<EquipmentLab> GetEquiLabs_SeriNoUsed(List<String> usedSeries, int labId){
+        List<EquipmentLab> equipmentLabs = equipmentLabService.findAllByLabId(labId);
+        usedSeries.forEach(seri -> {
+            equipmentLabs.forEach(equipmentLab -> {
+                equipmentLab.getEquipmentSerieList().forEach(seriEquiLab -> {
+                    if(seri.equals(seriEquiLab)){
+                        equipmentLab.DelSeri(equipmentLabService, seri);
+                    }
+                });
+            });
+        });
+        return equipmentLabs;
+    }
+    private People FindPeopleByUsername(String username){
+        return peopleService.findByPeopleId(userService.findByUsername(username).getPeopleid());
+    }
+    @GetMapping("/mybooking")
+    public String myBooking(Model model, @RequestParam("username")String username){
+        People teacher = FindPeopleByUsername(username);
+        List<Content> contents = contentService.findAllByReservationistId(teacher.getId());
+        List<BookingDTO> bookingDTOs = new ArrayList<>();
+        contents.forEach(content -> {
+            Booking booking = bookingService.findByContent_id(content.getId());
+            Lab lab = labService.findByLabId(booking.getLabid());
+            ExperimentReport experimentReport = experimentReportService.getExperimentReportById(content.getExperimentReport());
+            bookingDTOs.add(new BookingDTO(booking,content,lab,experimentReport));
+        });
+        /** Sắp xếp lại bookingDTOs theo thứ tự ngày gần nhất đến xa nhất = Override: BookingDateComparator */
+        Collections.sort(bookingDTOs, new BookingDateComparator());
+        model.addAttribute("bookingDTOs", bookingDTOs);
+        return "booking/my-booking";
+    }
 
 
 /******************************************************************************************************/
@@ -118,7 +256,7 @@ public class LabController {
     @GetMapping({"/admin/Dashboard"})
     public String getAdminHomePage(Model model) {
         List<Lab> rooms = labService.getAllLabs();
-        List<LabDTO> roomDTOS = Labs2LabDTOsAndDateBookings(rooms);
+        List<LabDTO> roomDTOS = Labs2LabDTOsAndDateAndStatus(rooms);
         model.addAttribute("roomDTOS", roomDTOS);
 //        System.out.println(roomDTOS);
         return template;
@@ -130,12 +268,12 @@ public class LabController {
     @GetMapping("/admin/Room")
     public String RoomList(Model model, @RequestParam(value = "success", defaultValue = "false") boolean success) {
         List<Lab> labs = labService.getAllLabs();
-        List<LabDTO> labDTOS = Labs2LabDTOsAndDateBookings(labs);
+        List<LabDTO> labDTOS = Labs2LabDTOsAndDateAndStatus(labs);
         model.addAttribute("labDTOS", labDTOS.stream().filter(labDTO -> labDTO.getIsDeleted()==0).collect(Collectors.toList()));
         model.addAttribute("success", success);
         return template;
     }
-    private List<String> GetUsedSeries(){
+    private List<String> GetUsedSeriesOfEquipmentLabs(){
         List<EquipmentLab> equipmentLabs = equipmentLabService.getAllEquipmentLabs();
         List<String> usedSeries = equipmentLabs.stream()
                 .flatMap(equipmentLab -> Arrays.stream(equipmentLab.getEquipmentSeries()
@@ -164,7 +302,7 @@ public class LabController {
     @GetMapping("/admin/Room/add")
     public String AddRoom(Model model, @RequestParam(value = "success", defaultValue = "false") boolean success) {
         List<People> peoples = peopleService.getAllPeople();
-        List<String> usedSeries = GetUsedSeries();
+        List<String> usedSeries = GetUsedSeriesOfEquipmentLabs();
         List<EquipmentDTO> equipmentDTOS =  GetEquisDTO_SeriNoUsed(usedSeries);
         model.addAttribute("peoples", peoples);
         model.addAttribute("equipmentDTOS", equipmentDTOS);
@@ -244,7 +382,7 @@ public class LabController {
         LabDTO labDTO = Lab2LabDTO(lab);
         List<People> Managers = peopleService.getAllPeople();
         List<EquipmentLabDTO> equipmentLabDTOs = EquiLabs2EquiLabDTOs(equipmentLabService.findAllByLabId(id));
-        List<String> usedSeries = GetUsedSeries();
+        List<String> usedSeries = GetUsedSeriesOfEquipmentLabs();
         List<EquipmentDTO> equipmentDTOS =  GetEquisDTO_SeriNoUsed(usedSeries);
 
         model.addAttribute("Managers", Managers);
@@ -402,7 +540,6 @@ public class LabController {
                             @RequestParam("username") String username,
                             @RequestParam("password") String password,
                             @RequestParam("authority") String role) {
-
         People people = new People(name, rank, unit, militaryNumber, contact, 0);
         peopleService.createPeople(people);
         Authority authority = new Authority(username, role);
