@@ -25,6 +25,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.sql.Date;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -86,8 +88,13 @@ public class LabController {
         return new LabDTO(lab,people);
     }
     private LabDTO Lab2LabDTOandDateAndStatus(Lab lab){
+        LocalDate currentDate = LocalDate.now();
         People people = peopleService.findByPeopleId(lab.getLab_managemet_id());
-        List<Booking> bookings = bookingService.findAllByLab_id(lab.getId());
+        List<Booking> bookings = bookingService.findAllByLab_id(lab.getId())
+                                .stream().filter(booking -> {
+                                    return booking.getBooking_Date().toLocalDate().isAfter(currentDate)
+                                    || booking.getBooking_Date().toLocalDate().equals(currentDate);})
+                                .collect(Collectors.toList());
         List<DateAndStatusLab> dateAndStatusLab = new ArrayList<>();
         if(!bookings.isEmpty()){bookings.forEach(booking -> dateAndStatusLab.add(new DateAndStatusLab(booking.getBooking_Date(),booking.getConfirm_Status())));}
         return new LabDTO(lab,people,dateAndStatusLab);
@@ -97,20 +104,41 @@ public class LabController {
         labs.forEach(lab -> labDTOS.add(Lab2LabDTOandDateAndStatus(lab)));
         return labDTOS;
     }
+    private void ApprovePassCurrentDateBookings() {
+        LocalDate currentDate = LocalDate.now();
+        List<Lab> labs = labService.getAllLabs().stream()
+                .filter(lab -> (lab.getIsDelete()!=1))
+                .collect(Collectors.toList());
+        labs.forEach(lab -> {
+            List<Booking> PassCurrentDateBookings = bookingService.findAllByLab_id(lab.getId())
+                    .stream().filter(booking ->{
+                                return (booking.getBooking_Date().toLocalDate().isBefore(currentDate)
+                                        || booking.getBooking_Date().toLocalDate().equals(currentDate))
+                                        && booking.getConfirm_Status().equals(ComfirmStatus.PENDDING);
+                            })
+                    .collect(Collectors.toList());
+            if(!PassCurrentDateBookings.isEmpty()){
+                PassCurrentDateBookings.forEach(booking -> {
+                    booking.setConfirm_Status(ComfirmStatus.APPROVE);
+                    booking.setAuto(AutoComfirmStatusBooking.AutoBoking);
+                    bookingService.updateBooking(booking);
+                });
+            }
+        });
+    }
 
     @GetMapping({"/",""})
     public String getLabs(Model model) {
+        ApprovePassCurrentDateBookings(); /** Check xem các đơn đã cồn pendding mà đã đến ngày đặt thì tự động approve */
         List<Lab> labs = labService.getAllLabs().stream()
                 .filter(lab -> (lab.getIsDelete()!=1))
                 .collect(Collectors.toList());
         List<LabDTO> labDTOS = Labs2LabDTOsAndDateAndStatus(labs);
         List<List<DateAndStatusLab>> dateAndStatusLabsList = new ArrayList<>();
         labDTOS.forEach(labDTO -> dateAndStatusLabsList.add(labDTO.getDateAndStatusLab()));
-//        labDTOS.forEach(labDTO -> dateAndStatusLabsList.add(new DateAndStatusLabList(labDTO.getDateAndStatusLab())));
-        System.out.println(dateAndStatusLabsList);
-        System.out.println(dateAndStatusLabsList.get(0));
         model.addAttribute("dateAndStatusLabsList", dateAndStatusLabsList);
         model.addAttribute("labDTOS", labDTOS);
+        model.addAttribute("currentDate", LocalDate.now());
         return "index";
     }
     @GetMapping("/LabDetail/{id}")
@@ -163,7 +191,7 @@ public class LabController {
         List<EquipmentLab> equipmentLabs = equipmentLabService.findAllByLabId(id);
         List<EquipmentLab> equipmentLabsCoppy = new ArrayList<>(equipmentLabs);
         Content content = contentService.saveContent(new Content(name, reservationistId, experiment_typeId, experiment_reportId, class_name, amount_of_people, "[]"));
-        Booking booking = bookingService.createBooking(new Booking(id,content.getId(),date, new ComfirmStatus().PENDDING, work_time, note,0));
+        Booking booking = bookingService.createBooking(new Booking(id,content.getId(),date, new ComfirmStatus().PENDDING, work_time, note,0, AutoComfirmStatusBooking.ManualBoking));
         List<Booking_equi> booking_equis = new ArrayList<>();
         series.forEach(seri -> {
             equipmentLabsCoppy.forEach( equipmentLab -> {
@@ -246,6 +274,18 @@ public class LabController {
         Collections.sort(bookingDTOs, new BookingDateComparator());
         model.addAttribute("bookingDTOs", bookingDTOs);
         return "booking/my-booking";
+    }
+
+    @GetMapping({"/myAccount/{username}"})
+    public String myAccount(Model model, @PathVariable("username") String username,
+                       @RequestParam(value = "changedPassfalse", defaultValue = "false") boolean changedPassfalse,
+                       @RequestParam(value = "success", defaultValue = "false") boolean success){
+        Users user = userService.findByUsername(username);
+        People people = peopleService.findByPeopleId(user.getPeopleid());
+        model.addAttribute("success", success);
+        model.addAttribute("peopleDTO",People2PeopleDTO(people) );
+        model.addAttribute("changedPassfalse", changedPassfalse);
+        return "managers/account-info";
     }
 
 
@@ -343,7 +383,7 @@ public class LabController {
                 equipmentLab.AddSeri(equipmentLabService, seri);
             }
         }
-        return Redirect("/admin/Room",true);
+        return Redirect("admin/Room",true);
     }
     private List<EquipmentDTO> Equis2EquiDTOS(List<Equipment> equipments){
         List<EquipmentDTO> equipmentDTOS = new ArrayList<>();
@@ -703,7 +743,7 @@ public class LabController {
     }
 
     /******************************************************************************************/
-                                            /** Role */
+                                            /** myAccount */
     /******************************************************************************************/
 
 
@@ -731,6 +771,48 @@ public class LabController {
         } else {
             return "redirect:/Lab/admin/myAccount/"+username+"?changedPassfalse=true";
         }
+    }
+
+
+
+    /******************************************************************************************/
+                                /** Laboratory Booking Management */
+    /******************************************************************************************/
+
+    private void GetBookingByStatus(Model model, String status){
+        List<Booking> bookings = bookingService.getAllBookings().stream().filter(booking -> booking.getConfirm_Status().equals(status)).collect(Collectors.toList());
+        List<BookingDTO> bookingDTOs = new ArrayList<>();
+        bookings.forEach(booking -> {
+            Content content = contentService.getContentById(booking.getContentid());
+            Lab lab = labService.findByLabId(booking.getLabid());
+            ExperimentReport experimentReport = experimentReportService.getExperimentReportById(content.getExperimentReport());
+            bookingDTOs.add(new BookingDTO(booking,content,lab,experimentReport));
+        });
+        /** Sắp xếp lại bookingDTOs theo thứ tự ngày gần nhất đến xa nhất = Override: BookingDateComparator */
+        Collections.sort(bookingDTOs, new BookingDateComparator());
+        model.addAttribute("bookingDTOs", bookingDTOs);
+    }
+
+    @GetMapping({"/admin/LabBookingManagement/Pendding"})
+    public String PeddingBooking(Model model,
+                               @RequestParam(value = "success", defaultValue = "false") boolean success){
+        GetBookingByStatus(model, ComfirmStatus.PENDDING);
+        model.addAttribute("success", success);
+        return template;
+    }
+    @GetMapping({"/admin/LabBookingManagement/Approve"})
+    public String ApproveBooking(Model model,
+                               @RequestParam(value = "success", defaultValue = "false") boolean success){
+        GetBookingByStatus(model, ComfirmStatus.APPROVE);
+        model.addAttribute("success", success);
+        return template;
+    }
+    @GetMapping({"/admin/LabBookingManagement/Cancel"})
+    public String CancelBooking(Model model,
+                               @RequestParam(value = "success", defaultValue = "false") boolean success){
+        GetBookingByStatus(model, ComfirmStatus.CANCEL);
+        model.addAttribute("success", success);
+        return template;
     }
 
 //    @GetMapping({"/admin/Approve"})

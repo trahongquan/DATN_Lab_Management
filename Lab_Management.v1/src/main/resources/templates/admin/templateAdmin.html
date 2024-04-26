@@ -888,19 +888,19 @@
                             </li>
                             <li class="app-sidebar__heading">QUẢN LÝ ĐẶT PHÒNG</li>
                             <li>
-                                <a href="/Lab/admin/Pendding">
+                                <a href="/Lab/admin/LabBookingManagement/Pendding">
                                     <i class="metismenu-icon pe-7s-timer">
                                     </i>Yêu cầu đặt phòng
                                 </a>
                             </li>
                             <li>
-                                <a href="/Lab/admin/Approve">
+                                <a href="/Lab/admin/LabBookingManagement/Approve">
                                     <i class="metismenu-icon pe-7s-graph">
                                     </i>Yêu cầu đã xử lý
                                 </a>
                             </li>
                             <li>
-                                <a href="/Lab/admin/CancelBoooking">
+                                <a href="/Lab/admin/LabBookingManagement/Cancel">
                                     <i class="metismenu-icon pe-7s-less">
                                     </i>Yêu đã hủy
                                 </a>
@@ -1047,8 +1047,22 @@
                 </div>
 
                                                 <!--/////////////////////////////////-->
-                                                            <!-- Employees -->
+                                                <!--  Laboratory Booking Management  -->
                                                 <!--/////////////////////////////////-->
+
+                <div th:if="${#request.requestURI == '/Lab/admin/LabBookingManagement/Pendding'}" class="app-main__inner" style="display: flex; justify-content: center; align-content: center; flex-direction: column;">
+                    <div th:replace="admin/booking-management.html :: management"></div>
+                </div>
+                <div th:if="${#request.requestURI == '/Lab/admin/LabBookingManagement/Approve'}" class="app-main__inner" style="display: flex; justify-content: center; align-content: center; flex-direction: column;">
+                    <div th:replace="admin/booking-management.html :: management"></div>
+                </div>
+                <div th:if="${#request.requestURI == '/Lab/admin/LabBookingManagement/Cancel'}" class="app-main__inner" style="display: flex; justify-content: center; align-content: center; flex-direction: column;">
+                    <div th:replace="admin/booking-management.html :: management"></div>
+                </div>
+                <!--<div th:if="${#strings.contains(#request.requestURI, '/Lab/admin/myAccount/')}" class="app-main__inner">-->
+                    <!--<div th:replace="managers/account-info :: account-info"></div>-->
+                <!--</div>-->
+
 
             </div>
         </div>

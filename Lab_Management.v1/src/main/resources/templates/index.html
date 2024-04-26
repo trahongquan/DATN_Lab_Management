@@ -8,6 +8,7 @@
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" ></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" ></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" ></script>
+    <script src="https://cdn.jsdelivr.net/momentjs/2.29.1/moment.min.js"></script>
     <script src="js/script.js"></script>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" >
     <link rel="stylesheet" href="/css/base2.min.css">
@@ -31,9 +32,7 @@
                                 <div style="background-color: #007bff">
                                     <div class="card-header justify-content-center" th:text="${lab.getLabName}"></div>
                                     <div>
-                                        <!--<a th:href="'/Lab/LabDetail/'+${lab.getId}">-->
-                                            <button th:data="${lab.getId}" type="button" class="btn btn-primary btn-booking" style="border: black thin;">Đặt phòng</button>
-                                        <!--</a>-->
+                                        <button th:data="${lab.getId}" type="button" class="btn btn-success btn-booking" style="border: black thin;">Đặt phòng</button>
                                     </div>
                                 </div>
                                 <div class="card-body">
@@ -65,24 +64,6 @@
                                             <span class="text-status">Chọn ngay</span>
                                         </div>
                                     </div>
-                                    <!--<div class="row">
-                                        <div class="form-group col-6">
-                                            <label >Ca sáng:</label>
-                                            <div>
-                                                <span class="icon-checkzzz casangV" style="display: none"> ✅ </span>
-                                                <span class="icon-checkzzz casangX" style="display: block"> ❌ </span>
-                                                <span class="icon-checkzzz casangO" style="display: none"> 🕓 </span>
-                                            </div>
-                                        </div>
-                                        <div class="form-group col-6">
-                                            <label > Ca chiều:</label>
-                                            <div>
-                                                <span class="icon-checkzzz cachieuV" style="display: none"> ✅ </span>
-                                                <span class="icon-checkzzz cachieuX" style="display: block"> ❌ </span>
-                                                <span class="icon-checkzzz cachieuO" style="display: none"> 🕓 </span>
-                                            </div>
-                                        </div>
-                                    </div>-->
                                 </div>
                             </div>
                         </div>
@@ -97,99 +78,13 @@
 <br>
 <script th:inline="javascript">
     $(document).ready(function() {
-        var currentDate = new Date().toISOString().split('T')[0];
         var username = [[${#authentication.name}]];
-        $('#date').val(currentDate);
-        $('#date').attr('min', currentDate);
-        $(".btn-booking").click(function() {
-            var dateValue = $("#date").val();
-            // var parentCard = $(this).closest(".lab-card");
-            // var labId = parentCard.find("a").attr("href").split("/").pop();
-            var labId = $(this).attr('data');
-            console.log(labId)
-            // Chuyển đến trang view tiếp theo và truyền giá trị ngày và labId qua URL
-            window.location.href = "/Lab/LabDetail/"+labId+"?date=" +  (dateValue) + "&username=" + encodeURIComponent(username);
-        });
-
-        /**********************************************************************************
-         *
-         * ********************************************************************************/
-
-        var Status = {
-            APPROVE: "Đã xác nhận",
-            PENDDING: "Đang chờ duyệt",
-            CANCEL: "Bị từ chối"
-        };
-
-        var dateAndStatusLabsList = [[${dateAndStatusLabsList}]]
-
-        $('#date').change(function() {
-            checkDateAndStatus();
-        });
-        function setDisplay(i, green, yellow, danger, primary) {
-            var yellowAlert = $('.alert.bg-yellow');
-            var greenAlert = $('.alert.bg-green');
-            var dangerAlert = $('.alert.bg-danger');
-            var primaryAlert = $('.alert.bg-primary');
-            var btnBooking = $('.btn-booking');
-
-            greenAlert.eq(i).css('display', green);
-            yellowAlert.eq(i).css('display', yellow);
-            dangerAlert.eq(i).css('display', danger);
-            primaryAlert.eq(i).css('display', primary);
-            /*btnBooking.forEach(btn => {
-                btn.prop('disabled', false);
-            })*/
-            /*for (var j = 0; j < btnBooking.length(); j++) {
-                btnBooking.eq(j).attr('disabled', false);
-            }
-            if(green==='block' || yellow==='block') {
-                btnBooking.eq(i).attr('disabled', true);
-            }*/
-        }
-        function checkDateAndStatus() {
-            var dateValue = $("#date").val();
-            for (var i = 0; i < dateAndStatusLabsList.length; i++) {
-                var dateAndStatusLabs = dateAndStatusLabsList[i];
-                if(dateAndStatusLabs.length === 0){
-                    setDisplay(i,'none', 'none', 'none', 'block');
-                }
-                // console.log('============= i='+i+' ===========');
-                for (var j = 0; j < dateAndStatusLabs.length; j++) {
-                    var dateAndStatusLab = dateAndStatusLabs[j];
-                    // console.log('============= j='+j+' ===========');
-                    // console.log(dateAndStatusLab.date);
-                    // console.log(dateAndStatusLab.status);
-
-                    if(dateValue === dateAndStatusLab.date){
-                        // console.log(true);
-                        switch (dateAndStatusLab.status) {
-                            case Status.APPROVE :
-                                setDisplay(i,'block', 'none', 'none', 'none');
-                                break;
-                            case Status.PENDDING :
-                                // Xử lý khi status là CANCEL
-                                setDisplay(i,'none', 'block', 'none', 'none');
-                                break;
-                            case Status.CANCEL :
-                                // setDisplay(i,'none', 'none', 'block', 'none');
-                                setDisplay(i,'none', 'none', 'none', 'block');
-                                // Xử lý khi status là PENDING
-                                break;
-                            default:
-                                // Xử lý khi status không khớp với bất kỳ trường hợp nào
-                                break;
-                        }
-                        break
-                    } else {
-                        setDisplay(i,'none', 'none', 'none', 'block');
-                    }
-                }
-            }
-        }
-        $('#date').trigger('change');
+        var dateAndStatusLabsList = [[${dateAndStatusLabsList}]];
+        var currentDate = [[${currentDate}]];
+        setIndex(username,dateAndStatusLabsList, currentDate);
     });
 </script>
+<script src="js/index.js"></script>
 </body>
 </html>
 

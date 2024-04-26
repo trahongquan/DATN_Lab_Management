@@ -16,6 +16,7 @@ public class BookingDTO {
     private int work_times;
     private String note;
     private int is_delete;
+    private String auto;
 
     private Content content;
     private Lab lab;
@@ -33,6 +34,7 @@ public class BookingDTO {
         this.work_times = booking.getWork_times();
         this.note = booking.getNote();
         this.is_delete = booking.getIs_delete();
+        this.auto = booking.getAuto();
         this.content = content;
         this.lab = lab;
         this.experimentReport = experimentReport;
@@ -49,6 +51,7 @@ public class BookingDTO {
                 ", work_times=" + work_times +
                 ", note='" + note + '\'' +
                 ", is_delete=" + is_delete +
+                ", auto=" + auto +
                 ", content=" + content +
                 ", lab=" + lab +
                 ", experimentReport=" + experimentReport +
@@ -117,6 +120,14 @@ public class BookingDTO {
 
     public void setIs_delete(int is_delete) {
         this.is_delete = is_delete;
+    }
+
+    public String getAuto() {
+        return auto;
+    }
+
+    public void setAuto(String auto) {
+        this.auto = auto;
     }
 
     public Content getContent() {

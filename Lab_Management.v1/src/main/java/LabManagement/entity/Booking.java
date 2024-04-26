@@ -34,10 +34,13 @@ public class Booking implements Serializable {
     @Column(name = "is_delete", nullable = false)
     private int is_delete;
 
+    @Column(name = "auto", nullable = false)
+    private String auto;
+
     public Booking() {
     }
 
-    public Booking(int labid, int contentid, Date booking_Date, String confirm_Status, int work_times, String note, int is_delete) {
+    public Booking(int labid, int contentid, Date booking_Date, String confirm_Status, int work_times, String note, int is_delete, String auto) {
         this.labid = labid;
         this.contentid = contentid;
         this.booking_Date = booking_Date;
@@ -45,6 +48,7 @@ public class Booking implements Serializable {
         this.work_times = work_times;
         this.note = note;
         this.is_delete = is_delete;
+        this.auto = auto;
     }
 
     @Override
@@ -58,6 +62,7 @@ public class Booking implements Serializable {
                 ", work_times=" + work_times +
                 ", note='" + note + '\'' +
                 ", is_delete=" + is_delete +
+                ", auto=" + auto +
                 '}';
     }
 
@@ -123,6 +128,14 @@ public class Booking implements Serializable {
 
     public void setIs_delete(int is_delete) {
         this.is_delete = is_delete;
+    }
+
+    public String getAuto() {
+        return auto;
+    }
+
+    public void setAuto(String auto) {
+        this.auto = auto;
     }
 }
 

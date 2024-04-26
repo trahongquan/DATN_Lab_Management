@@ -24,7 +24,7 @@
 <body class="scroll-container">
 <booking-lab>
     <div th:replace="headernew::header"></div>
-    <h1 style="margin-top: 50px; text-align: center;">Chi tiết phòng thí nghiệm</h1><br>
+    <h1 style="margin-top: 50px; text-align: center;">CHI TIẾT PHÒNG THÍ NGHIỆM</h1><br>
 
     <div class="container" style="background-color: rgba(230,239,255,0.6); padding: 2em; border-radius: 3em">
         <form th:object="${labDTO}" th:action="@{'/Lab/LabDetail/' + ${labDTO.getId}+'?username='+${#authentication.name}}" method="post" enctype="multipart/form-data">
@@ -202,6 +202,9 @@
                 var typeId = $(this).val();
                 SetExperiment_Report(tempGroupId, typeId)
             })
+            $('#experiment_group').trigger('change');
+            $('#experiment_type').trigger('change');
+            $('#experiment_report').trigger('change');
         })
         function SetExperiment_Type(groupId) {
             $('#experiment_type').removeAttr('disabled');

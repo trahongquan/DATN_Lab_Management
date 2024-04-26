@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="https://www.thymeleaf.org/thyme leaf-extras-springsecurity5"
+      xmlns="http://www.w3.org/1999/html">
+<head>
+    <meta charset="UTF-8">
+    <title>Quản lý phòng</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" th:href="@{/css/base2.min.css}">
+</head>
+<body class="scroll-container">
+
+<management><!--<div th:replace="admin/templateAdmin.html :: header-admin"></div>-->
+    <style>
+        .title-h1{margin-top: 50px;  font-weight: bold; } .quantity-h1 { font-size: 2em; margin-top: 0; } .pending { color: #af6d09; } .approve { color: green; } .cancel { color: red; }
+        .title-h1.pending { background-color: #ffca95; display: inline-block; padding: 5px 10px; border-radius: 50px; }
+        .title-h1.approve { background-color: #baff82; display: inline-block; padding: 5px 10px; border-radius: 50px; }
+        .title-h1.cancel { background-color: #ffb8b3; display: inline-block; padding: 5px 10px; border-radius: 50px; }
+    </style>
+    <div class="row">
+        <div class="col-12 d-flex flex-column align-content-center">
+            <th:block th:if="${not #lists.isEmpty(bookingDTOs)}">
+                <th:block th:with="firstBooking=${bookingDTOs[0]}">
+                    <div style="margin: auto">
+                        <h1 class="title-h1 pending" th:if="${firstBooking.confirm_Status=='Đang chờ duyệt'}"
+                        th:text="'Danh sách chờ duyệt' "></h1>
+
+                    </div>
+                    <div style="margin: auto">
+                        <h1 class="title-h1 approve" th:if="${firstBooking.confirm_Status=='Đã xác nhận'}"
+                        th:text="'Danh sách đã duyệt' "></h1>
+
+                    </div>
+                    <div style="margin: auto">
+                        <h1 class="title-h1 cancel" th:if="${firstBooking.confirm_Status=='Bị từ chối'}"
+                        th:text="'Danh sách hủy bỏ' "></h1>
+
+                    </div>
+                    <div style="margin: auto">
+                        <h1 class="title-h1 quantity-h1" th:text="'Số lượng: ' + ${#lists.size(bookingDTOs)}"></h1>
+                    </div>
+                </th:block>
+            </th:block>
+        </div>
+    </div>
+    <br>
+    <div class="row">
+        <!--<div class="col-6 d-flex justify-content-center mb-5">
+            <a href="/Lab/admin/Room/add">
+                <button type="button" class="btn btn-primary font-bold font-size-xlg">Thêm phòng</button>
+            </a>
+        </div>
+        <br>-->
+        <div class="col-12 d-flex justify-content-center mb-5">
+            <a href="/Lab/admin/ExportLabs">
+                <button type="button" class="btn btn-primary font-bold font-size-xlg">Tài về danh sách</button>
+            </a>
+        </div>
+    </div>
+
+    <div class="main-card mb-3 card">
+        <div class="card-body">
+            <table style="width: 100%;" id="example" class="table table-hover table-striped table-bordered">
+                <thead>
+                    <tr>
+                        <th>Tên phòng</th>
+                        <th>Loại sản phẩm</th>
+                        <th>Tên lớp</th>
+                        <th>Ngày đặt</th>
+                        <th>Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="booking, iter : ${bookingDTOs}">
+                        <td th:text="${booking.lab.labName}"></td>
+                        <td>
+                            <span class="lab-info text-primary" th:text="${booking.experimentReport.reportType} +': '"> </span>
+                            <span class="lab-info" th:text="${booking.content.name}"></span>
+                        </td>
+                        <td>
+                            <span class="lab-info text-primary"> Tên lớp: </span>
+                            <span class="lab-info" th:text="${booking.content.name}"></span>
+                        </td>
+                        <td>
+                            <div class="date-info" th:value="${booking.confirm_Status}">
+                                <!--<span class="lab-info"> Ngày đặt: </span>-->
+                                <span class="lab-info strong" th:text="${booking.booking_Date}"></span>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="d-flex" style="display: flex; justify-content: center; align-items: center;">
+                                <form th:action="@{'/Lab/admin/LabBookingManagement/PenddingDetail/' + ${booking.getId}}" method="get">
+                                    <button type="submit" class="btn btn-info btn-sm mr-1">Chi tiết</button>
+                                </form>
+                                <form th:action="@{'/Lab/admin/LabBookingManagement/PenddingDelete/' + ${booking.getId}}" method="POST">
+                                    <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Bạn có chắc chắn muốn xóa?')">
+                                        Xóa
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+                <tfoot>
+                <tr>
+                    <th>Tên phòng</th>
+                    <th>Loại sản phẩm</th>
+                    <th>Tên lớp</th>
+                    <th>Ngày đặt</th>
+                    <th>Thao tác</th>
+                </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!--Phải load jquery trước khi load bootstrap js-->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script th:src="@{/js/script.js}"></script>
+    <div style="margin: 20px">
+        <!-- Add a Logout button -->
+        <form action="#" th:action="@{/logout}" method="POST">
+            <input type="submit" value="Logout" class="btn btn-outline-primary mt-2"/>
+        </form>
+        <!--<div sec:authorize="isAuthenticated" style="color: red"> Authenticated as <span sec:authentication=""></span></div>-->
+    </div>
+    <!--CORE-->
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"
+            integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.bundle.min.js"
+            crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/metismenu"></script>
+    <script th:src="@{/js/app.js}"></script>
+    <script th:src="@{/js/demo.js}"></script>
+</management>
+</body>
+</html>
