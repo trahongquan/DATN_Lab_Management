@@ -25,13 +25,6 @@ function setIndex(username, dateAndStatusLabsList, currentDate) {
     $(".btn-booking").click(function () {
         var dateValue = $("#date").val();
         var labId = $(this).attr('data');
-        console.log(labId)
-        window.location.href = "/Lab/LabDetail/" + labId + "?date=" + (dateValue) + "&username=" + encodeURIComponent(username);
-    });
-    $(".alert").click(function () {
-        var dateValue = $("#date").val();
-        var labId = $(this).attr('value');
-        console.log(labId)
         window.location.href = "/Lab/LabDetail/" + labId + "?date=" + (dateValue) + "&username=" + encodeURIComponent(username);
     });
 
@@ -49,10 +42,19 @@ function setIndex(username, dateAndStatusLabsList, currentDate) {
 
 
     $('#date').change(function () {
+        checkcurrentDate(currentDate);
         checkDateAndStatus();
     });
 
-    function setDisplay(i, green, yellow, danger, primary) {
+    function checkcurrentDate(currentDate) {
+        if ($('#date').val() === currentDate) {
+            $('.bg-danger-subtle').css({'display':'block'})
+        } else {
+            $('.bg-danger-subtle').css({'display':'none'})
+        }
+    }
+    
+    function setDisplay(i, green, yellow, danger, primary/*, dangerSubtleAlert*/) {
         var yellowAlert = $('.alert.bg-yellow');
         var greenAlert = $('.alert.bg-green');
         var dangerAlert = $('.alert.bg-danger');
@@ -62,6 +64,19 @@ function setIndex(username, dateAndStatusLabsList, currentDate) {
         yellowAlert.eq(i).css('display', yellow);
         dangerAlert.eq(i).css('display', danger);
         primaryAlert.eq(i).css('display', primary);
+        
+        if (danger === 'block' || primary === 'block'){
+            greenAlert.eq(i).removeClass('alert-link');
+            yellowAlert.eq(i).removeClass('alert-link');
+            dangerAlert.eq(i).removeClass('alert-link');
+            primaryAlert.eq(i).addClass('alert-link');
+        }
+        if (green === 'block' || yellow === 'block'){
+            greenAlert.eq(i).removeClass('alert-link');
+            yellowAlert.eq(i).removeClass('alert-link');
+            dangerAlert.eq(i).removeClass('alert-link');
+            primaryAlert.eq(i).removeClass('alert-link');
+        }
     }
 
     function setEnabledBtn(i) {
@@ -78,12 +93,22 @@ function setIndex(username, dateAndStatusLabsList, currentDate) {
 
     function checkDateAndStatus() {
         var dateValue = $("#date").val();
+        console.log('dateValue='+dateValue)
+        console.log('currentDate='+currentDate)
+        console.log(dateValue === currentDate)
         for (var i = 0; i < dateAndStatusLabsList.length; i++) {
-            console.log("alo")
             var dateAndStatusLabs = dateAndStatusLabsList[i];
             if (dateAndStatusLabs.length === 0) {
-                setDisplay(i, 'none', 'none', 'none', 'block');
-                setEnabledBtn(i);
+                // setDisplay(i, 'none', 'none', 'none', 'block');
+                // setEnabledBtn(i);
+                if (dateValue === currentDate){
+                    console.log('chạy vào else')
+                    setDisplay(i, 'none', 'none', 'block', 'none');
+                    setDisabledBtn(i);
+                } else {
+                    setDisplay(i, 'none', 'none', 'none', 'block');
+                    setEnabledBtn(i);
+                }
             }
             for (var j = 0; j < dateAndStatusLabs.length; j++) {
                 var dateAndStatusLab = dateAndStatusLabs[j];
@@ -98,20 +123,58 @@ function setIndex(username, dateAndStatusLabsList, currentDate) {
                             setDisabledBtn(i);
                             break;
                         case Status.CANCEL :
-
-                            setDisplay(i, 'none', 'none', 'none', 'block');
-                            setEnabledBtn(i);
+                            if (dateValue === currentDate){
+                                setDisplay(i, 'none', 'none', 'block', 'none');
+                                setDisabledBtn(i);
+                            } else {
+                                setDisplay(i, 'none', 'none', 'none', 'block');
+                                setEnabledBtn(i);
+                            }
                             break;
                         default:
                             break;
                     }
                     break
                 } else {
-                    setDisplay(i, 'none', 'none', 'none', 'block');
-                    setEnabledBtn(i);
+                    if (dateValue === currentDate){
+                        console.log('chạy vào else')
+                        setDisplay(i, 'none', 'none', 'block', 'none');
+                        setDisabledBtn(i);
+                    } else {
+                        setDisplay(i, 'none', 'none', 'none', 'block');
+                        setEnabledBtn(i);
+                    }
+                    // setDisplay(i, 'none', 'none', 'none', 'block');
+                    // setEnabledBtn(i);
                 }
             }
         }
+        /*if(dateValue===currentDate){
+            for (var i = 0; i < dateAndStatusLabsList.length; i++){
+                setDisplay(i, 'none', 'none', 'block', 'none')
+                setDisabledBtn(i)
+            }
+        }*/
     }
     $('#date').trigger('change');
+}
+function Nextday(currentDate) {
+    $('#next-day').click(function() {
+        var date = new Date(currentDate);
+        console.log(date)
+        date.setDate(date.getDate() + 1);
+        console.log(date)
+        var formattedDate = formatDate(date); // Hàm formatDate() chuyển đổi định dạng ngày tháng nếu cần thiết
+        $('#date').val(formattedDate);
+        $('#date').trigger('change');
+    });
+}
+function formatDate(date) {
+    var year = date.getFullYear();
+    console.log(year)
+    var month = (date.getMonth() + 1).toString().padStart(2, '0');
+    console.log(month)
+    var day = date.getDate().toString().padStart(2, '0');
+    console.log(day)
+    return year + '-' + month + '-' + day;
 }

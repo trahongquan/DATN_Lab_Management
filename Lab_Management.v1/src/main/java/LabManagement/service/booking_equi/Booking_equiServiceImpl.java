@@ -36,7 +36,7 @@ public class Booking_equiServiceImpl implements Booking_equiService {
     }
 
     @Override
-    public List<Booking_equi> findByBookingId(int id){
+    public List<Booking_equi> findAllByBookingId(int id){
         return booking_equiRepository.findAllByBookingId(id);
     }
 

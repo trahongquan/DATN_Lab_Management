@@ -9,6 +9,6 @@ public interface Booking_equiService {
     void deleteBookingEquipment(int id);
     List<Booking_equi> getAllBookingEquipments();
     Booking_equi getBookingEquipmentById(int id);
-    List<Booking_equi> findByBookingId(int id);
+    List<Booking_equi> findAllByBookingId(int id);
     Booking_equi findByBookingIdAndAndEquipmentId(int id1, int id2);
 }

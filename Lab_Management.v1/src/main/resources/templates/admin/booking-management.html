@@ -68,6 +68,7 @@
                         <th>Loại sản phẩm</th>
                         <th>Tên lớp</th>
                         <th>Ngày đặt</th>
+                        <th>Tác nhân</th>
                         <th>Thao tác</th>
                     </tr>
                 </thead>
@@ -80,7 +81,7 @@
                         </td>
                         <td>
                             <span class="lab-info text-primary"> Tên lớp: </span>
-                            <span class="lab-info" th:text="${booking.content.name}"></span>
+                            <span class="lab-info" th:text="${booking.content.className}"></span>
                         </td>
                         <td>
                             <div class="date-info" th:value="${booking.confirm_Status}">
@@ -89,14 +90,53 @@
                             </div>
                         </td>
                         <td>
-                            <div class="d-flex" style="display: flex; justify-content: center; align-items: center;">
-                                <form th:action="@{'/Lab/admin/LabBookingManagement/PenddingDetail/' + ${booking.getId}}" method="get">
-                                    <button type="submit" class="btn btn-info btn-sm mr-1">Chi tiết</button>
+                            <div class="date-info">
+                                <span class="lab-info strong" th:if="${booking.auto != null}" th:text="${booking.auto}"></span>
+                                <span class="lab-info strong" th:if="${booking.auto == ''}" th:text="'Chưa có'"></span>
+                            </div>
+                        </td>
+                        <td th:if="${#strings.contains(#request.requestURI, '/Lab/admin/LabBookingManagement/Pendding')}" >
+                            <div class="d-flex justify-content-center align-content-center row">
+                                <a th:href="@{'/Lab/admin/ShowBookingPendding/' + ${booking.getId}}">
+                                    <button type="button" class="btn btn-info mx-2">Chi tiết</button>
+                                </a>
+                                <form th:action="@{'/Lab/admin/ShowBookingPendding/Approve'}" method="get">
+                                    <input type="hidden" name="bookingId" th:value="${booking.getId}">
+                                    <button type="submit" class="btn btn-success mx-2" onclick="return confirm('Bạn có chắc chắn muốn Duyệt không?')">Duyệt</button>
                                 </form>
-                                <form th:action="@{'/Lab/admin/LabBookingManagement/PenddingDelete/' + ${booking.getId}}" method="POST">
-                                    <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Bạn có chắc chắn muốn xóa?')">
-                                        Xóa
-                                    </button>
+                                <form th:action="@{'/Lab/admin/ShowBookingPendding/Cancel'}" method="get">
+                                    <input type="hidden" name="bookingId" th:value="${booking.getId}">
+                                    <button type="submit" class="btn btn-danger mx-2" onclick="return confirm('Bạn có chắc chắn muốn Hủy không?')">Hủy</button>
+                                </form>
+                            </div>
+                        </td>
+                        <td th:if="${#strings.contains(#request.requestURI, '/Lab/admin/LabBookingManagement/Approve')}" >
+                            <div class="d-flex justify-content-center align-content-center row">
+                                <a th:href="@{'/Lab/admin/ShowBookingApprove/' + ${booking.getId}}">
+                                    <button type="button" class="btn btn-info mx-2">Chi tiết</button>
+                                </a>
+                                <!--<form th:action="@{'/Lab/admin/ShowBookingPendding/Approve'}" method="get">
+                                    <input type="hidden" name="bookingId" th:value="${booking.getId}">
+                                    <button type="submit" class="btn btn-success mx-2" onclick="return comfirm('Bạn có chắc chắn muốn Duyệt không?')">Duyệt</button>
+                                </form>-->
+                                <form th:action="@{'/Lab/admin/LabBookingManagement/UnApprove'}" method="get">
+                                    <input type="hidden" name="bookingId" th:value="${booking.getId}">
+                                    <button type="submit" class="btn btn-danger mx-2" onclick="return confirm('Bạn có chắc chắn muốn HOÀN TÁC không?')">Hoàn tác</button>
+                                </form>
+                            </div>
+                        </td>
+                        <td th:if="${#strings.contains(#request.requestURI, '/Lab/admin/LabBookingManagement/Cancel')}" >
+                            <div class="d-flex justify-content-center align-content-center row">
+                                <a th:href="@{'/Lab/admin/ShowBookingCancel/' + ${booking.getId}}">
+                                    <button type="button" class="btn btn-info mx-2">Chi tiết</button>
+                                </a>
+                                <!--<form th:action="@{'/Lab/admin/ShowBookingPendding/Approve'}" method="get">
+                                    <input type="hidden" name="bookingId" th:value="${booking.getId}">
+                                    <button type="submit" class="btn btn-success mx-2" onclick="return comfirm('Bạn có chắc chắn muốn Duyệt không?')">Duyệt</button>
+                                </form>-->
+                                <form th:action="@{'/Lab/admin/LabBookingManagement/UnCancel'}" method="get">
+                                    <input type="hidden" name="bookingId" th:value="${booking.getId}">
+                                    <button type="submit" class="btn btn-danger mx-2" onclick="return confirm('Bạn có chắc chắn muốn HOÀN TÁC không?')">Hoàn tác</button>
                                 </form>
                             </div>
                         </td>
@@ -108,6 +148,7 @@
                     <th>Loại sản phẩm</th>
                     <th>Tên lớp</th>
                     <th>Ngày đặt</th>
+                    <th>Tác nhân</th>
                     <th>Thao tác</th>
                 </tr>
                 </tfoot>

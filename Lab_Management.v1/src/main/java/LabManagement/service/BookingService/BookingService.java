@@ -2,6 +2,7 @@ package LabManagement.service.BookingService;
 
 import LabManagement.entity.Booking;
 
+import java.sql.Date;
 import java.util.List;
 
 public interface BookingService {
@@ -19,4 +20,6 @@ public interface BookingService {
     List<Booking> findAllByLab_id(int labid);
 
     Booking findByContent_id(int id);
+
+    List<Booking> findAllByBookingDate(Date date);
 }

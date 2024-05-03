@@ -5,6 +5,7 @@ import LabManagement.dao.BookingRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.sql.Date;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -50,6 +51,11 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public Booking findByContent_id(int id){
         return bookingRepository.findByContentid(id);
+    }
+
+    @Override
+    public List<Booking> findAllByBookingDate(Date date){
+        return bookingRepository.findAllByBookingDate(date);
     }
 }
 

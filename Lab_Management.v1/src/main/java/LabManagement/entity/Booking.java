@@ -20,10 +20,10 @@ public class Booking implements Serializable {
     private int contentid;
 
     @Column(name = "booking_date", nullable = false)
-    private Date booking_Date;
+    private Date bookingDate;
 
     @Column(name = "comfirm_status", nullable = false)
-    private String confirm_Status;
+    private String confirmStatus;
 
     @Column(name = "work_times", nullable = false)
     private int work_times;
@@ -40,11 +40,11 @@ public class Booking implements Serializable {
     public Booking() {
     }
 
-    public Booking(int labid, int contentid, Date booking_Date, String confirm_Status, int work_times, String note, int is_delete, String auto) {
+    public Booking(int labid, int contentid, Date bookingDate, String confirmStatus, int work_times, String note, int is_delete, String auto) {
         this.labid = labid;
         this.contentid = contentid;
-        this.booking_Date = booking_Date;
-        this.confirm_Status = confirm_Status;
+        this.bookingDate = bookingDate;
+        this.confirmStatus = confirmStatus;
         this.work_times = work_times;
         this.note = note;
         this.is_delete = is_delete;
@@ -57,8 +57,8 @@ public class Booking implements Serializable {
                 "id=" + id +
                 ", lab_id=" + labid +
                 ", content_id=" + contentid +
-                ", booking_Date=" + booking_Date +
-                ", confirm_Status='" + confirm_Status + '\'' +
+                ", booking_Date=" + bookingDate +
+                ", confirm_Status='" + confirmStatus + '\'' +
                 ", work_times=" + work_times +
                 ", note='" + note + '\'' +
                 ", is_delete=" + is_delete +
@@ -90,20 +90,20 @@ public class Booking implements Serializable {
         this.contentid = content_id;
     }
 
-    public Date getBooking_Date() {
-        return booking_Date;
+    public Date getBookingDate() {
+        return bookingDate;
     }
 
-    public void setBooking_Date(Date booking_Date) {
-        this.booking_Date = booking_Date;
+    public void setBookingDate(Date booking_Date) {
+        this.bookingDate = booking_Date;
     }
 
-    public String getConfirm_Status() {
-        return confirm_Status;
+    public String getConfirmStatus() {
+        return confirmStatus;
     }
 
-    public void setConfirm_Status(String confirm_Status) {
-        this.confirm_Status = confirm_Status;
+    public void setConfirmStatus(String confirm_Status) {
+        this.confirmStatus = confirm_Status;
     }
 
     public int getWork_times() {

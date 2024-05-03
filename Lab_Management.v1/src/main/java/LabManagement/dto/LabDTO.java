@@ -2,6 +2,7 @@ package LabManagement.dto;
 
 import LabManagement.ClassSuport.DateAndStatusLab;
 import LabManagement.entity.Booking;
+import LabManagement.entity.EquipmentLab;
 import LabManagement.entity.Lab;
 import LabManagement.entity.People;
 
@@ -17,22 +18,10 @@ public class LabDTO {
     private int isDeleted;
     private People lab_managemet;
     List<Booking> bookings;
-    List<Date> dateBookings;
+    List<EquipmentLab> equipmentLabs;
     List<DateAndStatusLab> dateAndStatusLab;
 
     public LabDTO() {
-    }
-
-    public LabDTO(int id, String labName, int capacity, String location, int lab_managemet_id, int isDeleted, People lab_managemet, List<Booking> bookings, List<Date> dateBookings) {
-        this.id = id;
-        this.labName = labName;
-        this.capacity = capacity;
-        this.location = location;
-        this.lab_managemet_id = lab_managemet_id;
-        this.isDeleted = isDeleted;
-        this.lab_managemet = lab_managemet;
-        this.bookings = bookings;
-        this.dateBookings = dateBookings;
     }
 
     public LabDTO(Lab lab, People lab_managemet) {
@@ -44,18 +33,8 @@ public class LabDTO {
         this.isDeleted = lab.getIsDelete();
         this.lab_managemet = lab_managemet;
     }
-/*    public LabDTO(Lab lab, People lab_managemet, List<Booking> bookings) {
-        this.id = lab.getId();
-        this.labName = lab.getLabName();
-        this.capacity = lab.getCapacity();
-        this.location = lab.getLocation();
-        this.lab_managemet_id = lab.getLab_managemet_id();
-        this.isDeleted = lab.getIsDelete();
-        this.lab_managemet = lab_managemet;
-        this.bookings = bookings;
-    }*/
 
-    public LabDTO(Lab lab, List<Date> dateBookings, People lab_managemet) {
+    public LabDTO(Lab lab, List<EquipmentLab> equipmentLabs, People lab_managemet) {
         this.id = lab.getId();
         this.labName = lab.getLabName();
         this.capacity = lab.getCapacity();
@@ -63,7 +42,7 @@ public class LabDTO {
         this.lab_managemet_id = lab.getLab_managemet_id();
         this.isDeleted = lab.getIsDelete();
         this.lab_managemet = lab_managemet;
-        this.dateBookings = dateBookings;
+        this.equipmentLabs = equipmentLabs;
     }
 
     public LabDTO(Lab lab, People lab_managemet, List<DateAndStatusLab> dateAndStatusLab) {
@@ -141,12 +120,12 @@ public class LabDTO {
         this.bookings = bookings;
     }
 
-    public List<Date> getDateBookings() {
-        return dateBookings;
+    public List<EquipmentLab> getEquipmentLabs() {
+        return equipmentLabs;
     }
 
-    public void setDateBookings(List<Date> dateBookings) {
-        this.dateBookings = dateBookings;
+    public void setEquipmentLabs(List<EquipmentLab> equipmentLabs) {
+        this.equipmentLabs = equipmentLabs;
     }
 
     public List<DateAndStatusLab> getDateAndStatusLab() {

@@ -1,11 +1,9 @@
 package LabManagement.dto;
 
-import LabManagement.entity.Booking;
-import LabManagement.entity.Content;
-import LabManagement.entity.ExperimentReport;
-import LabManagement.entity.Lab;
+import LabManagement.entity.*;
 
 import java.sql.Date;
+import java.util.List;
 
 public class BookingDTO {
     private int id;
@@ -19,8 +17,11 @@ public class BookingDTO {
     private String auto;
 
     private Content content;
+    private ContentDTO contentDTO;
     private Lab lab;
+    private LabDTO labDTO;
     private ExperimentReport experimentReport;
+    private List<Booking_equi> booking_equis;
 
     public BookingDTO() {
     }
@@ -29,8 +30,8 @@ public class BookingDTO {
         this.id = booking.getId();
         this.labid = booking.getLabid();
         this.content_id = booking.getContentid();
-        this.booking_Date = booking.getBooking_Date();
-        this.confirm_Status = booking.getConfirm_Status();
+        this.booking_Date = booking.getBookingDate();
+        this.confirm_Status = booking.getConfirmStatus();
         this.work_times = booking.getWork_times();
         this.note = booking.getNote();
         this.is_delete = booking.getIs_delete();
@@ -38,6 +39,21 @@ public class BookingDTO {
         this.content = content;
         this.lab = lab;
         this.experimentReport = experimentReport;
+    }
+
+    public BookingDTO(Booking booking, ContentDTO contentDTO, LabDTO labDTO, List<Booking_equi> booking_equis) {
+        this.id = booking.getId();
+        this.labid = booking.getLabid();
+        this.content_id = booking.getContentid();
+        this.booking_Date = booking.getBookingDate();
+        this.confirm_Status = booking.getConfirmStatus();
+        this.work_times = booking.getWork_times();
+        this.note = booking.getNote();
+        this.is_delete = booking.getIs_delete();
+        this.auto = booking.getAuto();
+        this.contentDTO = contentDTO;
+        this.labDTO = labDTO;
+        this.booking_equis = booking_equis;
     }
 
     @Override
@@ -152,5 +168,29 @@ public class BookingDTO {
 
     public void setExperimentReport(ExperimentReport experimentReport) {
         this.experimentReport = experimentReport;
+    }
+
+    public ContentDTO getContentDTO() {
+        return contentDTO;
+    }
+
+    public void setContentDTO(ContentDTO contentDTO) {
+        this.contentDTO = contentDTO;
+    }
+
+    public LabDTO getLabDTO() {
+        return labDTO;
+    }
+
+    public void setLabDTO(LabDTO labDTO) {
+        this.labDTO = labDTO;
+    }
+
+    public List<Booking_equi> getBooking_equis() {
+        return booking_equis;
+    }
+
+    public void setBooking_equis(List<Booking_equi> booking_equis) {
+        this.booking_equis = booking_equis;
     }
 }

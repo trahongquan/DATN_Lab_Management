@@ -8,7 +8,25 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="/css/base2.min.css">
     <link rel="stylesheet" href="/css/styles.css">
+    <!--<style>
+        .machine-block{border:1px solid #ccc;border-radius:8px;padding:20px;background-color:#f5f5f5;box-shadow:0 2px 4px rgba(0,0,0,0.1);transition:box-shadow 0.3s ease}
+        .machine-block:hover{box-shadow:0 4px 8px rgba(0,15,255,0.6)}
+        .machine-block h4{font-size:18px;font-weight:bold;margin-bottom:10px}
+        .machine-block p{margin-bottom:5px}
+        .machine-block ul{margin-top:10px;padding-left:20px}
+        .machine-block ul li{list-style-type:square}
+        .machine-block img {max-width: 100%;max-height: 100%;}
+        .remove-button{padding: unset; border: unset; font-weight: bold; margin-bottom: 10px}
+        .remove-button:hover{color: red}
+        label{color: black; font-weight: bold;}
+    </style>-->
+</head>
+<body class="scroll-container">
+<booking-detail>
     <style>
+        @import url("https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css");
+        @import url("/css/base2.min.css");
+        @import url("/css/styles.css");
         .machine-block{border:1px solid #ccc;border-radius:8px;padding:20px;background-color:#f5f5f5;box-shadow:0 2px 4px rgba(0,0,0,0.1);transition:box-shadow 0.3s ease}
         .machine-block:hover{box-shadow:0 4px 8px rgba(0,15,255,0.6)}
         .machine-block h4{font-size:18px;font-weight:bold;margin-bottom:10px}
@@ -20,37 +38,38 @@
         .remove-button:hover{color: red}
         label{color: black; font-weight: bold;}
     </style>
-</head>
-<body class="scroll-container">
-<booking-lab>
-    <div th:replace="headernew::header"></div>
+    <!--<div th:replace="headernew::header"></div>-->
     <h1 style="margin-top: 50px; text-align: center;">CHI TIẾT ĐẶT PHÒNG THÍ NGHIỆM</h1><br>
 
-    <div class="container" style="background-color: rgba(230,239,255,0.6); padding: 2em; border-radius: 3em">
-        <form th:object="${labDTO}" th:action="@{'/Lab/LabDetail/' + ${labDTO.getId}+'?username='+${#authentication.name}}" method="post" enctype="multipart/form-data">
+    <div style="background-color: rgba(230,239,255,0.6); padding: 2em; border-radius: 3em">
+        <form th:object="${bookingDTO}" th:action="@{'/Lab/admin/ShowBookingPendding/' + ${bookingDTO.getId}}" method="post" enctype="multipart/form-data">
             <div class="row justify-content-around p-2">
                 <div class="form-group col-5" >
                     <div class="form-group">
                         <label for="name">Tên đồ án, BTL, Luận văn, Luận án... :</label>
-                        <input type="text" class="form-control bg-danger-subtle" id="name" name="name" required >
+                        <input type="text" class="form-control bg-danger-subtle" id="name"
+                               th:value="${bookingDTO.getContentDTO.getName}" name="name" required >
                     </div>
                     <div class="form-group">
                         <label for="experiment_group">Chọn nhóm loại hình thí nghiệm:</label>
-                        <select class="form-control bg-danger-subtle" id="experiment_group" name="experiment_group" required>
+                        <select class="form-control bg-danger-subtle" id="experiment_group"
+                                th:value="${bookingDTO.getContentDTO.getExperimentGroup.getId}" name="experiment_group" required>
                             <option th:each="experimentGroup : ${experimentGroups}" th:value="${experimentGroup.getId}"
                                     th:text="${experimentGroup.getGroupName}"></option>
                         </select>
                     </div>
                     <div class="form-group">
                         <label for="experiment_type">Chọn loại hình thí nghiệm:</label>
-                        <select class="form-control bg-danger-subtle" id="experiment_type" name="experiment_type" required>
+                        <select class="form-control bg-danger-subtle" id="experiment_type"
+                                th:value="${bookingDTO.getContentDTO.getExperimentType.getId}" name="experiment_type" required>
                             <option th:each="experimentType : ${experimentTypes}" th:value="${experimentType.getId}"
                                     th:text="${experimentType.getTypeName}"></option>
                         </select>
                     </div>
                     <div class="form-group">
                         <label for="experiment_report">Chọn loại báo cáo:</label>
-                        <select class="form-control bg-danger-subtle" id="experiment_report" name="experiment_report" required>
+                        <select class="form-control bg-danger-subtle" id="experiment_report"
+                                th:value="${bookingDTO.getContentDTO.getExperimentReport.getId}" name="experiment_report" required>
                             <option th:each="experimentReport : ${experimentReports}" th:value="${experimentReport.getId}"
                                     th:text="${experimentReport.getReportType}"></option>
                         </select>
@@ -60,48 +79,58 @@
                 <div class="form-group col-5" >
                     <div class="form-group">
                         <label for="reservationist">Người phụ trách:</label>
-                        <select class="form-control bg-danger-subtle" id="reservationist" name="reservationist" required>
+                        <select class="form-control bg-danger-subtle" id="reservationist"
+                                th:value="${bookingDTO.getContentDTO.getReservationist.getId}" name="reservationist" required>
                             <option th:each="reservationist : ${reservationists}" th:value="${reservationist.getId}"
                                     th:text="${reservationist.getName}"></option>
                         </select>
                     </div>
                     <div class="form-group">
                         <label for="class_name">Tên Lớp hoặc tên nhóm thực hiện :</label>
-                        <input type="text" class="form-control bg-danger-subtle" id="class_name" name="class_name" required >
+                        <input type="text" class="form-control bg-danger-subtle" id="class_name"
+                               th:value="${bookingDTO.getContentDTO.getClassName}" name="class_name" required >
                     </div>
                     <div class="form-group">
                         <label for="amount_of_people">Số lượng người tham gia :</label>
                         <input type="number" class="form-control bg-danger-subtle" id="amount_of_people"
-                               name="amount_of_people" min="1" th:max="${labDTO.getCapacity}" required >
+                               name="amount_of_people" min="1" th:max="${bookingDTO.labDTO.getCapacity}"
+                               th:value="${bookingDTO.getContentDTO.amountOfPeople}" required >
                     </div>
                 </div>
             </div>
             <div class="row justify-content-around p-2">
                 <div class="form-group col-5" >
-                    <!-- Phone ID (hidden) -->
-                    <input type="hidden" name="id" th:field="*{id}" />
+                    <!--<div class="form-group">
+                        <label for="selectlabid">Phòng được đặt</label>
+                        <select class="form-control bg-danger-subtle" id="selectlabid"
+                                th:data="${bookingDTO.labid}" name="selectlabid" required>
+                            <option th:each="lab : ${labDTOList}" th:value="${lab.getId}"
+                                    th:text="${lab.labName}"></option>
+                        </select>
+                    </div>-->
+                    <input type="hidden" name="id" th:field="*{labDTO.id}" />
                     <div class="form-group">
                         <label for="LabName">Tên phòng thí nghiệm:</label>
                         <input type="text" class="form-control text-bg-success" id="LabName" name="labName"
-                               disabled="true" th:field="*{labName}" required >
+                               disabled="true" th:field="*{labDTO.labName}" required >
                     </div>
 
                     <div class="form-group">
                         <label for="Capacity">Sức chứa:</label>
                         <input type="text" class="form-control text-bg-success" id="Capacity" name="capacity"
-                               disabled="true" th:field="*{capacity}" required >
+                               disabled="true" th:field="*{labDTO.capacity}" required >
                     </div>
 
                     <div class="form-group">
                         <label for="Location">Vị trí:</label>
                         <input type="text" class="form-control text-bg-success" id="Location" name="location"
-                               disabled="true" th:field="*{location}" required >
+                               disabled="true" th:field="*{labDTO.location}" required >
                     </div>
 
                     <div class="form-group">
                         <label for="Manager">Phụ trách quản lý:</label>
                         <input type="text" class="form-control text-bg-success" id="Manager" name="lab_managemet_id"
-                               disabled="true" th:value="${labDTO.getLab_managemet.getName}" required >
+                               disabled="true" th:value="${bookingDTO.labDTO.getLab_managemet.getName}" required >
                     </div>
                 </div>
                 <div class="form-group col-5">
@@ -120,13 +149,15 @@
                             </select>
                         </div>
                     </div>
-                    <div class="form-group choose-datetime d-none">
-                        <h5 class="card-title text-black">Chọn ngày:</h5>
-                        <input type="date" id="date" name="date" class="form-control" style="max-width: 15rem; margin: auto">
+                    <div class="form-group choose-datetime">
+                        <h5 class="card-title text-black">Ngày đặt:</h5>
+                        <input type="date" id="date" name="date" disabled="true"
+                               class="form-control" style="max-width: 15rem; margin: auto">
                     </div>
                     <div class="form-group">
                         <label for="work_time">Đăng kí số tiết sử dụng:</label>
                         <input type="number" id="work_time" name="work_time" class="form-control bg-danger-subtle"
+                               th:value="${bookingDTO.getWork_times}"
                                style="max-width: 8rem; margin: auto" min="1" max="10">
                     </div>
                     <div class="form-group">
@@ -134,27 +165,32 @@
                         <textarea rows="1" class="form-control autosize-input bg-danger-subtle" style="height: 50px;"
                                   id="note" name="note" required
                                   th:placeholder="'[Ghi chú vào đây nếu cần]'"
+                                  th:text="${bookingDTO.getNote}"
                         ></textarea>
                     </div>
                 </div>
             </div>
             <!-- Submit button -->
-            <button type="submit" class="btn btn-primary">Đặt phòng</button>
+            <div class="row d-flex justify-content-center" th:if="${#strings.contains(#request.requestURI, '/Lab/admin/ShowBookingPendding')}">
+                <button type="submit" class="btn btn-primary col-3 mx-2">Sửa thông tin</button>
+                <button type="button" class="btn btn-success col-3 mx-2">Duyệt</button>
+                <button type="button" class="btn btn-danger col-3 mx-2">Hủy</button>
+            </div>
         </form>
         <br>
         <br>
-        <h2 th:text="${'Các thiết bị đã được chọn (' + #lists.size(bookingEquiDTOs) + ')'}"></h2>
+        <h2 th:text="${'Các thiết bị đã được chọn (' + #lists.size(bookingDTO.booking_equis) + ')'}"></h2>
         <br>
         <div class="row">
-            <div th:each="machine : ${bookingEquiDTOs}" class="col-md-3 mb-3">
+            <div th:each="machine : ${bookingEquiDTOs}" class="col-md-2 mb-3">
                 <div class="machine-block">
                     <div class="d-flex flex-row justify-content-between">
                         <div>
-                            <h4 th:text="${machine.getName}"></h4>
+                            <h4 th:text="${machine.equipment.name}"></h4>
                         </div>
-                        <form th:action="@{/Lab/admin/room/removeEquiLab}" method="post">
-                            <input type="hidden" th:value="${labDTO.getId}" name="LabId">
-                            <input type="hidden" th:value="${machine.getId}" name="removeEquiLab">
+                        <form th:action="@{/Lab/admin/ShowBookingPendding/removeBookingEqui}" method="post">
+                            <input type="hidden" th:value="${machine.bookingId}" name="bookingId">
+                            <input type="hidden" th:value="${machine.id}" name="removeBookingEqui">
                             <button type="submit"  class="remove-button"> Bỏ </button>
                         </form>
                     </div>
@@ -186,6 +222,7 @@
     <script th:inline="javascript">
         var experimentTypes = [[${experimentTypes}]];
         var experimentReports = [[${experimentReports}]];
+        var bookingId = [[${bookingDTO.getId}]];
         var tempGroupId
         $(document).ready(function() {
             $('#date').val([[${date}]]);
@@ -205,6 +242,8 @@
             $('#experiment_group').trigger('change');
             $('#experiment_type').trigger('change');
             $('#experiment_report').trigger('change');
+
+            ReadOnly(bookingId);
         })
         function SetExperiment_Type(groupId) {
             $('#experiment_type').removeAttr('disabled');
@@ -243,6 +282,28 @@
             });
             return trimmedArray;
         }
+
+        $('.btn-success').click(function () {
+            window.location.href = "/Lab/admin/ShowBookingPendding/Approve?bookingId="+bookingId;
+        })
+        $('.btn-danger').click(function () {
+            window.location.href = "/Lab/admin/ShowBookingPendding/Cancel?bookingId="+bookingId;
+        })
+
+        function ReadOnly(bookingId) {
+            // Kiểm tra đường dẫn hiện tại
+            if (window.location.pathname === '/Lab/admin/ShowBookingApprove/'+bookingId
+            || window.location.pathname === '/Lab/admin/ShowBookingCancel/'+bookingId) {
+                // Lấy danh sách tất cả các thẻ input, nút button và các selection
+                var inputs = document.querySelectorAll('input, button, select, textarea');
+                console.log("đã vô hiệu hóa")
+                // Vòng lặp để thêm thuộc tính disabled vào từng phần tử
+                for (var i = 0; i < inputs.length; i++) {
+                    inputs[i].disabled = true;
+                }
+            }
+        }
+
     </script>
 
     <!--Multiselect-->
@@ -275,6 +336,6 @@
     </script>
     <br>
     <br>
-</booking-lab>
+</booking-detail>
 </body>
 </html>

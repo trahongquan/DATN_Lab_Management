@@ -44,7 +44,7 @@
                                 <div style="background-color: #007bff">
                                     <div class="card-header justify-content-center" th:text="${booking.lab.labName}"></div>
                                     <div>
-                                        <button th:data="${booking.id}" type="button" class="btn btn-primary btn-booking" style="border: black thin;">Xem chi tiết</button>
+                                        <button th:data="${booking.id}" type="button" class="btn btn-primary btn-detail-booking" style="border: black thin;">Xem chi tiết</button>
                                     </div>
                                 </div>
                                 <div class="card-body">
@@ -55,7 +55,7 @@
                                     <br>
                                     <div>
                                         <span class="lab-info text-primary"> Tên lớp: </span>
-                                        <span class="lab-info" th:text="${booking.content.name}"></span>
+                                        <span class="lab-info" th:text="${booking.content.className}"></span>
                                     </div>
                                     <br>
                                     <div class="date-info" th:value="${booking.confirm_Status}">
@@ -75,31 +75,9 @@
 <br>
 <br>
 <script th:inline="javascript">
-    $(document).ready(function() {
-        var Status = {
-            APPROVE: "Đã xác nhận",
-            PENDDING: "Đang chờ duyệt",
-            CANCEL: "Bị từ chối"
-        };
-        var dateInfo = $('.date-info');
-        dateInfo.each(function() {
-            var confirmStatus = $(this).attr('value');
-            if (confirmStatus === Status.APPROVE) {
-                $(this).css({
-                    'color' : 'green'
-                })
-            } else if (confirmStatus === Status.CANCEL) {
-                $(this).css({
-                    'color' : 'red'
-                })
-            } else if (confirmStatus === Status.PENDDING) {
-                $(this).css({
-                    'color' : 'rgb(203 154 42)'
-                })
-            }
-        });
-    });
+
 </script>
+<script src="/js/my-booking.js"></script>
 </body>
 </html>
 

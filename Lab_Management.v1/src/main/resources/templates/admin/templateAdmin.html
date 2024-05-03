@@ -1053,16 +1053,23 @@
                 <div th:if="${#request.requestURI == '/Lab/admin/LabBookingManagement/Pendding'}" class="app-main__inner" style="display: flex; justify-content: center; align-content: center; flex-direction: column;">
                     <div th:replace="admin/booking-management.html :: management"></div>
                 </div>
+                <div th:if="${#strings.contains(#request.requestURI, '/Lab/admin/ShowBookingPendding/')}" class="app-main__inner">
+                    <div th:replace="admin/booking-detail-admin.html :: booking-detail"></div>
+                </div>
+
                 <div th:if="${#request.requestURI == '/Lab/admin/LabBookingManagement/Approve'}" class="app-main__inner" style="display: flex; justify-content: center; align-content: center; flex-direction: column;">
                     <div th:replace="admin/booking-management.html :: management"></div>
                 </div>
+                <div th:if="${#strings.contains(#request.requestURI, '/Lab/admin/ShowBookingApprove/')}" class="app-main__inner">
+                    <div th:replace="admin/booking-detail-admin.html :: booking-detail"></div>
+                </div>
+
                 <div th:if="${#request.requestURI == '/Lab/admin/LabBookingManagement/Cancel'}" class="app-main__inner" style="display: flex; justify-content: center; align-content: center; flex-direction: column;">
                     <div th:replace="admin/booking-management.html :: management"></div>
                 </div>
-                <!--<div th:if="${#strings.contains(#request.requestURI, '/Lab/admin/myAccount/')}" class="app-main__inner">-->
-                    <!--<div th:replace="managers/account-info :: account-info"></div>-->
-                <!--</div>-->
-
+                <div th:if="${#strings.contains(#request.requestURI, '/Lab/admin/ShowBookingCancel/')}" class="app-main__inner">
+                    <div th:replace="admin/booking-detail-admin.html :: booking-detail"></div>
+                </div>
 
             </div>
         </div>
