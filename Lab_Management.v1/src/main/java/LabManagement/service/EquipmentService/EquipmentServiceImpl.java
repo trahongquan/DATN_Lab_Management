@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class EquipmentServiceImpl implements EquipmentService {
@@ -21,6 +22,11 @@ public class EquipmentServiceImpl implements EquipmentService {
     @Override
     public List<Equipment> getAllEquipment() {
         return equipmentRepository.findAll();
+    }
+
+    @Override
+    public List<Equipment> getAllEquipmentOnLine() {
+        return equipmentRepository.findAll().stream().filter(equipment -> equipment.getIsDeleted()==0).collect(Collectors.toList());
     }
 
     @Override

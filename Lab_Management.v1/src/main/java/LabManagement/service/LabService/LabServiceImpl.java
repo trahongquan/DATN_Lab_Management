@@ -5,7 +5,9 @@ import LabManagement.dao.LabRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.sql.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class LabServiceImpl implements LabService {
@@ -21,6 +23,11 @@ public class LabServiceImpl implements LabService {
     @Override
     public List<Lab> getAllLabs() {
         return labRepository.findAll();
+    }
+
+    @Override
+    public List<Lab> getAllLabsOnLine(){
+        return labRepository.findAll().stream().filter(lab -> lab.getIsDelete()==0).collect(Collectors.toList());
     }
 
     @Override

@@ -10,6 +10,8 @@ public interface EquipmentService {
 
     List<Equipment> getAllEquipment();
 
+    List<Equipment> getAllEquipmentOnLine();
+
     Equipment createEquipment(Equipment equipment);
 
     void updateEquipment(Equipment equipment);

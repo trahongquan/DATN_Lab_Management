@@ -9,8 +9,9 @@
                 console.log(dateAndStatusLabsList)
             }
         }*/
+var currentDateForDivPre;
 function setIndex(username, dateAndStatusLabsList, currentDate) {
-
+    currentDateForDivPre = currentDate;
     var username
     var dateAndStatusLabsList
 
@@ -20,7 +21,7 @@ function setIndex(username, dateAndStatusLabsList, currentDate) {
         var currentDate = new Date().toLocaleString("en-US", { timeZone: "Asia/Ho_Chi_Minh", year: "numeric", month: "2-digit", day: "2-digit" }).split(',')[0].replace(/\//g, '-');
      * */
     $('#date').val(currentDate);
-    console.log(currentDate)
+    // console.log(currentDate)
     $('#date').attr('min', currentDate);
     $(".btn-booking").click(function () {
         var dateValue = $("#date").val();
@@ -42,6 +43,7 @@ function setIndex(username, dateAndStatusLabsList, currentDate) {
 
 
     $('#date').change(function () {
+        checkdateForDivPre(currentDateForDivPre)
         checkcurrentDate(currentDate);
         checkDateAndStatus();
     });
@@ -93,16 +95,12 @@ function setIndex(username, dateAndStatusLabsList, currentDate) {
 
     function checkDateAndStatus() {
         var dateValue = $("#date").val();
-        console.log('dateValue='+dateValue)
-        console.log('currentDate='+currentDate)
-        console.log(dateValue === currentDate)
         for (var i = 0; i < dateAndStatusLabsList.length; i++) {
             var dateAndStatusLabs = dateAndStatusLabsList[i];
             if (dateAndStatusLabs.length === 0) {
                 // setDisplay(i, 'none', 'none', 'none', 'block');
                 // setEnabledBtn(i);
                 if (dateValue === currentDate){
-                    console.log('chạy vào else')
                     setDisplay(i, 'none', 'none', 'block', 'none');
                     setDisabledBtn(i);
                 } else {
@@ -137,7 +135,6 @@ function setIndex(username, dateAndStatusLabsList, currentDate) {
                     break
                 } else {
                     if (dateValue === currentDate){
-                        console.log('chạy vào else')
                         setDisplay(i, 'none', 'none', 'block', 'none');
                         setDisabledBtn(i);
                     } else {
@@ -156,14 +153,19 @@ function setIndex(username, dateAndStatusLabsList, currentDate) {
             }
         }*/
     }
+
     $('#date').trigger('change');
+    diviconhome(currentDate)
 }
-function Nextday(currentDate) {
-    $('#next-day').click(function() {
+var elementclick = $('#next-day');
+function Setday(elementclick , currentDate, bool) {
+    elementclick.click(function() {
         var date = new Date(currentDate);
-        console.log(date)
-        date.setDate(date.getDate() + 1);
-        console.log(date)
+        // console.log(date)
+        if(bool){
+            date.setDate(date.getDate() + 1);
+        } else {date.setDate(date.getDate() - 1);}
+        // console.log(date)
         var formattedDate = formatDate(date); // Hàm formatDate() chuyển đổi định dạng ngày tháng nếu cần thiết
         $('#date').val(formattedDate);
         $('#date').trigger('change');
@@ -171,10 +173,72 @@ function Nextday(currentDate) {
 }
 function formatDate(date) {
     var year = date.getFullYear();
-    console.log(year)
+    // console.log(year)
     var month = (date.getMonth() + 1).toString().padStart(2, '0');
-    console.log(month)
+    // console.log(month)
     var day = date.getDate().toString().padStart(2, '0');
-    console.log(day)
+    // console.log(day)
     return year + '-' + month + '-' + day;
 }
+
+var $dateInput = $('#date');
+
+// Sự kiện click cho phần tử div-icon trái
+$('.div-icon-next').click(function() {
+    // Lấy giá trị ngày hiện tại từ input
+    var currentDateX = new Date($dateInput.val());
+    // Tăng giá trị ngày lên 1
+    currentDateX.setDate(currentDateX.getDate() + 1);
+    // Format lại ngày và gán vào input
+    $dateInput.val(formatDate(currentDateX));
+    $('#date').trigger('change');
+    checkdateForDivPre(currentDateForDivPre);
+});
+/*
+
+// Sự kiện click cho phần tử div-icon phải
+$('.div-icon-pre').click(function() {
+    // Lấy giá trị ngày hiện tại từ input
+    var currentDate = new Date($dateInput.val());
+    // Giảm giá trị ngày xuống 1
+    currentDate.setDate(currentDate.getDate() - 1);
+    // Format lại ngày và gán vào input
+    $dateInput.val(formatDate(currentDate));
+    $('#date').trigger('change');
+});
+*/
+
+function DivIconPreClick() {
+    $('.div-icon-pre').click(function() {
+        // Lấy giá trị ngày hiện tại từ input
+        var currentDate = new Date($dateInput.val());
+        // Giảm giá trị ngày xuống 1
+        currentDate.setDate(currentDate.getDate() - 1);
+        // Format lại ngày và gán vào input
+        $dateInput.val(formatDate(currentDate));
+        $('#date').trigger('change');
+        checkdateForDivPre(currentDateForDivPre);
+    });
+    console.log('chạy chạy chạy')
+}
+
+
+function checkdateForDivPre(currentDate) {
+    if(currentDate === $("#date").val() || $("#date").val() <= currentDate){
+        console.log('chạy qua đây')
+        $('.div-icon-pre').off('click');
+    } else {
+        $('.div-icon-pre').on('click', DivIconPreClick);
+    }
+}
+
+function diviconhome (currentDate) {
+    $('#div-icon-home').click(function () {
+        $('#date').val(currentDate)
+        $('#date').trigger('change');
+    });
+}
+
+
+
+

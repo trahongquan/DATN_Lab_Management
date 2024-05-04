@@ -1,6 +1,7 @@
 package LabManagement.Controller.LabController;
 
 import LabManagement.ClassSuport.*;
+import LabManagement.ClassSuport.Comparator;
 import LabManagement.dao.*;
 import LabManagement.dto.*;
 import LabManagement.entity.*;
@@ -108,7 +109,7 @@ public class LabController {
         labs.forEach(lab -> labDTOS.add(Lab2LabDTOandDateAndStatus(lab)));
         return labDTOS;
     }
-    private void ApprovePassCurrentDateBookings() {
+    private void ApprovePassCurrentDateBookings() { /** TỰ động duyệt các booking đã đến ngày*/
         LocalDate currentDate = LocalDate.now();
         List<Lab> labs = labService.getAllLabs().stream()
                 .filter(lab -> (lab.getIsDelete()!=1))
@@ -140,7 +141,6 @@ public class LabController {
         List<LabDTO> labDTOS = Labs2LabDTOsAndDateAndStatus(labs);
         List<List<DateAndStatusLab>> dateAndStatusLabsList = new ArrayList<>();
         labDTOS.forEach(labDTO -> dateAndStatusLabsList.add(labDTO.getDateAndStatusLab()));
-//        System.out.println(dateAndStatusLabsList);
         model.addAttribute("dateAndStatusLabsList", dateAndStatusLabsList);
         model.addAttribute("labDTOS", labDTOS);
         model.addAttribute("currentDate", LocalDate.now());
@@ -300,11 +300,89 @@ public class LabController {
 
     @GetMapping({"/admin/Dashboard"})
     public String getAdminHomePage(Model model) {
-        List<Lab> rooms = labService.getAllLabs();
-        List<LabDTO> roomDTOS = Labs2LabDTOsAndDateAndStatus(rooms);
-        model.addAttribute("roomDTOS", roomDTOS);
-//        System.out.println(roomDTOS);
+        /** Dashboard Lab */
+        List<Lab> labsOnLine = labService.getAllLabsOnLine();
+        List<Booking> bookingsToday = bookingService.getAllBookings()
+                .stream().filter(booking -> booking.getBookingDate().toLocalDate().isEqual(LocalDate.now())
+                                            && !booking.getConfirmStatus().equals(ComfirmStatus.CANCEL))
+                .collect(Collectors.toList());
+        List<Booking> bookingsYesterday = bookingService.getAllBookings()
+                .stream().filter(booking -> booking.getBookingDate().toLocalDate().isEqual(LocalDate.now().minusDays(1))
+                                            && !booking.getConfirmStatus().equals(ComfirmStatus.CANCEL))
+                .collect(Collectors.toList());
+        int comparatorLab = bookingsToday.size() - bookingsYesterday.size();
+        Comparator comparatorLabComponet = CretedComparatorComponet(comparatorLab);
+        model.addAttribute("comparatorLabComponet", comparatorLabComponet);
+
+        List<Lab> labsBooking = new ArrayList<>();
+        bookingsToday.forEach(booking -> labsBooking.add(labService.findByLabId(booking.getLabid())));
+        model.addAttribute("labsOnLine", labsOnLine);
+        model.addAttribute("labsBooking", labsBooking);
+
+        /** Dashboard Equipment */
+        List<Equipment> equipments = equipmentService.getAllEquipmentOnLine();
+        List<String> seriEqui = new ArrayList<>();
+        List<String> seriEquiFixed = new ArrayList<>();
+        equipments.forEach(equipment -> {
+            equipment.getSeriesAsList().forEach(seri -> seriEqui.add(seri));
+            equipment.getSeriesFixedAsList().forEach(seri -> seriEquiFixed.add(seri));
+        });
+        List<EquipmentLab> equipmentLabs = equipmentLabService.getAllEquipmentLabs();
+        List<String> seriEquiLab = new ArrayList<>();
+        equipmentLabs.forEach(equipmentLab -> equipmentLab.getEquipmentSerieList().forEach(seri -> seriEquiLab.add(seri)));
+        int quantityEqui = seriEqui.size() + seriEquiLab.size();
+        int quantityEquiFixed = seriEquiFixed.size();
+        model.addAttribute("quantityEqui", quantityEqui);
+        model.addAttribute("quantityEquiFixed", quantityEquiFixed);
+
+        /** Dashboard People */
+        List<People> teachers = GetPeoPleByRole("ROLE_TEACHER");
+        model.addAttribute("teachers", teachers.size());
+        List<People> reservationist = GetPeoPleByRole("ROLE_RESERVATIONIST");
+        model.addAttribute("reservationist", reservationist.size());
+        List<People> admins = GetPeoPleByRole("ROLE_ADMIN");
+        model.addAttribute("admins", admins.size());
+        List<People> managers = GetPeoPleByRole("ROLE_MANAGER");
+        model.addAttribute("managers", managers.size());
+
+        /** Dashboard Booking */
+
+        List<Booking> bookingAPPROVE = bookingService.getAllBookings().stream().filter(booking -> booking.getConfirmStatus().equals(ComfirmStatus.APPROVE)).collect(Collectors.toList());
+        List<Booking> bookingCANCEL = bookingService.getAllBookings().stream().filter(booking -> booking.getConfirmStatus().equals(ComfirmStatus.CANCEL)).collect(Collectors.toList());
+        List<Booking> bookingPENDDING = bookingService.getAllBookings().stream().filter(booking -> booking.getConfirmStatus().equals(ComfirmStatus.PENDDING)).collect(Collectors.toList());
+        model.addAttribute("bookingAPPROVE", bookingAPPROVE.size());
+        model.addAttribute("bookingCANCEL", bookingCANCEL.size());
+        model.addAttribute("bookingPENDDING", bookingPENDDING.size());
+
         return template;
+    }
+    private List<People> GetPeoPleByRole(String role){
+        List<People> PeoPleByRole = peopleService.getAllPeople().stream()
+                .filter(people -> people.getIsDelete()==0 && CheckRole(people, role)
+                ).collect(Collectors.toList());
+        return PeoPleByRole;
+    }
+    private List<People> GetPeoPleByRoles(String role1, String role2){
+        List<People> PeoPleByRole = peopleService.getAllPeople().stream()
+                .filter(people -> people.getIsDelete()==0 &&
+                        (CheckRole(people, role1) || CheckRole(people, role2))
+                ).collect(Collectors.toList());
+        return PeoPleByRole;
+    }
+
+    private Comparator CretedComparatorComponet(int comparatorInt){
+        Comparator comparatorComponet = new Comparator();
+        if(comparatorInt < 0 ) {
+            comparatorComponet.setQuantity(comparatorInt*-1);
+            comparatorComponet.setCompared(Compared.DECREASE);
+        } else if (comparatorInt == 0) {
+            comparatorComponet.setQuantity(comparatorInt);
+            comparatorComponet.setCompared(Compared.EQUAL);
+        } else {
+            comparatorComponet.setQuantity(comparatorInt);
+            comparatorComponet.setCompared(Compared.INCREASE);
+        }
+        return comparatorComponet;
     }
 
     /******************************************************************************************/
@@ -1000,16 +1078,4 @@ public class LabController {
         return Redirect("admin/LabBookingManagement/Cancel",true);
     }
 
-//    @GetMapping({"/admin/Approve"})
-//    @GetMapping({"/admin/Pendding"})
-//    @GetMapping({"/admin/CancelBoooking"})
-//    @GetMapping({"/admin/Lab"})
-
-//    @GetMapping({"/admin/ExportLabs"})
-//    @GetMapping({"/admin/ExportEquipments"})
-
-//    @GetMapping({"/admin/Roles"})
-//    @GetMapping({"/admin/AddManager"})
-//    @GetMapping({"/admin/AddTeacher"})
-//    @GetMapping({"/admin/Teacher"})
 }

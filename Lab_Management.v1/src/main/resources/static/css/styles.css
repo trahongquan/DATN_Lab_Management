@@ -87,3 +87,17 @@ form>div>div{
 .icon-checkzzz{
     cursor: pointer;
 }
+
+/************* Zoom *************/
+
+.room {
+    transition: transform 0.3s ease, background-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.room:hover {
+    transform: scale(1.2);
+    /*background-color: #005f37;*/
+    background-color: #ffcc00;
+    color: #ffffff;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+}
