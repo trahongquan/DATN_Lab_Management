@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Add new Brand or Category</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Phone</title>
+    <!-- Link to Bootstrap CSS for styling -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body>
+<!--<div th:replace="admin/headerAdmin :: header-admin"></div>-->
+<score>
+    <h1 style="text-align: center"> Danh mục Điểm</h1>
+    <div class="form-group" style="display: flex ; justify-content: space-around">
+        <div style="display: flex; justify-content: space-around">
+            <form th:action="'/Lab/admin/ExperimentManagement/Score/add'" method="post">
+                <div class="form-group d-flex justify-content-center align-content-center" >
+                    <div class="form-group m-2">
+                        <label for="experiment_group">Chọn nhóm loại hình thí nghiệm:</label>
+                        <select class="form-control bg-danger-subtle" id="experiment_group"
+                                name="experiment_group" required>
+                            <option th:each="experimentGroup : ${unusedExperimentGroups}" th:value="${experimentGroup.getId}"
+                                    th:text="${experimentGroup.getGroupName}"></option>
+                        </select>
+                    </div>
+                    <div class="form-group m-2">
+                        <label for="experiment_type">Chọn loại hình thí nghiệm:</label>
+                        <select class="form-control bg-danger-subtle" id="experiment_type"
+                                name="experiment_type" required>
+                            <option th:each="experimentType : ${unusedExperimentTypes}" th:value="${experimentType.getId}"
+                                    th:text="${experimentType.getTypeName}"></option>
+                        </select>
+                    </div>
+                    <div class="form-group m-2">
+                        <label for="experiment_report">Chọn loại báo cáo:</label>
+                        <select class="form-control bg-danger-subtle" id="experiment_report"
+                                name="experiment_report" required>
+                            <option th:each="experimentReport : ${unusedExperimentReports}" th:value="${experimentReport.getId}"
+                                    th:text="${experimentReport.getReportType}"></option>
+                        </select>
+                    </div>
+                    <div class="m-2">
+                        <label for="experiment" >Điểm số:</label>
+                        <input type="number" class="form-control" id="experiment" name="score" step="0.1" min="0" required>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary" id="btnAdd"> Thêm </button>
+            </form>
+        </div>
+
+    </div>
+
+    <div class="main-card mb-3 card">
+        <div class="card-body">
+            <table style="width: 100%;" id="example" class="table table-hover table-striped table-bordered">
+                <thead>
+                <tr>
+                    <th>STT</th>
+                    <th>Tên nhóm loại hình thí nghiệm</th>
+                    <th>Tên loại hình thí nghiệm</th>
+                    <th>Tên loại báo cáo</th>
+                    <!--<th>Trạng thái sử dụng</th>-->
+                    <th>Điểm số</th>
+                    <th>Thao tác</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="score, iter : ${scores}">
+                    <td th:text="${iter.index + 1}"></td>
+                    <td th:text="${score.experimentGroup.groupName}"></td>
+                    <td th:text="${score.experimentType.typeName}"></td>
+                    <td th:text="${score.experimentReport.reportType}"></td>
+                    <!--<td th:if="${checkExperiments[iter.index].aBoolean}" th:text="'✅ '"> </td>
+                    <td th:unless="${checkExperiments[iter.index].aBoolean}"> ❌ </td>-->
+                    <td> <strong class="text-danger" th:text="${score.score}"></strong> </td>
+                    <td>
+                        <button type="button" class="form-control btn btn-primary btn-edit"
+                                th:data-id="${score.id}"
+                                th:data-score="${score.score}"
+                        >Sửa</button>
+                    </td>
+                </tr>
+                </tbody>
+                <tfoot>
+                <tr>
+                    <th>STT</th>
+                    <th>Tên nhóm loại hình thí nghiệm</th>
+                    <th>Tên loại hình thí nghiệm</th>
+                    <th>Tên loại báo cáo</th>
+                    <!--<th>Trạng thái sử dụng</th>-->
+                    <th>Điểm số</th>
+                    <th>Thao tác</th>
+                </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+    <!-- Popup -->
+    <div id="popup" class="popup">
+        <div class="popup-content">
+            <h2>Sửa thông tin loại</h2>
+            <form id="editForm" th:action="'/Lab/admin/ExperimentManagement/Score/edit'" method="post" >
+                <label for="score" >Tên loại:</label>
+                <div class="d-flex flex-row justify-content-center align-content-center">
+                    <input type="number" id="score" name="score" class="form-control text-danger font-weight-bold" min="0" step="0.1" required>
+                    <input type="hidden" id="id" name="scoreid" class="form-control" required>
+                    <button type="submit" class="btn btn-primary" id="btnEdit">Sửa</button>
+                </div>
+            </form>
+            <br>
+            <button type="button" class="btn btn-secondary close-btn">Đóng</button>
+        </div>
+    </div>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="/js/noticePopUp.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            $(".btn-edit").click(function() {
+                var score = $(this).attr('data-score');
+                var scoreid = $(this).attr('data-id');
+                console.log(score)
+                console.log(scoreid)
+                $("#score").val(score);
+                $("#id").val(scoreid);
+                $(".popup").slideDown(300);
+            });
+
+            $(".close-btn").click(function() {
+                $(".popup").slideUp(300);
+            });
+
+            // Optional: Close the popup when clicking outside the content
+            $(window).click(function(event) {
+                if ($(event.target).hasClass("popup")) {
+                    $(".popup").slideUp(300);
+                }
+            });
+        });
+    </script>
+
+    <script th:inline="javascript">
+        var experimentTypes = [[${unusedExperimentTypes}]];
+        var experimentReports = [[${unusedExperimentReports}]];
+        var tempGroupId
+        $(document).ready(function() {
+            $('#date').val([[${date}]]);
+            $('#experiment_type').prop('disabled','true');
+            $('#experiment_report').prop('disabled','true');
+
+            $('#experiment_group').change(function () {
+                var groupId = $(this).val();
+                SetExperiment_Type(groupId);
+                tempGroupId = groupId;
+                $('#experiment_report').prop('disabled','true');
+            });
+            $('#experiment_type').change(function () {
+                var typeId = $(this).val();
+                SetExperiment_Report(tempGroupId, typeId)
+            })
+            $('#experiment_group').trigger('change');
+            $('#experiment_type').trigger('change');
+            $('#experiment_report').trigger('change');
+        })
+        function SetExperiment_Type(groupId) {
+            $('#experiment_type').removeAttr('disabled');
+            // Xóa tất cả các option hiện tại trong select experiment_type
+            $('#experiment_type').empty();
+            // Thêm các option mới từ danh sách loại hình thí nghiệm nhận được
+            experimentTypes.forEach(experimentType => {
+                if(experimentType.experimentGroupId == groupId){
+                $('#experiment_type').append($('<option>', {
+                    value: experimentType.id,
+                    text: experimentType.typeName
+                }));
+            }
+        });
+        }
+        function SetExperiment_Report(groupId, typeId) {
+            $('#experiment_report').removeAttr('disabled');
+            $('#experiment_report').empty();
+            var experimentTypeIdList
+            // Thêm các option mới từ danh sách loại hình thí nghiệm nhận được
+            experimentReports.forEach(experimentReport => {
+                experimentTypeIdList = StringToList(experimentReport.experimentTypeId);
+            if(experimentReport.experimentGroupId == groupId && experimentTypeIdList.includes(typeId)){
+                $('#experiment_report').append($('<option>', {
+                    value: experimentReport.id,
+                    text: experimentReport.reportType
+                }));
+            }
+        });
+        }
+        function StringToList(inputString) {
+            var cleanString = inputString.replace(/\[|\]/g, '');
+            var stringArray = cleanString.split(',');
+            var trimmedArray = stringArray.map(function(item) {
+                return item.trim();
+            });
+            return trimmedArray;
+        }
+    </script>
+</score>
+</body>
+</html>

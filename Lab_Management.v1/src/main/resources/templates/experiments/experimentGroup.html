@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"><head>
+    <meta charset="UTF-8">
+    <title>Add new Brand or Category</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Phone</title>
+    <!-- Link to Bootstrap CSS for styling -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body>
+<!--<div th:replace="admin/headerAdmin :: header-admin"></div>-->
+<experimentGroup>
+    <h1 style="text-align: center"> Danh mục nhóm loại hình thí nghiệm</h1>
+    <br>
+    <div class="form-group" style="display: flex ; justify-content: space-around">
+        <div style="display: flex; justify-content: space-around">
+            <form th:action="'/Lab/admin/ExperimentManagement/ExperimentGroup/add'" method="post">
+                <div style="margin-right: 10px">
+                    <label for="experiment" >Thêm nhóm:</label>
+                    <input type="text" class="form-control" id="experiment" name="experiment" required>
+                </div>
+                <br>
+                <button type="submit" class="btn btn-primary" > Thêm mới</button>
+            </form>
+        </div>
+        <form th:action="@{'/Lab/admin/ExperimentManagement/ExperimentGroup/del'}" method="post">
+            <div>
+                <label th:for="@{'experiment'}" >Nhóm:</label>
+                <select th:class="@{'form-control'}" th:id="@{'experiment'}" th:name="@{'experiment'}"  required>
+                    <option th:each="experiment : ${unusedExperimentGroups}" th:value="${experiment.id}" th:text="${experiment.groupName}"></option>
+                </select>
+            </div>
+            <label class="text-warning"><span class="text-danger"><strong>Chú ý:</strong></span> Chỉ hiển thị những nhóm có thể xóa</label> <br>
+            <label class="text-warning"><span class="text-danger"><strong>Chú ý:</strong></span> Nếu bạn muốn xóa nhóm nào đó hãy chắc chắn <br> bạn không sử dụng nó ở phần tính điểm phòng thí nghiệm</label>
+            <br>
+            <button type="submit" class="btn btn-danger" > Xóa </button>
+        </form>
+    </div>
+
+    <div class="main-card mb-3 card">
+        <div class="card-body">
+            <table style="width: 100%;" id="example" class="table table-hover table-striped table-bordered">
+                <thead>
+                <tr>
+                    <th>STT</th>
+                    <th>Tên nhóm loại hình thí nghiệm</th>
+                    <th>Trạng thái sử dụng</th>
+                    <th>Thao tác</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="experimentGroup, iter : ${experimentGroups}">
+                    <td th:text="${iter.index + 1}"></td>
+                    <td th:text="${experimentGroup.groupName}"></td>
+                    <td th:if="${booleans[iter.index]}" th:text="'✅ '"> </td>
+                    <td th:unless="${booleans[iter.index]}"> ❌ </td>
+                    <td>
+                        <button type="button" class="form-control btn btn-primary btn-edit"
+                                th:data-groupName="${experimentGroup.groupName}"
+                                th:data-id="${experimentGroup.id}"
+                        >Sửa</button>
+                    </td>
+                </tr>
+                </tbody>
+                <tfoot>
+                <tr>
+                    <th>STT</th>
+                    <th>Tên nhóm loại hình thí nghiệm</th>
+                    <th>Trạng thái sử dụng</th>
+                    <th>Thao tác</th>
+                </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+    <!-- Popup -->
+    <div id="popup" class="popup">
+        <div class="popup-content">
+            <h2>Sửa thông tin nhóm</h2>
+            <form id="editForm" th:action="'/Lab/admin/ExperimentManagement/ExperimentGroup/edit'" method="post" >
+                <div class="d-flex flex-row justify-content-center align-content-center">
+                    <input type="hidden" id="groupidInput" name="groupid" class="form-control" required>
+                    <input type="text" id="groupNameInput" name="groupName" required class="form-control">
+                    <button type="submit" class="btn btn-primary">Sửa</button>
+                </div>
+            </form>
+            <br>
+            <button type="button" class="btn btn-secondary close-btn">Đóng</button>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $(".btn-edit").click(function() {
+                var groupName = $(this).attr('data-groupName');
+                var groupid = $(this).attr('data-id');
+                console.log(groupid)
+                console.log(groupName)
+                $("#groupNameInput").val(groupName);
+                $("#groupidInput").val(groupid);
+                $(".popup").slideDown(300);
+            });
+
+            $(".close-btn").click(function() {
+                $(".popup").slideUp(300);
+            });
+
+            // Optional: Close the popup when clicking outside the content
+            $(window).click(function(event) {
+                if ($(event.target).hasClass("popup")) {
+                    $(".popup").slideUp(300);
+                }
+            });
+        });
+    </script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="/js/noticePopUp.js"></script>
+</experimentGroup>
+</body>
+</html>

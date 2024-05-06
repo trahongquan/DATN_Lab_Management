@@ -15,14 +15,6 @@ public class ExperimentType implements Serializable {
     @Column(name = "type_name", nullable = false)
     private String typeName;
 
-    /*@ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "experiment_group_id", nullable = false)
-    private ExperimentGroup experimentGroup;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "experiment_report_id", nullable = false)
-    private ExperimentReport experimentReport;*/
-
     @Column(name = "experiment_group_id", nullable = false)
     private int experimentGroupId;
         public ExperimentType() {

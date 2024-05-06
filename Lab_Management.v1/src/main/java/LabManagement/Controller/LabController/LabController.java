@@ -17,6 +17,7 @@ import LabManagement.service.equipmentLab.EquipmentLabService;
 import LabManagement.service.experimentGroupService.ExperimentGroupService;
 import LabManagement.service.experimentReportService.ExperimentReportService;
 import LabManagement.service.experimentTypeService.ExperimentTypeService;
+import LabManagement.service.scoreService.ScoreService;
 import LabManagement.service.users.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -58,10 +59,11 @@ public class LabController {
     private ExperimentGroupService experimentGroupService;
     private ExperimentTypeService experimentTypeService;
     private ExperimentReportService experimentReportService;
+    private ScoreService scoreService;
     private PasswordEncoder passwordEncoder;
 
     @Autowired
-    public LabController(UserService userService, AuthorityService authorityService, BookingService bookingService, BookingRepository bookingRepository, ContentService contentService, EquipmentService equipmentService, EquipmentLabService equipmentLabService, Booking_equiService booking_equiService, PeopleService peopleService, RoleService roleService, LabService labService, PasswordEncoder passwordEncoder, ExperimentGroupService experimentGroupService, ExperimentTypeService experimentTypeService, ExperimentReportService experimentReportService) {
+    public LabController(UserService userService, AuthorityService authorityService, BookingService bookingService, BookingRepository bookingRepository, ContentService contentService, EquipmentService equipmentService, EquipmentLabService equipmentLabService, Booking_equiService booking_equiService, PeopleService peopleService, RoleService roleService, LabService labService, PasswordEncoder passwordEncoder, ExperimentGroupService experimentGroupService, ExperimentTypeService experimentTypeService, ExperimentReportService experimentReportService, ScoreService scoreService) {
         this.userService = userService;
         this.authorityService = authorityService;
         this.bookingService = bookingService;
@@ -77,6 +79,7 @@ public class LabController {
         this.experimentTypeService = experimentTypeService;
         this.experimentGroupService = experimentGroupService;
         this.experimentReportService = experimentReportService;
+        this.scoreService = scoreService;
     }
 
     /******************************************************************************************************/
@@ -924,20 +927,6 @@ public class LabController {
         List<EquipmentLab> equipmentLabs = equipmentLabService.findAllByLabId(booking.getLabid());
 
         /** Loại bỏ các seri Equi đã được booking trong Equi Lab - Còn lại các seri chưa được book*/
-//        equipmentLabs.forEach(equipmentLab -> {
-//            bookingDTO.getBooking_equis().forEach(booking_equi -> {
-//                if(equipmentLab.getEquipmentId() == booking_equi.getEquipmentId()){
-//                    equipmentLab.getEquipmentSerieList().forEach(seriLab -> {
-//                        booking_equi.getEquipmentSerieList().forEach(seriBooking -> {
-//                            if(seriLab.equals(seriBooking)){
-//                                equipmentLab.getEquipmentSerieList().remove(seriLab);
-//                                equipmentLab.setEquipmentSeries(equipmentLab.getEquipmentSerieList().toString());
-//                            }
-//                        });
-//                    });
-//                }
-//            });
-//        });
         for (EquipmentLab equipmentLab : equipmentLabs) {
             for (Booking_equi booking_equi : bookingDTO.getBooking_equis()) {
                 if (equipmentLab.getEquipmentId() == booking_equi.getEquipmentId()) {
@@ -954,17 +943,8 @@ public class LabController {
                 }
             }
         }
-
         List<EquipmentLabDTO> equipmentLabDTOs = EquiLabs2EquiLabDTOs(equipmentLabs);
         model.addAttribute("equipmentLabDTOs", equipmentLabDTOs); /** Đã trừ những Equi đã được đặt*/
-
-        /*List<Booking> bookings = bookingService.findAllByBookingDate(booking.getBookingDate());
-        List<Lab> labs = labService.getAllLabs().stream()
-                .filter(lab -> lab.getIsDelete() == 0 && bookings.stream().noneMatch(item -> item.getLabid() == lab.getId()))
-                .collect(Collectors.toList());
-        labs.add(labService.findByLabId(booking.getLabid()));
-        List<LabDTO> labDTOList = Lab2LabDTO(labs);
-        model.addAttribute("labDTOList", labDTOList);*/
         model.addAttribute("success", success);
         return template;
     }
@@ -1077,5 +1057,355 @@ public class LabController {
         UnApproveShowBookingApprove(model, bookingId, success);
         return Redirect("admin/LabBookingManagement/Cancel",true);
     }
+
+    /******************************************************************************************/
+                                    /** Experiment management & Score */
+    /******************************************************************************************/
+
+
+                        /******************************************************/
+                                        /** Experiment Group */
+                        /*****************************************************/
+
+    private List<ExperimentGroup> getUnusedExperimentGroups(List<ExperimentGroup> experimentGroups,
+                                                            List<ExperimentType> experimentTypes,
+                                                          List<Boolean> booleans){
+        List<ExperimentGroup> unusedExperimentGroups = new ArrayList<>();
+        for (ExperimentGroup experimentGroup : experimentGroups) {
+            boolean found = false;
+            for (ExperimentType experimentType : experimentTypes) {
+                if (experimentType.getExperimentGroupId() == experimentGroup.getId()) {
+                    found = true;
+                    booleans.add(found);
+                    break;
+                }
+            }
+            if (!found) {
+                unusedExperimentGroups.add(experimentGroup);
+                booleans.add(found);
+            }
+        }
+        return unusedExperimentGroups;
+    }
+
+    @GetMapping({"/admin/ExperimentManagement/ExperimentGroup"})
+    public String ExperimentGroup(Model model,
+                                  @RequestParam(value = "success", defaultValue = "false") boolean success){
+        List<ExperimentGroup> experimentGroups = experimentGroupService.getAllExperimentGroups();
+        List<Boolean> booleans = new ArrayList<>();
+        List<ExperimentType> experimentTypes = experimentTypeService.getAllExperimentTypes();
+        List<ExperimentGroup> unusedExperimentGroups = getUnusedExperimentGroups(experimentGroups, experimentTypes, booleans);
+        model.addAttribute("unusedExperimentGroups", unusedExperimentGroups);
+        model.addAttribute("experimentGroups", experimentGroups);
+        model.addAttribute("booleans", booleans);
+        model.addAttribute("success", success);
+        return template;
+    }
+    @PostMapping({"/admin/ExperimentManagement/ExperimentGroup/del"})
+    public String ExperimentGroupDel(Model model,
+                                  @RequestParam("experiment") int experimentid){
+        experimentGroupService.deleteExperimentGroup(experimentid);
+        return Redirect("admin/ExperimentManagement/ExperimentGroup", true);
+    }
+
+    @PostMapping({"/admin/ExperimentManagement/ExperimentGroup/add"})
+    public String ExperimentGroupAdd(Model model,
+                                  @RequestParam("experiment") String experiment){
+        experimentGroupService.saveExperimentGroup(new ExperimentGroup(experiment));
+        return Redirect("admin/ExperimentManagement/ExperimentGroup", true);
+    }
+
+    @PostMapping({"/admin/ExperimentManagement/ExperimentGroup/edit"})
+    public String ExperimentGroupEdit(Model model,
+                                     @RequestParam("groupid") int groupid,
+                                     @RequestParam("groupName") String groupName){
+        ExperimentGroup experimentGroup = experimentGroupService.getExperimentGroupById(groupid);
+        experimentGroup.setGroupName(groupName);
+        experimentGroupService.saveExperimentGroup(experimentGroup);
+        return Redirect("admin/ExperimentManagement/ExperimentGroup", true);
+    }
+
+                        /******************************************************/
+                                         /** Experiment Type */
+                        /*****************************************************/
+
+    private List<ExperimentType> getUnusedExperimentTypes(List<ExperimentType> experimentTypes,
+                                                          List<Score> scores, List<Content> contents,
+                                                          List<CheckExperiment> checkExperiments){
+        List<ExperimentType> unusedExperimentTypes = new ArrayList<>();
+        for (ExperimentType experimentType : experimentTypes) {
+            boolean found = false;
+            for (Score score : scores) {
+                if (score.getExperimentTypeId() == experimentType.getId()) {
+                    found = true;
+                    checkExperiments.add(new CheckExperiment(experimentType.getId(), found));
+                    break;
+                }
+            }
+            if (!found) {
+                unusedExperimentTypes.add(experimentType);
+                checkExperiments.add(new CheckExperiment(experimentType.getId(), found));
+            }
+        }
+        List<ExperimentType> unusedExperimentTypesCopy = new ArrayList<>(unusedExperimentTypes);
+        for (ExperimentType experimentType : unusedExperimentTypesCopy) {
+            for (Content content : contents) {
+                if (content.getExperimentType() == experimentType.getId()) {
+                    checkExperiments.forEach(checkExperiment -> {
+                        if(checkExperiment.getId() == experimentType.getId()){
+                            checkExperiment.setaBoolean(true);
+                            unusedExperimentTypes.remove(experimentType);
+                        }
+                    });
+                    break;
+                }
+            }
+        }
+        return unusedExperimentTypes;
+    }
+
+    @GetMapping({"/admin/ExperimentManagement/ExperimentType"})
+    public String ExperimentType(Model model,
+                                 @RequestParam(value = "success", defaultValue = "false") boolean success){
+        List<CheckExperiment> checkExperiments = new ArrayList<>();
+        List<ExperimentType> experimentTypes = experimentTypeService.getAllExperimentTypes();
+        List<Score> scores = scoreService.getAllScore();
+        List<Content> contents = contentService.getAllContents();
+        List<ExperimentType> unusedExperimentTypes = getUnusedExperimentTypes(experimentTypes, scores, contents, checkExperiments);
+        List<ExperimentGroup> experimentGroups = experimentGroupService.getAllExperimentGroups();
+        model.addAttribute("unusedExperimentTypes", unusedExperimentTypes);
+        model.addAttribute("experimentGroups", experimentGroups);
+        model.addAttribute("experimentTypes", ExpTypes2ExpTypeDTOs(experimentTypes));
+        model.addAttribute("checkExperiments", checkExperiments);
+        model.addAttribute("success", success);
+        return template;
+    }
+
+    private ExperimentTypeDTO ExpType2ExpTypeDTO(ExperimentType experimentType){
+        ExperimentGroup experimentGroup = experimentGroupService.getExperimentGroupById(experimentType.getExperimentGroupId());
+        return new ExperimentTypeDTO(experimentType, experimentGroup);
+    }
+
+    private List<ExperimentTypeDTO> ExpTypes2ExpTypeDTOs(List<ExperimentType> experimentTypes){
+        List<ExperimentTypeDTO> experimentTypeDTOS = new ArrayList<>();
+        experimentTypes.forEach(experimentType -> experimentTypeDTOS.add(ExpType2ExpTypeDTO(experimentType)));
+        return experimentTypeDTOS;
+    }
+
+    @PostMapping({"/admin/ExperimentManagement/ExperimentType/del"})
+    public String ExperimentTypeDel(Model model,
+                                     @RequestParam("experiment") int experimentid){
+        experimentTypeService.deleteExperimentType(experimentid);
+        return Redirect("admin/ExperimentManagement/ExperimentType", true);
+    }
+
+    @PostMapping({"/admin/ExperimentManagement/ExperimentType/add"})
+    public String ExperimentTypeAdd(Model model,
+                                     @RequestParam("experimentGroupId") int experimentGroupId,
+                                     @RequestParam("experimentType") String experimentType){
+        experimentTypeService.saveExperimentType(new ExperimentType(experimentType,experimentGroupId));
+        return Redirect("admin/ExperimentManagement/ExperimentType", true);
+    }
+
+    @PostMapping({"/admin/ExperimentManagement/ExperimentType/edit"})
+    public String ExperimentTypeEdit(Model model,
+                                      @RequestParam("experimentGroupId") int experimentGroupId,
+                                      @RequestParam("typeid") int typeid,
+                                      @RequestParam("typeName") String typeName){
+        ExperimentType experimentType = experimentTypeService.getExperimentTypeById(typeid);
+        experimentType.setTypeName(typeName);
+        experimentType.setExperimentGroupId(experimentGroupId);
+        experimentTypeService.saveExperimentType(experimentType);
+        return Redirect("admin/ExperimentManagement/ExperimentType", true);
+    }
+
+
+                            /******************************************************/
+                                            /** Experiment Report */
+                            /*****************************************************/
+
+    private List<ExperimentReport> getUnusedExperimentReports(List<ExperimentReport> experimentReports,
+                                                              List<Score> scores, List<Content> contents,
+                                                              List<CheckExperiment> checkExperiments){
+        List<ExperimentReport> unusedExperimentReports = new ArrayList<>();
+        for (ExperimentReport experimentReport : experimentReports) {
+            boolean found = false;
+            for (Score score : scores) {
+                if (score.getExperimentTypeId() == experimentReport.getId()) {
+                    found = true;
+                    checkExperiments.add(new CheckExperiment(experimentReport.getId(), found));
+                    break;
+                }
+            }
+            if (!found) {
+                unusedExperimentReports.add(experimentReport);
+                checkExperiments.add(new CheckExperiment(experimentReport.getId(), found));
+            }
+        }
+        List<ExperimentReport> unusedExperimentTypesCopy = new ArrayList<>(unusedExperimentReports);
+        for (ExperimentReport experimentReport : unusedExperimentTypesCopy) {
+            for (Content content : contents) {
+                if (content.getExperimentType() == experimentReport.getId()) {
+                    checkExperiments.forEach(checkExperiment -> {
+                        if(checkExperiment.getId() == experimentReport.getId()){
+                            checkExperiment.setaBoolean(true);
+                            unusedExperimentReports.remove(experimentReport);
+                        }
+                    });
+                    break;
+                }
+            }
+        }
+        return unusedExperimentReports;
+    }
+
+    @GetMapping({"/admin/ExperimentManagement/ExperimentReport"})
+    public String ExperimentReport(Model model,
+                                 @RequestParam(value = "success", defaultValue = "false") boolean success){
+        List<ExperimentType> experimentTypes = experimentTypeService.getAllExperimentTypes();
+        List<ExperimentGroup> experimentGroups = experimentGroupService.getAllExperimentGroups();
+        List<ExperimentReport> experimentReports = experimentReportService.getAllExperimentReports();
+        List<CheckExperiment> checkExperiments = new ArrayList<>();
+        List<Score> scores = scoreService.getAllScore();
+        List<Content> contents = contentService.getAllContents();
+        List<ExperimentReport> unusedExperimentReports = getUnusedExperimentReports(experimentReports, scores, contents, checkExperiments);
+
+        model.addAttribute("unusedExperimentReports", unusedExperimentReports);
+        model.addAttribute("experimentGroups", experimentGroups);
+        model.addAttribute("experimentTypes", experimentTypes);
+        model.addAttribute("experimentReports", ExpReports2ExpReportDTOs(experimentReports));
+        model.addAttribute("checkExperiments", checkExperiments);
+        model.addAttribute("success", success);
+        return template;
+    }
+
+    private ExperimentReportDTO ExpReport2ExpReportDTO(ExperimentReport experimentReport){
+        ExperimentGroup experimentGroup = experimentGroupService.getExperimentGroupById(experimentReport.getExperimentGroupId());
+        List<ExperimentType> experimentTypes = new ArrayList<>();
+        experimentReport.getExpTypeIdList().forEach(typeId -> {
+            ExperimentType experimentType = experimentTypeService.getExperimentTypeById(typeId);
+            experimentTypes.add(experimentType);
+        });
+        return new ExperimentReportDTO(experimentReport, experimentGroup, experimentTypes);
+    }
+
+    private List<ExperimentReportDTO> ExpReports2ExpReportDTOs(List<ExperimentReport> experimentReports){
+        List<ExperimentReportDTO> experimentReportDTOS = new ArrayList<>();
+        experimentReports.forEach(experimentReport -> experimentReportDTOS.add(ExpReport2ExpReportDTO(experimentReport)));
+        return experimentReportDTOS;
+    }
+
+    @PostMapping({"/admin/ExperimentManagement/ExperimentReport/del"})
+    public String ExperimentReportDel(Model model,
+                                    @RequestParam("experiment") int experimentid){
+        experimentReportService.deleteExperimentReport(experimentid);
+        return Redirect("admin/ExperimentManagement/ExperimentType", true);
+    }
+
+    @PostMapping({"/admin/ExperimentManagement/ExperimentReport/add"})
+    public String ExperimentReportAdd(Model model,
+                                    @RequestParam("experimentGroupId") int experimentGroupId,
+                                    @RequestParam(value = "experimentTypeId", defaultValue = "") List<Integer> experimentTypeId,
+                                    @RequestParam("experimentReport") String experimentReport){
+        experimentReportService.saveExperimentReport(new ExperimentReport(experimentReport,experimentGroupId, experimentTypeId.toString()));
+        return Redirect("admin/ExperimentManagement/ExperimentReport", true);
+    }
+
+    @PostMapping({"/admin/ExperimentManagement/ExperimentReport/edit"})
+    public String ExperimentTypeEdit(Model model,
+                                     @RequestParam("experimentReportId") int experimentReportId,
+                                     /*@RequestParam("experimentGroupId") int experimentGroupId,
+                                     @RequestParam(value = "experimentTypeId", defaultValue = "") List<Integer> experimentTypeId,*/
+                                     @RequestParam("ReportType") String ReportType){
+        ExperimentReport experimentReport = experimentReportService.getExperimentReportById(experimentReportId);
+        experimentReport.setReportType(ReportType);
+//        experimentReport.setExperimentGroupId(experimentGroupId);
+//        experimentReport.setExperimentTypeId(experimentTypeId.toString());
+        experimentReportService.saveExperimentReport(experimentReport);
+        return Redirect("admin/ExperimentManagement/ExperimentReport", true);
+    }
+
+
+                            /******************************************************/
+                                            /** Score */
+                            /*****************************************************/
+
+    @GetMapping({"/admin/ExperimentManagement/Score"})
+    public String Score(Model model,
+                        @RequestParam(value = "success", defaultValue = "false") boolean success,
+                        @RequestParam(value = "unsuccess", defaultValue = "false") boolean unsuccess){
+        List<CheckExperiment> checkScores = new ArrayList<>();
+        List<CheckExperiment> checkExpReport = new ArrayList<>();
+        List<CheckExperiment> checkExpType = new ArrayList<>();
+        List<Boolean> checkExpGroup = new ArrayList<>();
+
+        List<Score> scores = scoreService.getAllScore();
+        List<Content> contents = contentService.getAllContents();
+
+        List<ExperimentReport> experimentReports = experimentReportService.getAllExperimentReports();
+        List<ExperimentType> experimentTypes = experimentTypeService.getAllExperimentTypes();
+        List<ExperimentGroup> experimentGroups = experimentGroupService.getAllExperimentGroups();
+
+        List<ExperimentReport> unusedExperimentReports = getUnusedExperimentReports(experimentReports, scores, contents, checkExpReport);
+        List<ExperimentType> unusedExperimentTypes = getUnusedExperimentTypes(experimentTypes, scores, contents, checkExpType);
+        List<ExperimentGroup> unusedExperimentGroups = getUnusedExperimentGroups(experimentGroups, experimentTypes, checkExpGroup);
+
+        model.addAttribute("unusedExperimentReports", experimentReports);
+        model.addAttribute("unusedExperimentTypes", experimentTypes);
+        model.addAttribute("unusedExperimentGroups", experimentGroups);
+//        model.addAttribute("unusedExperimentReports", unusedExperimentReports);
+//        model.addAttribute("unusedExperimentTypes", unusedExperimentTypes);
+//        model.addAttribute("unusedExperimentGroups", unusedExperimentGroups);
+//        model.addAttribute("experimentReports", ExpReports2ExpReportDTOs(experimentReports));
+        model.addAttribute("checkScores", checkScores);
+        model.addAttribute("scores", Scores2ScoreDTOS(scores));
+        model.addAttribute("success", success);
+        model.addAttribute("unsuccess", unsuccess);
+        return template;
+    }
+
+    private ScoreDTO Score2ScoreDTO(Score score){
+        ExperimentGroup experimentGroup = experimentGroupService.getExperimentGroupById(score.getExperimentGroupId());
+        ExperimentType experimentType = experimentTypeService.getExperimentTypeById(score.getExperimentTypeId());
+        ExperimentReport experimentReport = experimentReportService.getExperimentReportById(score.getExperimentReportId());
+        return new ScoreDTO(score, experimentGroup, experimentType, experimentReport);
+    }
+
+    private List<ScoreDTO> Scores2ScoreDTOS(List<Score> scores){
+        List<ScoreDTO> scoreDTOS = new ArrayList<>();
+        scores.forEach(score -> scoreDTOS.add(Score2ScoreDTO(score)));
+        return scoreDTOS;
+    }
+
+    @PostMapping({"/admin/ExperimentManagement/Score/add"})
+    public String ExperimentReportAdd(Model model,
+                                      @RequestParam("experiment_group") int experimentGroupId,
+                                      @RequestParam("experiment_type") int experimentTypeId,
+                                      @RequestParam("experiment_report") int experimentReportId,
+                                      @RequestParam("score") double score){
+
+        Score scoreExit = scoreService.FindByExperimentGroupIdAndExperimentTypeIdAndExperimentReportId(experimentGroupId, experimentTypeId, experimentReportId);
+        if(scoreExit != null){
+            return "redirect:/Lab/admin/ExperimentManagement/Score?unsuccess=true";
+//            return Redirect("admin/ExperimentManagement/Score", false);
+        } else {
+            scoreService.saveScore(new Score(experimentGroupId, experimentTypeId, experimentReportId, score));
+            return Redirect("admin/ExperimentManagement/Score", true);
+        }
+    }
+
+    @PostMapping({"/admin/ExperimentManagement/Score/edit"})
+    public String ScoreEdit(Model model,
+                            @RequestParam("scoreid") int scoreid,
+                            @RequestParam("score") double DbScore){
+        Score score = scoreService.getScoreById(scoreid);
+        score.setScore(DbScore);
+        scoreService.saveScore(score);
+        return Redirect("admin/ExperimentManagement/Score", true);
+    }
+
+//    @GetMapping({"/admin/ExperimentManagement/ExperimentType"})
+//    @GetMapping({"/admin/ExperimentManagement/ExperimentReport"})
+//    @GetMapping({"/admin/ExperimentManagement/Score"})
 
 }

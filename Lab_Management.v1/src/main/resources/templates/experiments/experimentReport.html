@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Add new Brand or Category</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Phone</title>
+    <!-- Link to Bootstrap CSS for styling -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body>
+<!--<div th:replace="admin/headerAdmin :: header-admin"></div>-->
+<experimentReport>
+    <h1 style="text-align: center"> Danh mục loại báo cáo</h1>
+    <div class="form-group" style="display: flex ; justify-content: space-around">
+
+        <div style="display: flex; justify-content: space-around">
+            <form th:action="'/Lab/admin/ExperimentManagement/ExperimentReport/add'" method="post">
+                <div class="">
+                    <label for="ExperimentReport" >Tên:</label>
+                    <input type="text" class="form-control" id="ExperimentReport" name="experimentReport" required>
+                </div>
+                <br>
+                <div class="d-flex justify-content-center align-content-center flex-row">
+                    <div>
+                        <label th:for="@{'experiment_group'}" >Thuộc nhóm:</label>
+                        <select th:class="@{'form-control'}" th:id="@{'experiment_group'}" th:name="@{'experimentGroupId'}"  required>
+                            <option th:each="experiment : ${experimentGroups}" th:value="${experiment.id}" th:text="${experiment.groupName}"></option>
+                        </select>
+                    </div>
+                    <div class="ml-1">
+                        <div class="main-card card">
+                            <div class="card-body">
+                                <h5 class="card-title">Chọn loại hình thí nghiệm </h5>
+                                <select multiple="multiple" class="multiselect-dropdown form-control"
+                                        id="experiment_type" name="experimentTypeId" onchange="CheckTypeFromGroup()">
+                                    <th:block th:each="experiment, iterStat : ${experimentTypes}">
+                                        <option th:value="${experiment.id}" >[[${experiment.typeName}]]</option>
+                                    </th:block>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <br>
+                <button type="submit" class="btn btn-primary" id="btnAdd" > Thêm </button>
+            </form>
+        </div>
+
+        <form th:action="@{'/Lab/admin/ExperimentManagement/ExperimentReport/del'}" method="post">
+            <div>
+                <label th:for="@{'experiment'}" >Loại:</label>
+                <select th:class="@{'form-control'}" th:id="@{'experiment'}" th:name="@{'experiment'}"  required>
+                    <option th:each="experiment : ${unusedExperimentReports}" th:value="${experiment.id}" th:text="${experiment.reportType}"></option>
+                </select>
+            </div>
+            <label class="text-warning"><span class="text-danger"><strong>Chú ý:</strong></span> Chỉ hiển thị những loại có thể xóa</label> <br>
+            <label class="text-warning"><span class="text-danger"><strong>Chú ý:</strong></span> Nếu bạn muốn xóa loại báo cáo nào đó hãy chắc chắn bạn không sử dụng
+                <br> ở phần tính điểm phòng thí nghiệm hoặc mục yêu cầu đặt phòng nào</label>
+            <br>
+            <button type="submit" class="btn btn-danger" > Xóa </button>
+        </form>
+
+    </div>
+
+    <div class="main-card mb-3 card">
+        <div class="card-body">
+            <table style="width: 100%;" id="example" class="table table-hover table-striped table-bordered">
+                <thead>
+                <tr>
+                    <th>STT</th>
+                    <th>Tên loại báo cáo</th>
+                    <th>Tên nhóm loại hình thí nghiệm</th>
+                    <th>Tên loại hình thí nghiệm</th>
+                    <th>Trạng thái sử dụng</th>
+                    <th>Thao tác</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="experimentReport, iter : ${experimentReports}">
+                    <td th:text="${iter.index + 1}"></td>
+                    <td th:text="${experimentReport.reportType}"></td>
+                    <td th:text="${experimentReport.experimentGroup.groupName}"></td>
+                    <td>
+                        <th:block th:each="experimentType : ${experimentReport.experimentTypes}">
+                            <p style="margin: unset" th:text="'- ' + ${experimentType.typeName}"></p>
+                        </th:block>
+                    </td>
+                    <td th:if="${checkExperiments[iter.index].aBoolean}" th:text="'✅ '"> </td>
+                    <td th:unless="${checkExperiments[iter.index].aBoolean}"> ❌ </td>
+                    <td>
+                        <button type="button" class="form-control btn btn-primary btn-edit"
+                                th:data-typeName="${experimentReport.reportType}"
+                                th:data-groupid="${experimentReport.experimentGroup.id}"
+                                th:data-id="${experimentReport.id}"
+                        >Sửa</button>
+                    </td>
+                </tr>
+                </tbody>
+                <tfoot>
+                <tr>
+                    <th>STT</th>
+                    <th>Tên loại báo cáo</th>
+                    <th>Tên nhóm loại hình thí nghiệm</th>
+                    <th>Tên loại hình thí nghiệm</th>
+                    <th>Trạng thái sử dụng</th>
+                    <th>Thao tác</th>
+                </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+    <!-- Popup -->
+    <div id="popup" class="popup">
+        <div class="popup-content">
+            <h2>Sửa thông tin loại</h2>
+            <form id="editForm" th:action="'/Lab/admin/ExperimentManagement/ExperimentReport/edit'" method="post" >
+                <label th:for="@{'experiment'}" >Tên loại:</label>
+                <div class="d-flex flex-row justify-content-center align-content-center">
+                    <input type="hidden" id="typeidInput" name="typeid" class="form-control" required>
+                    <textarea type="text" id="typeNameInput" name="typeName" required class="form-control"></textarea>
+                    <button type="submit" class="btn btn-primary" id="btnEdit">Sửa</button>
+                </div>
+                <!--<div>
+                    <label for="experimentGroupId" >Thuộc nhóm:</label>
+                    <select class="form-control" id="experimentGroupId" name="experimentGroupId" required>
+                        <option th:each="experiment : ${experimentGroups}" th:value="${experiment.id}" th:text="${experiment.groupName}"></option>
+                    </select>
+                </div>
+                <div class="main-card my-3 card">
+                    <div class="card-body">
+                        <h5 class="card-title">Chọn loại hình thí nghiệm </h5>
+                        <select multiple="multiple" class="multiselect-dropdown form-control"
+                                id="experiment_type_popup" name="experimentTypeIdPopup" onchange="CheckTypeFromGroupPopup()">
+                            <th:block th:each="experiment, iterStat : ${experimentTypes}">
+                                <option th:value="${experiment.id}" th:text="${experiment.typeName}"></option>
+                            </th:block>
+                        </select>
+                    </div>
+                </div>-->
+            </form>
+            <br>
+            <button type="button" class="btn btn-secondary close-btn">Đóng</button>
+        </div>
+    </div>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="/js/noticePopUp.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            $(".btn-edit").click(function() {
+                var typeName = $(this).attr('data-typeName');
+                var typeid = $(this).attr('data-id');
+                var groupid = $(this).attr('data-groupid');
+                console.log(typeid)
+                console.log(typeName)
+                console.log(groupid)
+                $("#typeNameInput").val(typeName);
+                $("#typeidInput").val(typeid);
+                $("#experimentGroupId").val(groupid);
+                $(".popup").slideDown(300);
+            });
+
+            $(".close-btn").click(function() {
+                $(".popup").slideUp(300);
+            });
+
+            // Optional: Close the popup when clicking outside the content
+            $(window).click(function(event) {
+                if ($(event.target).hasClass("popup")) {
+                    $(".popup").slideUp(300);
+                }
+            });
+        });
+    </script>
+
+    <script th:inline="javascript">
+        var experimentTypes = [[${experimentTypes}]];
+        $(document).ready(function() {
+            $('#experiment_type').prop('disabled','true');
+            $('#experiment_group').trigger('change');
+            $('#experiment_type').trigger('change');
+        });
+        $('#experiment_group').change(function () {
+            var groupId = $(this).val();
+            SetExperiment_Type(groupId);
+        });
+        function SetExperiment_Type(groupId) {
+            $('#experiment_type').removeAttr('disabled');
+            $('#experiment_type').empty();
+            experimentTypes.forEach(experimentType => {
+                if(experimentType.experimentGroupId == groupId){
+                    $('#experiment_type').append($('<option>', {
+                        value: experimentType.id,
+                        text: experimentType.typeName
+                    }));
+                }
+            });
+        }
+        function CheckTypeFromGroup() {
+            var experimentType = document.getElementById('experiment_type');
+            var btnAdd = document.getElementById('btnAdd');
+            if (experimentType.options.selectedIndex !== -1) {
+                btnAdd.disabled = false;
+            } else {
+                btnAdd.disabled = true;
+            }
+        }
+
+        /** ********* Pop Up **************/
+
+        /*$('#experimentGroupId').change(function () {
+            var groupId = $(this).val();
+            SetExperiment_Type_Popup(groupId);
+        });
+        function SetExperiment_Type_Popup(groupId) {
+            $('#experiment_type_popup').removeAttr('disabled');
+            $('#experiment_type_popup').empty();
+            experimentTypes.forEach(experimentType => {
+                if(experimentType.experimentGroupId == groupId){
+                $('#experiment_type_popup').append($('<option>', {
+                    value: experimentType.id,
+                    text: experimentType.typeName
+                }));
+                }
+            });
+        }*/
+
+        function CheckTypeFromGroupPopup() {
+            var experimentTypePopup = document.getElementById('experiment_type_popup');
+            var btnEdit = document.getElementById('btnEdit');
+            if (experimentTypePopup.options.selectedIndex !== -1) {
+                btnEdit.disabled = false;
+            } else {
+                btnEdit.disabled = true;
+            }
+        }
+    </script>
+</experimentReport>
+</body>
+</html>

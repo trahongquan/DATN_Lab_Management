@@ -6,6 +6,7 @@
     <meta charset="utf-8">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" th:href="@{/css/base2.min.css}">
+    <link rel="stylesheet" th:href="@{/css/experiment.css}">
 </head>
 <body>
 <header-admin>
@@ -905,7 +906,31 @@
                                     </i>Yêu đã hủy
                                 </a>
                             </li>
-
+                            <li class="app-sidebar__heading">QUẢN LÝ CHẤM ĐIỂM</li>
+                            <li>
+                                <a href="/Lab/admin/ExperimentManagement/ExperimentGroup">
+                                    <i class="metismenu-icon pe-7s-timer">
+                                    </i>DM Nhóm loại hình TN
+                                </a>
+                            </li>
+                            <li>
+                                <a href="/Lab/admin/ExperimentManagement/ExperimentType">
+                                    <i class="metismenu-icon pe-7s-graph">
+                                    </i>DM Loại hình TN
+                                </a>
+                            </li>
+                            <li>
+                                <a href="/Lab/admin/ExperimentManagement/ExperimentReport">
+                                    <i class="metismenu-icon pe-7s-less">
+                                    </i>DM Loại BCTN
+                                </a>
+                            </li>
+                            <li>
+                                <a href="/Lab/admin/ExperimentManagement/Score">
+                                    <i class="metismenu-icon pe-7s-less">
+                                    </i>DM Chấm điểm
+                                </a>
+                            </li>
                             <li class="app-sidebar__heading">Quản lý tài khoản</li>
                             <li>
                                 <a href="#">
@@ -970,6 +995,7 @@
             </div>
             <div class="app-main__outer">
                 <div th:replace="admin/add-nocite.html :: notice"></div>
+                <div th:replace="admin/add-nocite.html :: noticeUnSuccess"></div>
 
                 <div th:if="${#request.requestURI == '/Lab/admin/Dashboard'}" class="app-main__inner">
                     <div th:replace="admin/Dashboard.html :: dashboard"></div>
@@ -1044,6 +1070,24 @@
                 </div>
                 <div th:if="${#strings.contains(#request.requestURI, '/Lab/admin/myAccount/')}" class="app-main__inner">
                     <div th:replace="managers/account-info :: account-info"></div>
+                </div>
+
+                                                <!--/////////////////////////////////-->
+                                                            <!-- Experiment -->
+                                                <!--/////////////////////////////////-->
+
+
+                <div th:if="${#request.requestURI == '/Lab/admin/ExperimentManagement/ExperimentGroup'}" class="app-main__inner" style="display: flex; justify-content: center; align-content: center; flex-direction: column;">
+                    <div th:replace="experiments/experimentGroup.html :: experimentGroup"></div>
+                </div>
+                <div th:if="${#request.requestURI == '/Lab/admin/ExperimentManagement/ExperimentType'}" class="app-main__inner" style="display: flex; justify-content: center; align-content: center; flex-direction: column;">
+                    <div th:replace="experiments/experimentType.html :: experimentType"></div>
+                </div>
+                <div th:if="${#request.requestURI == '/Lab/admin/ExperimentManagement/ExperimentReport'}" class="app-main__inner" style="display: flex; justify-content: center; align-content: center; flex-direction: column;">
+                    <div th:replace="experiments/experimentReport.html :: experimentReport"></div>
+                </div>
+                <div th:if="${#request.requestURI == '/Lab/admin/ExperimentManagement/Score'}" class="app-main__inner" style="display: flex; justify-content: center; align-content: center; flex-direction: column;">
+                    <div th:replace="experiments/score.html :: score"></div>
                 </div>
 
                                                 <!--/////////////////////////////////-->

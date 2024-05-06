@@ -1,7 +1,10 @@
 package LabManagement.entity;
 
+import LabManagement.ClassSuport.ToList;
+
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.List;
 
 @Entity
 @Table(name = "experiment_report")
@@ -70,5 +73,13 @@ public class ExperimentReport implements Serializable {
 
     public void setExperimentTypeId(String experimentTypeId) {
         this.experimentTypeId = experimentTypeId;
+    }
+
+    public List<Integer> getExpTypeIdList(){
+        return new ToList().StringToListINT(this.getExperimentTypeId());
+    }
+
+    public void setExpTypeIdList(List<Integer> expTypeIdList){
+        this.experimentTypeId = expTypeIdList.toString();
     }
 }

@@ -17,5 +17,18 @@
                                     font-weight: bold;">Thao tác thành công(<span id="countdown">3</span>)</p>
     </div>
 </notice>
+<noticeUnSuccess>
+    <div th:if="${unsuccess}" style="display: flex; justify-content: flex-end; align-items: flex-end;
+                                    position: fixed; top: 7em; right: 10px; background: red">
+        <p id="unsuccessMessage" style="padding: 15px;
+                                    border: 1px solid transparent;
+                                    border-radius: 4px;
+                                    color: #ffff13;
+                                    border-color: black;
+                                    margin-bottom: 0;
+                                    font-weight: bold;">Không thành công(<span id="uncountdown">3</span>)</p>
+    </div>
+</noticeUnSuccess>
+
 </body>
 </html>
