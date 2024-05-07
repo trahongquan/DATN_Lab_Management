@@ -38,8 +38,13 @@ public class LabController {
     String template = "admin/templateAdmin";
     public String Redirect(String url, Object success) {
         if (success instanceof Boolean) {
-            String successParam = "?success=" + success;
-            return "redirect:/Lab/" + url + successParam;
+            if((boolean) success){
+                String successParam = "?success=" + success;
+                return "redirect:/Lab/" + url + successParam;
+            } else{
+                String successParam = "?unsuccess=" + true;
+                return "redirect:/Lab/" + url + successParam;
+            }
         } else {
             return "redirect:/Lab/" + url;
         }
@@ -303,8 +308,17 @@ public class LabController {
 
     @GetMapping({"/admin/Dashboard"})
     public String getAdminHomePage(Model model) {
-        /** Dashboard Lab */
-        List<Lab> labsOnLine = labService.getAllLabsOnLine();
+
+        /** Dashboard Booking */
+
+        List<Booking> bookingAPPROVE = bookingService.getAllBookings().stream().filter(booking -> booking.getConfirmStatus().equals(ComfirmStatus.APPROVE)).collect(Collectors.toList());
+        List<Booking> bookingCANCEL = bookingService.getAllBookings().stream().filter(booking -> booking.getConfirmStatus().equals(ComfirmStatus.CANCEL)).collect(Collectors.toList());
+        List<Booking> bookingPENDDING = bookingService.getAllBookings().stream().filter(booking -> booking.getConfirmStatus().equals(ComfirmStatus.PENDDING)).collect(Collectors.toList());
+        model.addAttribute("bookingAPPROVE", bookingAPPROVE.size());
+        model.addAttribute("bookingCANCEL", bookingCANCEL.size());
+        model.addAttribute("bookingPENDDING", bookingPENDDING.size());
+
+        /** Dashboard Lab - So sánh số lượng đặt hàng ngày */
         List<Booking> bookingsToday = bookingService.getAllBookings()
                 .stream().filter(booking -> booking.getBookingDate().toLocalDate().isEqual(LocalDate.now())
                                             && !booking.getConfirmStatus().equals(ComfirmStatus.CANCEL))
@@ -319,7 +333,6 @@ public class LabController {
 
         List<Lab> labsBooking = new ArrayList<>();
         bookingsToday.forEach(booking -> labsBooking.add(labService.findByLabId(booking.getLabid())));
-        model.addAttribute("labsOnLine", labsOnLine);
         model.addAttribute("labsBooking", labsBooking);
 
         /** Dashboard Equipment */
@@ -348,16 +361,31 @@ public class LabController {
         List<People> managers = GetPeoPleByRole("ROLE_MANAGER");
         model.addAttribute("managers", managers.size());
 
-        /** Dashboard Booking */
-
-        List<Booking> bookingAPPROVE = bookingService.getAllBookings().stream().filter(booking -> booking.getConfirmStatus().equals(ComfirmStatus.APPROVE)).collect(Collectors.toList());
-        List<Booking> bookingCANCEL = bookingService.getAllBookings().stream().filter(booking -> booking.getConfirmStatus().equals(ComfirmStatus.CANCEL)).collect(Collectors.toList());
-        List<Booking> bookingPENDDING = bookingService.getAllBookings().stream().filter(booking -> booking.getConfirmStatus().equals(ComfirmStatus.PENDDING)).collect(Collectors.toList());
-        model.addAttribute("bookingAPPROVE", bookingAPPROVE.size());
-        model.addAttribute("bookingCANCEL", bookingCANCEL.size());
-        model.addAttribute("bookingPENDDING", bookingPENDDING.size());
-
+        /** Dashboard Lab - Score*/
+        model.addAttribute("labsOnLineAndScores", LabsOnLineAndScore());
+        model.addAttribute("title", "Tổng quan");
         return template;
+    }
+    private List<LabsOnLineAndScore> LabsOnLineAndScore(){
+        List<Score> scores = scoreService.getAllScore();
+        List<LabsOnLineAndScore> labsOnLineAndScores = new ArrayList<>();
+        List<Lab> labsOnLine = labService.getAllLabsOnLine();
+        labsOnLine.forEach(lab -> {
+            LabsOnLineAndScore labsOnLineAndScore = new LabsOnLineAndScore();
+            labsOnLineAndScore.setLab(lab);
+            List<Booking> bookings = bookingService.findAllByLab_id(lab.getId());
+            bookings.forEach(booking -> {
+                Content content = contentService.getContentById(booking.getContentid());
+                scores.forEach(score -> {
+                    if(score.getExperimentTypeId()==content.getExperimentType() && score.getExperimentReportId()==content.getExperimentReport()){
+                        labsOnLineAndScore.setScore(labsOnLineAndScore.getScore() + score.getScore());
+                    }
+                });
+            });
+            labsOnLineAndScores.add(labsOnLineAndScore);
+        });
+        Collections.sort(labsOnLineAndScores, new LabsOnLineAndScoreComparator());
+        return labsOnLineAndScores;
     }
     private List<People> GetPeoPleByRole(String role){
         List<People> PeoPleByRole = peopleService.getAllPeople().stream()
@@ -372,7 +400,6 @@ public class LabController {
                 ).collect(Collectors.toList());
         return PeoPleByRole;
     }
-
     private Comparator CretedComparatorComponet(int comparatorInt){
         Comparator comparatorComponet = new Comparator();
         if(comparatorInt < 0 ) {
@@ -397,6 +424,7 @@ public class LabController {
         List<LabDTO> labDTOS = Labs2LabDTOsAndDateAndStatus(labs);
         model.addAttribute("labDTOS", labDTOS.stream().filter(labDTO -> labDTO.getIsDeleted()==0).collect(Collectors.toList()));
         model.addAttribute("success", success);
+        model.addAttribute("title", "QLDS phòng thí nghiệm");
         return template;
     }
     private List<String> GetUsedSeriesOfEquipmentLabs(){
@@ -427,13 +455,13 @@ public class LabController {
 
     @GetMapping("/admin/Room/add")
     public String AddRoom(Model model, @RequestParam(value = "success", defaultValue = "false") boolean success) {
-        List<People> peoples = peopleService.getAllPeople();
+        List<People> peoples = peopleService.getAllPeople().stream().filter(people -> CheckRole(people,"ROLE_MANAGER")||CheckRole(people,"ROLE_ADMIN")).collect(Collectors.toList());;
         List<String> usedSeries = GetUsedSeriesOfEquipmentLabs();
         List<EquipmentDTO> equipmentDTOS =  GetEquisDTO_SeriNoUsed(usedSeries);
         model.addAttribute("peoples", peoples);
         model.addAttribute("equipmentDTOS", equipmentDTOS);
         model.addAttribute("success", success);
-        //        model.addAttribute("addphone", addphone); /** cách xử lý ở backEnd*/
+        model.addAttribute("title", "Thêm mới phòng thí nghiệm");
         return template;
     }
 
@@ -506,7 +534,7 @@ public class LabController {
                             @RequestParam(value = "success", defaultValue = "false") boolean success) {
         Lab lab = labService.findByLabId(id);
         LabDTO labDTO = Lab2LabDTO(lab);
-        List<People> Managers = peopleService.getAllPeople();
+        List<People> Managers = peopleService.getAllPeople().stream().filter(people -> CheckRole(people,"ROLE_MANAGER")||CheckRole(people,"ROLE_ADMIN")).collect(Collectors.toList());
         List<EquipmentLabDTO> equipmentLabDTOs = EquiLabs2EquiLabDTOs(equipmentLabService.findAllByLabId(id));
         List<String> usedSeries = GetUsedSeriesOfEquipmentLabs();
         List<EquipmentDTO> equipmentDTOS =  GetEquisDTO_SeriNoUsed(usedSeries);
@@ -516,6 +544,7 @@ public class LabController {
         model.addAttribute("equipmentLabDTOs", equipmentLabDTOs);
         model.addAttribute("equipmentDTOS", equipmentDTOS);
         model.addAttribute("success", success);
+        model.addAttribute("title", "Chi tiết phòng thí nghiệm");
         return template;
     }
 
@@ -576,16 +605,17 @@ public class LabController {
         List<Equipment> allEquipment = equipmentService.getAllEquipment();
         model.addAttribute("allEquipment", allEquipment.stream().filter(equipment -> equipment.getIsDeleted()==0).collect(Collectors.toList()));
         model.addAttribute("success",success);
+        model.addAttribute("title", "QLDS thiết bị");
         return template;
     }
 
     @GetMapping("/admin/Equipment/add")
-    public String AddEquipment(){
+    public String AddEquipment(Model model){
+        model.addAttribute("title", "Thêm mới Thiết bị");
         return template;
     }
     @PostMapping("/admin/Equipment/add")
-    public String AddEquipment(/*,@RequestParam(value = "addphone", defaultValue = "false") boolean addphone*/
-                               @RequestParam("name") String name,
+    public String AddEquipment(@RequestParam("name") String name,
                                @RequestParam("description") String description,
                                @RequestParam("series") List<String> series) {
         Equipment equipment = equipmentService.createEquipment(new Equipment(name, series.toString(), "[]", description, series.size(),0));
@@ -597,6 +627,7 @@ public class LabController {
     public String EquipmentDetail(Model model, @PathVariable(value = "id") int id) {
         Equipment equipment = equipmentService.findByEquipmentId(id);
         model.addAttribute("equipment", equipment);
+        model.addAttribute("title", "Thông tin chi tiết thiết bị");
         return template;
     }
 
@@ -648,6 +679,7 @@ public class LabController {
         List<PeopleDTO> managerDTOS = Peoples2PeopleDTOs(managers);
         model.addAttribute("managerDTOS", managerDTOS);
         model.addAttribute("success",success);
+        model.addAttribute("title", "DS admin và người quản lý");
         return template;
     }
 
@@ -655,6 +687,7 @@ public class LabController {
     public String AddManager(Model model){
         List<Roles> roles = roleService.getAllRoles();
         model.addAttribute("roles", roles);
+        model.addAttribute("title", "Thêm mới người quản lý");
         return template;
     }
     @PostMapping("/admin/Manager/add")
@@ -682,6 +715,7 @@ public class LabController {
         People manager = peopleService.findByPeopleId(id);
         PeopleDTO managerDTO = People2PeopleDTO(manager);
         model.addAttribute("manager", managerDTO);
+        model.addAttribute("title", "Thông tin chi tiết tài khoản");
         return template;
     }
 
@@ -746,6 +780,7 @@ public class LabController {
         List<PeopleDTO> teacherDTOS = Peoples2PeopleDTOs(teacher);
         model.addAttribute("teacherDTOS", teacherDTOS);
         model.addAttribute("success",success);
+        model.addAttribute("title", "QLDS Giáo viên");
         return template;
     }
 
@@ -753,6 +788,7 @@ public class LabController {
     public String AddTeacher(Model model){
         List<Roles> roles = roleService.getAllRoles();
         model.addAttribute("roles", roles);
+        model.addAttribute("title", "Thêm mới giáo viên");
         return template;
     }
     @PostMapping("/admin/Teacher/add")
@@ -804,6 +840,7 @@ public class LabController {
         List<Roles> roles = roleService.getAllRoles();
         model.addAttribute("roles", roles);
         model.addAttribute("success", success);
+        model.addAttribute("title", "Quản lý Quyền");
         return template;
     }
 
@@ -842,6 +879,7 @@ public class LabController {
         model.addAttribute("peopleDTO",People2PeopleDTO(people) );
         model.addAttribute("success", success);
         model.addAttribute("changedPassfalse", changedPassfalse);
+        model.addAttribute("title", "Thông tin tài khoản");
         return template;
     }
 
@@ -884,6 +922,7 @@ public class LabController {
                                @RequestParam(value = "success", defaultValue = "false") boolean success){
         GetBookingByStatus(model, ComfirmStatus.PENDDING);
         model.addAttribute("success", success);
+        model.addAttribute("title", "QL đơn chờ duyệt");
         return template;
     }
     private ContentDTO Content2ContentDTO(Content content) {
@@ -946,6 +985,7 @@ public class LabController {
         List<EquipmentLabDTO> equipmentLabDTOs = EquiLabs2EquiLabDTOs(equipmentLabs);
         model.addAttribute("equipmentLabDTOs", equipmentLabDTOs); /** Đã trừ những Equi đã được đặt*/
         model.addAttribute("success", success);
+        model.addAttribute("title", "Chi tiết đơn chờ duyệt");
         return template;
     }
 
@@ -1016,6 +1056,7 @@ public class LabController {
                                @RequestParam(value = "success", defaultValue = "false") boolean success){
         GetBookingByStatus(model, ComfirmStatus.APPROVE);
         model.addAttribute("success", success);
+        model.addAttribute("title", "QL đơn đã duyệt");
         return template;
     }
 
@@ -1023,6 +1064,7 @@ public class LabController {
     public String ShowBookingApprove(Model model, @PathVariable("id") int id,
                                       @RequestParam(value = "success", defaultValue = "false") boolean success){
         ShowBookingPendding(model, id, success);
+        model.addAttribute("title", "Chi tiết đơn đã duyệt");
         return template;
     }
     @GetMapping({"/admin/LabBookingManagement/UnApprove"})
@@ -1042,12 +1084,14 @@ public class LabController {
                                @RequestParam(value = "success", defaultValue = "false") boolean success){
         GetBookingByStatus(model, ComfirmStatus.CANCEL);
         model.addAttribute("success", success);
+        model.addAttribute("title", "QL đơn đã hủy");
         return template;
     }
     @GetMapping({"/admin/ShowBookingCancel/{id}"})
     public String ShowBookingCancel(Model model, @PathVariable("id") int id,
                                      @RequestParam(value = "success", defaultValue = "false") boolean success){
         ShowBookingPendding(model, id, success);
+        model.addAttribute("title", "Chi tiết đơn đã hủy");
         return template;
     }
     @GetMapping({"/admin/LabBookingManagement/UnCancel"})
@@ -1090,6 +1134,7 @@ public class LabController {
 
     @GetMapping({"/admin/ExperimentManagement/ExperimentGroup"})
     public String ExperimentGroup(Model model,
+                                  @RequestParam(value = "unsuccess", defaultValue = "false") boolean unsuccess,
                                   @RequestParam(value = "success", defaultValue = "false") boolean success){
         List<ExperimentGroup> experimentGroups = experimentGroupService.getAllExperimentGroups();
         List<Boolean> booleans = new ArrayList<>();
@@ -1099,6 +1144,8 @@ public class LabController {
         model.addAttribute("experimentGroups", experimentGroups);
         model.addAttribute("booleans", booleans);
         model.addAttribute("success", success);
+        model.addAttribute("unsuccess", unsuccess);
+        model.addAttribute("title", "QL nhóm loại hình thí nghiệm");
         return template;
     }
     @PostMapping({"/admin/ExperimentManagement/ExperimentGroup/del"})
@@ -1133,6 +1180,7 @@ public class LabController {
                                                           List<Score> scores, List<Content> contents,
                                                           List<CheckExperiment> checkExperiments){
         List<ExperimentType> unusedExperimentTypes = new ArrayList<>();
+        List<ExperimentReport> experimentReports = experimentReportService.getAllExperimentReports();
         for (ExperimentType experimentType : experimentTypes) {
             boolean found = false;
             for (Score score : scores) {
@@ -1157,8 +1205,20 @@ public class LabController {
                             unusedExperimentTypes.remove(experimentType);
                         }
                     });
-                    break;
                 }
+            }
+            for (ExperimentReport experimentReport : experimentReports) {
+                experimentReport.getExpTypeIdList().forEach(typeId -> {
+                    if (typeId == experimentType.getId()){
+                        System.out.println(true);
+                        checkExperiments.forEach(checkExperiment -> {
+                            if(checkExperiment.getId() == experimentType.getId()){
+                                checkExperiment.setaBoolean(true);
+                                unusedExperimentTypes.remove(experimentType);
+                            }
+                        });
+                    }
+                });
             }
         }
         return unusedExperimentTypes;
@@ -1166,6 +1226,7 @@ public class LabController {
 
     @GetMapping({"/admin/ExperimentManagement/ExperimentType"})
     public String ExperimentType(Model model,
+                                 @RequestParam(value = "unsuccess", defaultValue = "false") boolean unsuccess,
                                  @RequestParam(value = "success", defaultValue = "false") boolean success){
         List<CheckExperiment> checkExperiments = new ArrayList<>();
         List<ExperimentType> experimentTypes = experimentTypeService.getAllExperimentTypes();
@@ -1178,6 +1239,8 @@ public class LabController {
         model.addAttribute("experimentTypes", ExpTypes2ExpTypeDTOs(experimentTypes));
         model.addAttribute("checkExperiments", checkExperiments);
         model.addAttribute("success", success);
+        model.addAttribute("unsuccess", unsuccess);
+        model.addAttribute("title", "QL loại hình thí nghiệm");
         return template;
     }
 
@@ -1209,15 +1272,23 @@ public class LabController {
 
     @PostMapping({"/admin/ExperimentManagement/ExperimentType/edit"})
     public String ExperimentTypeEdit(Model model,
-                                      @RequestParam("experimentGroupId") int experimentGroupId,
+//                                      @RequestParam("experimentGroupId") int experimentGroupId,
                                       @RequestParam("typeid") int typeid,
                                       @RequestParam("typeName") String typeName){
         ExperimentType experimentType = experimentTypeService.getExperimentTypeById(typeid);
         experimentType.setTypeName(typeName);
-        experimentType.setExperimentGroupId(experimentGroupId);
+//        experimentType.setExperimentGroupId(experimentGroupId);
         experimentTypeService.saveExperimentType(experimentType);
         return Redirect("admin/ExperimentManagement/ExperimentType", true);
     }
+//    @PostMapping({"/admin/ExperimentManagement/ExperimentType/UnlinkGroup"})
+//    public String UnlinkGroup(Model model,
+//                              @RequestParam("experimentTypeId") int experimentTypeId){
+//        ExperimentType experimentType = experimentTypeService.getExperimentTypeById(experimentTypeId);
+//        experimentType.setExperimentGroupId();
+//        experimentTypeService.saveExperimentType(experimentType);
+//        return Redirect("admin/ExperimentManagement/ExperimentType", true);
+//    }
 
 
                             /******************************************************/
@@ -1261,6 +1332,7 @@ public class LabController {
 
     @GetMapping({"/admin/ExperimentManagement/ExperimentReport"})
     public String ExperimentReport(Model model,
+                                 @RequestParam(value = "unsuccess", defaultValue = "false") boolean unsuccess,
                                  @RequestParam(value = "success", defaultValue = "false") boolean success){
         List<ExperimentType> experimentTypes = experimentTypeService.getAllExperimentTypes();
         List<ExperimentGroup> experimentGroups = experimentGroupService.getAllExperimentGroups();
@@ -1276,6 +1348,8 @@ public class LabController {
         model.addAttribute("experimentReports", ExpReports2ExpReportDTOs(experimentReports));
         model.addAttribute("checkExperiments", checkExperiments);
         model.addAttribute("success", success);
+        model.addAttribute("unsuccess", unsuccess);
+        model.addAttribute("title", "QL loại báo cáo thí nghiệm");
         return template;
     }
 
@@ -1312,7 +1386,7 @@ public class LabController {
     }
 
     @PostMapping({"/admin/ExperimentManagement/ExperimentReport/edit"})
-    public String ExperimentTypeEdit(Model model,
+    public String ExperimentReportEdit(Model model,
                                      @RequestParam("experimentReportId") int experimentReportId,
                                      /*@RequestParam("experimentGroupId") int experimentGroupId,
                                      @RequestParam(value = "experimentTypeId", defaultValue = "") List<Integer> experimentTypeId,*/
@@ -1359,8 +1433,10 @@ public class LabController {
 //        model.addAttribute("experimentReports", ExpReports2ExpReportDTOs(experimentReports));
         model.addAttribute("checkScores", checkScores);
         model.addAttribute("scores", Scores2ScoreDTOS(scores));
+        model.addAttribute("scoresList", scores);
         model.addAttribute("success", success);
         model.addAttribute("unsuccess", unsuccess);
+        model.addAttribute("title", "QL điểm chấm phòng thí nghiệm");
         return template;
     }
 
@@ -1386,12 +1462,19 @@ public class LabController {
 
         Score scoreExit = scoreService.FindByExperimentGroupIdAndExperimentTypeIdAndExperimentReportId(experimentGroupId, experimentTypeId, experimentReportId);
         if(scoreExit != null){
-            return "redirect:/Lab/admin/ExperimentManagement/Score?unsuccess=true";
-//            return Redirect("admin/ExperimentManagement/Score", false);
+//            return "redirect:/Lab/admin/ExperimentManagement/Score?unsuccess=true";
+            return Redirect("admin/ExperimentManagement/Score", false);
         } else {
             scoreService.saveScore(new Score(experimentGroupId, experimentTypeId, experimentReportId, score));
             return Redirect("admin/ExperimentManagement/Score", true);
         }
+    }
+
+    @PostMapping({"/admin/ExperimentManagement/Score/del"})
+    public String ScoreDel(Model model,
+                            @RequestParam("delScoreid") int scoreid){
+        scoreService.delScoreById(scoreid);
+        return Redirect("admin/ExperimentManagement/Score", true);
     }
 
     @PostMapping({"/admin/ExperimentManagement/Score/edit"})
@@ -1402,6 +1485,14 @@ public class LabController {
         score.setScore(DbScore);
         scoreService.saveScore(score);
         return Redirect("admin/ExperimentManagement/Score", true);
+    }
+
+    @GetMapping({"/admin/LabRankings"})
+    public String LabRankings(Model model,
+                              @RequestParam(value = "success", defaultValue = "false") boolean success,
+                              @RequestParam(value = "unsuccess", defaultValue = "false") boolean unsuccess){
+        model.addAttribute("labsOnLineAndScores",LabsOnLineAndScore());
+        return template;
     }
 
 //    @GetMapping({"/admin/ExperimentManagement/ExperimentType"})

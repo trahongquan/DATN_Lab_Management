@@ -23,6 +23,10 @@ public class ScoreServiceImpl implements ScoreService {
         return scoreRepository.findById(id).orElse(null);
     }
     @Override
+    public void delScoreById(int id){
+        scoreRepository.deleteById(id);
+    }
+    @Override
     public List<Score>  getAllScore() {
         return scoreRepository.findAll();
     }

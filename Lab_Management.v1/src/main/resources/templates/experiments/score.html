@@ -76,11 +76,17 @@
                     <!--<td th:if="${checkExperiments[iter.index].aBoolean}" th:text="'✅ '"> </td>
                     <td th:unless="${checkExperiments[iter.index].aBoolean}"> ❌ </td>-->
                     <td> <strong class="text-danger" th:text="${score.score}"></strong> </td>
-                    <td>
-                        <button type="button" class="form-control btn btn-primary btn-edit"
+                    <td class="d-flex flex-row justify-content-center align-content-center">
+                        <button type="button" class="form-control btn btn-primary btn-edit m-1"
                                 th:data-id="${score.id}"
                                 th:data-score="${score.score}"
                         >Sửa</button>
+                        <form th:action="'/Lab/admin/ExperimentManagement/Score/del'" method="post" class="m-1">
+                            <input type="hidden" th:value="${score.id}" name="delScoreid" required>
+                            <button type="submit" class="form-control btn btn-danger"
+                                    onclick="return confirm('Bạn có thật sự muốn xóa?')"
+                            >Xóa</button>
+                        </form>
                     </td>
                 </tr>
                 </tbody>
@@ -120,92 +126,19 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script src="/js/noticePopUp.js"></script>
 
-    <script>
-        $(document).ready(function() {
-            $(".btn-edit").click(function() {
-                var score = $(this).attr('data-score');
-                var scoreid = $(this).attr('data-id');
-                console.log(score)
-                console.log(scoreid)
-                $("#score").val(score);
-                $("#id").val(scoreid);
-                $(".popup").slideDown(300);
-            });
-
-            $(".close-btn").click(function() {
-                $(".popup").slideUp(300);
-            });
-
-            // Optional: Close the popup when clicking outside the content
-            $(window).click(function(event) {
-                if ($(event.target).hasClass("popup")) {
-                    $(".popup").slideUp(300);
-                }
-            });
-        });
-    </script>
-
     <script th:inline="javascript">
+        var scores = [[${scoresList}]];
         var experimentTypes = [[${unusedExperimentTypes}]];
         var experimentReports = [[${unusedExperimentReports}]];
-        var tempGroupId
+        var date = [[${date}]];
         $(document).ready(function() {
-            $('#date').val([[${date}]]);
-            $('#experiment_type').prop('disabled','true');
-            $('#experiment_report').prop('disabled','true');
-
-            $('#experiment_group').change(function () {
-                var groupId = $(this).val();
-                SetExperiment_Type(groupId);
-                tempGroupId = groupId;
-                $('#experiment_report').prop('disabled','true');
-            });
-            $('#experiment_type').change(function () {
-                var typeId = $(this).val();
-                SetExperiment_Report(tempGroupId, typeId)
-            })
-            $('#experiment_group').trigger('change');
-            $('#experiment_type').trigger('change');
-            $('#experiment_report').trigger('change');
+            /** Gọi hàm tạo ds phụ thuộc*/
+            TaoDS_PhuThuoc(date, experimentTypes, experimentReports, scores);
         })
-        function SetExperiment_Type(groupId) {
-            $('#experiment_type').removeAttr('disabled');
-            // Xóa tất cả các option hiện tại trong select experiment_type
-            $('#experiment_type').empty();
-            // Thêm các option mới từ danh sách loại hình thí nghiệm nhận được
-            experimentTypes.forEach(experimentType => {
-                if(experimentType.experimentGroupId == groupId){
-                $('#experiment_type').append($('<option>', {
-                    value: experimentType.id,
-                    text: experimentType.typeName
-                }));
-            }
-        });
-        }
-        function SetExperiment_Report(groupId, typeId) {
-            $('#experiment_report').removeAttr('disabled');
-            $('#experiment_report').empty();
-            var experimentTypeIdList
-            // Thêm các option mới từ danh sách loại hình thí nghiệm nhận được
-            experimentReports.forEach(experimentReport => {
-                experimentTypeIdList = StringToList(experimentReport.experimentTypeId);
-            if(experimentReport.experimentGroupId == groupId && experimentTypeIdList.includes(typeId)){
-                $('#experiment_report').append($('<option>', {
-                    value: experimentReport.id,
-                    text: experimentReport.reportType
-                }));
-            }
-        });
-        }
-        function StringToList(inputString) {
-            var cleanString = inputString.replace(/\[|\]/g, '');
-            var stringArray = cleanString.split(',');
-            var trimmedArray = stringArray.map(function(item) {
-                return item.trim();
-            });
-            return trimmedArray;
-        }
+
     </script>
+
+    <script src="/js/score.js"> </script>
 </score>
 </body>
 </html>

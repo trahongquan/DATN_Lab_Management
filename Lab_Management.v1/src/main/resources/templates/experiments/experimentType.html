@@ -64,8 +64,16 @@
                     <td th:text="${iter.index + 1}"></td>
                     <td th:text="${experimentType.typeName}"></td>
                     <td th:text="${experimentType.experimentGroup.groupName}"></td>
-                    <td th:if="${checkExperiments[iter.index].aBoolean}" th:text="'✅ '"> </td>
-                    <td th:unless="${checkExperiments[iter.index].aBoolean}"> ❌ </td>
+                    <td th:if="${checkExperiments[iter.index].aBoolean}" class="d-flex flex-row justify-content-center align-content-center">
+                        <div style="margin: auto" >✅</div>
+                        <!--<form th:action="'/Lab/admin/ExperimentManagement/ExperimentType/UnlinkGroup'" method="post" class="m-1">
+                            <input type="hidden" th:value="${experimentType.id}" name="experimentTypeId" required>
+                            <button type="submit" class="btn btn-danger"
+                                    onclick="return confirm('Bạn có thật sự muốn xóa?')"
+                            >Xóa</button>
+                        </form>-->
+                    </td>
+                    <td th:unless="${checkExperiments[iter.index].aBoolean}" class="d-flex flex-row justify-content-center align-content-center"> ❌ </td>
                     <td>
                         <button type="button" class="form-control btn btn-primary btn-edit"
                                 th:data-typeName="${experimentType.typeName}"
@@ -98,12 +106,12 @@
                     <textarea type="text" id="typeNameInput" name="typeName" required class="form-control"></textarea>
                     <button type="submit" class="btn btn-primary">Sửa</button>
                 </div>
-                <div>
+                <!--<div>
                     <label for="experimentGroupId" >Thuộc nhóm:</label>
                     <select class="form-control" id="experimentGroupId" name="experimentGroupId" required>
                         <option th:each="experiment : ${experimentGroups}" th:value="${experiment.id}" th:text="${experiment.groupName}"></option>
                     </select>
-                </div>
+                </div>-->
             </form>
             <br>
             <button type="button" class="btn btn-secondary close-btn">Đóng</button>

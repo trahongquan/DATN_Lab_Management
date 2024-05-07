@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" xmlns="http://www.w3.org/1999/html" xmlns:sec="https://www.thymeleaf.org/thyme leaf-extras-springsecurity5">
 <head>
-    <title>Template Admin</title>
+    <title th:text="${title}"></title>
+    <!--<title></title>-->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta charset="utf-8">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
@@ -876,6 +877,12 @@
                                 </a>
                             </li>
                             <li>
+                                <a href="/Lab/admin/LabRankings">
+                                    <i class="metismenu-icon pe-7s-ball">
+                                    </i>BXH chấm điểm
+                                </a>
+                            </li>
+                            <li>
                                 <a href="/Lab/admin/Equipment">
                                     <i class="metismenu-icon pe-7s-server">
                                     </i>Danh mục thiết bị
@@ -996,7 +1003,6 @@
             <div class="app-main__outer">
                 <div th:replace="admin/add-nocite.html :: notice"></div>
                 <div th:replace="admin/add-nocite.html :: noticeUnSuccess"></div>
-
                 <div th:if="${#request.requestURI == '/Lab/admin/Dashboard'}" class="app-main__inner">
                     <div th:replace="admin/Dashboard.html :: dashboard"></div>
                 </div>
@@ -1005,9 +1011,6 @@
                                                         <!-- Room Lab -->
                                                 <!--/////////////////////////////////-->
 
-                <!--<div th:if="${(#request.requestURI == '/Lab/admin/Room' || #request.requestURI == '/Lab/admin/Room') && !(#strings.contains(#request.requestURI, 'searchAdmin'))}" class="app-main__inner">
-                    <div th:replace="admin/labs.html :: lab"></div>
-                </div>-->
                 <div th:if="${#request.requestURI == '/Lab/admin/Room'}" class="app-main__inner">
                     <div th:replace="admin/labs.html :: lab"></div>
                 </div>
@@ -1088,6 +1091,9 @@
                 </div>
                 <div th:if="${#request.requestURI == '/Lab/admin/ExperimentManagement/Score'}" class="app-main__inner" style="display: flex; justify-content: center; align-content: center; flex-direction: column;">
                     <div th:replace="experiments/score.html :: score"></div>
+                </div>
+                <div th:if="${#request.requestURI == '/Lab/admin/LabRankings'}" class="app-main__inner" style="display: flex; justify-content: center; align-content: center; flex-direction: column;">
+                    <div th:replace="labsScore/lab-rankings-score.html :: lab-rankings-score"></div>
                 </div>
 
                                                 <!--/////////////////////////////////-->

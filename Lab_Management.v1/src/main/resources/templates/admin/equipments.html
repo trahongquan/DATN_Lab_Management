@@ -46,9 +46,11 @@
                     <tr th:each="equi, iter : ${allEquipment}">
                         <td th:text="${equi.getName}"></td>
                         <td th:text="${#lists.size(equi.getEquipmentSerieList)}"></td>
-                        <td th:if="${#lists.size(equi.getEquipmentSerieFixedList) == 0}" ><i class="fa fa-times"></i></td>
-                        <td th:unless="${#lists.size(equi.getEquipmentSerieFixedList) == 0}" ><i class="fa fa-check"></i></td>
-                        <td th:text="${equi.getName}"></td>
+                        <td th:if="${#lists.size(equi.getEquipmentSerieFixedList) == 0}" class="d-flex justify-content-center align-content-center">
+                            <i class="fa fa-times text-danger"></i></td>
+                        <td th:unless="${#lists.size(equi.getEquipmentSerieFixedList) == 0}" class="d-flex justify-content-center align-content-center">
+                            <i class="fa fa-check text-success"></i></td>
+                        <td th:text="${equi.description}"></td>
                         <td>
                             <div class="d-flex" style="display: flex; justify-content: center; align-items: center;">
                                 <form th:action="@{'/Lab/admin/Equipment/showFormForUpdate/' + ${equi.getId}}" method="get">

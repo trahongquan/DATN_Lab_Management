@@ -95,7 +95,7 @@
                                 <i class="lnr-apartment text-primary"></i></div>
                             <div class="widget-numbers font-size-xlg" >
                                 <pre class="text-primary my-4" th:text="''"></pre>
-                                <p class="text-primary my-4" th:text="'Số lượng phòng: ' + ${#lists.size(labsOnLine)}"></p>
+                                <p class="text-primary my-4" th:text="'Số lượng phòng: ' + ${#lists.size(labsOnLineAndScores)}"></p>
                                 <pre class="text-primary my-4" th:text="''"></pre>
                             </div>
                         </div>
@@ -171,6 +171,26 @@
                             </div>
                         </div>
                     </div>
+                </div>
+            </div>
+        </div>
+        <div class="main-card mb-5 card">
+            <div class="grid-menu grid-menu-4col">
+                <div class="no-gutters row">
+                    <th:block th:each="labsOnLineAndScore : ${labsOnLineAndScores}">
+                        <div class="col-sm-3 lab-score">
+                            <div class="widget-chart widget-chart-hover">
+                                <div class="icon-wrapper rounded-circle">
+                                    <div class="icon-wrapper-bg bg-primary"></div>
+                                    <i class="lnr-apartment text-primary"></i></div>
+                                <div class="widget-numbers font-size-xlg" >
+                                    <p class="text-primary my-4" th:text="${labsOnLineAndScore.lab.labName}"></p>
+                                    <pre class="text-primary my-4" th:text="''"></pre>
+                                    <p class="text-yellow my-4">Điểm số: <span class="text-danger" th:text="${labsOnLineAndScore.score}"></span></p>
+                                </div>
+                            </div>
+                        </div>
+                    </th:block>
                 </div>
             </div>
         </div>

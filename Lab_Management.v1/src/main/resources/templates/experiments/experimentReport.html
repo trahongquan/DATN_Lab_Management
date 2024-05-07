@@ -119,8 +119,8 @@
             <form id="editForm" th:action="'/Lab/admin/ExperimentManagement/ExperimentReport/edit'" method="post" >
                 <label th:for="@{'experiment'}" >Tên loại:</label>
                 <div class="d-flex flex-row justify-content-center align-content-center">
-                    <input type="hidden" id="typeidInput" name="typeid" class="form-control" required>
-                    <textarea type="text" id="typeNameInput" name="typeName" required class="form-control"></textarea>
+                    <input type="hidden" id="typeidInput" name="experimentReportId" class="form-control" required>
+                    <textarea type="text" id="typeNameInput" name="ReportType" required class="form-control"></textarea>
                     <button type="submit" class="btn btn-primary" id="btnEdit">Sửa</button>
                 </div>
                 <!--<div>

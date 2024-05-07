@@ -7,6 +7,7 @@ import java.util.List;
 public interface ScoreService {
     Score saveScore(Score score);
     Score getScoreById(int id);
+    void delScoreById(int id);
     List<Score>  getAllScore();
     List<Score> FindAllByExperimentGroupId(int id);
     List<Score> FindAllByExperimentTypeId(int id);

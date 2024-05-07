@@ -26,7 +26,8 @@
                                     color: #ffff13;
                                     border-color: black;
                                     margin-bottom: 0;
-                                    font-weight: bold;">Không thành công(<span id="uncountdown">3</span>)</p>
+                                    font-weight: bold;">Không thành công <span th:if="${#request.requestURI == '/Lab/admin/ExperimentManagement/Score'}">do đã tồn tại</span>(<span id="uncountdown">3</span>)
+        </p>
     </div>
 </noticeUnSuccess>
 
