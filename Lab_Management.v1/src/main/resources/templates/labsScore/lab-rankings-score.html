@@ -55,7 +55,8 @@
                     <td th:text="${labsOnLineAndScore.lab.labName}" class="text-info"></td>
                     <td class="text-danger"> <strong><span th:text="${labsOnLineAndScore.score}"></span></strong> </td>
                     <td>
-                        <button type="button" class="form-control btn btn-primary btn-detail">Chi tiết</button>
+                        <button type="button" class="form-control btn btn-primary btn-detail"
+                        th:data="${labsOnLineAndScore.lab.id}">Chi tiết</button>
                     </td>
                 </tr>
                 </tbody>
@@ -72,42 +73,43 @@
     </div>
     <!-- Popup -->
     <div id="popup" class="popup">
-        <div class="popup-content">
-            <h2>Sửa thông tin nhóm</h2>
-            <form id="editForm" th:action="'/Lab/admin/ExperimentManagement/ExperimentGroup/edit'" method="post" >
-                <div class="d-flex flex-row justify-content-center align-content-center">
-                    <input type="hidden" id="groupidInput" name="groupid" class="form-control" required>
-                    <input type="text" id="groupNameInput" name="groupName" required class="form-control">
-                    <button type="submit" class="btn btn-primary">Sửa</button>
+        <div class="popup-content" style="max-width: 200rem; top: 25%; left: 17%">
+            <div class="main-card mb-3 card">
+                <div class="card-body">
+                    <table style="width: 100%;" class="table table-hover table-striped table-bordered">
+                        <thead>
+                        <tr>
+                            <th>STT</th>
+                            <th>Số lượng</th>
+                            <th>Phân loại</th>
+                            <th>Điểm số</th>
+                        </tr>
+                        </thead>
+                        <tbody id="tbody">
+                        </tbody>
+                        <tfoot>
+                        <tr>
+                            <th>STT</th>
+                            <th>Số lượng</th>
+                            <th>Phân loại</th>
+                            <th>Điểm số</th>
+                        </tr>
+                        </tfoot>
+                    </table>
                 </div>
-            </form>
-            <br>
+            </div>
             <button type="button" class="btn btn-secondary close-btn">Đóng</button>
         </div>
     </div>
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script>
+    <script th:inline="javascript">
+        var labsOnLineAndScores = [[${labsOnLineAndScores}]];
         $(document).ready(function() {
             $(".btn-detail").click(function() {
-                var groupName = $(this).attr('data-groupName');
-                var groupid = $(this).attr('data-id');
-                console.log(groupid)
-                console.log(groupName)
-                $("#groupNameInput").val(groupName);
-                $("#groupidInput").val(groupid);
+                var labid = parseInt($(this).attr('data'));
                 $(".popup").slideDown(300);
-            });
-
-            $(".close-btn").click(function() {
-                $(".popup").slideUp(300);
-            });
-
-            // Optional: Close the popup when clicking outside the content
-            $(window).click(function(event) {
-                if ($(event.target).hasClass("popup")) {
-                    $(".popup").slideUp(300);
-                }
+                clickDetail(labsOnLineAndScores, labid);
             });
         });
     </script>
@@ -115,6 +117,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script src="/js/noticePopUp.js"></script>
+    <script src="/js/lab-rankings-score.js"></script>
 </lab-rankings-score>
 </body>
 </html>

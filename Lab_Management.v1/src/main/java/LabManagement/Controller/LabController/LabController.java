@@ -26,6 +26,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.sql.Date;
 import java.time.LocalDate;
 import java.util.*;
@@ -39,11 +40,21 @@ public class LabController {
     public String Redirect(String url, Object success) {
         if (success instanceof Boolean) {
             if((boolean) success){
-                String successParam = "?success=" + success;
-                return "redirect:/Lab/" + url + successParam;
+                if(url.contains("?")){
+                    String successParam = "&success=" + success;
+                    return "redirect:/Lab/" + url + successParam;
+                } else {
+                    String successParam = "?success=" + success;
+                    return "redirect:/Lab/" + url + successParam;
+                }
             } else{
-                String successParam = "?unsuccess=" + true;
-                return "redirect:/Lab/" + url + successParam;
+                if(url.contains("?")){
+                    String successParam = "&unsuccess=" + true;
+                    return "redirect:/Lab/" + url + successParam;
+                } else {
+                    String successParam = "?unsuccess=" + true;
+                    return "redirect:/Lab/" + url + successParam;
+                }
             }
         } else {
             return "redirect:/Lab/" + url;
@@ -166,15 +177,15 @@ public class LabController {
         List<ExperimentGroup> experimentGroups = experimentGroupService.getAllExperimentGroups();
         List<ExperimentType> experimentTypes = experimentTypeService.getAllExperimentTypes();
         List<ExperimentReport> experimentReports = experimentReportService.getAllExperimentReports();
-        /*List<People> reservationists = peopleService.getAllPeople().stream()
-                                            .filter(people ->
-                                                people.getIsDelete()!=1 &&
-                                                    (CheckRole(people, "ROLE_RESERVATIONIST")
-                                                    || CheckRole(people, "ROLE_TEACHER"))
-                                            ).collect(Collectors.toList());*/
         List<People> reservationists = new ArrayList<>();
-        reservationists.add(FindPeopleByUsername(username));
-                model.addAttribute("labDTO", labDTO);
+        People peoplex = FindPeopleByUsername(username);
+        reservationists.add(peoplex);
+        for (People people : GetPeoPleByRole("ROLE_RESERVATIONIST")) {
+            if(people != peoplex){
+                reservationists.add(people);
+            }
+        }
+        model.addAttribute("labDTO", labDTO);
         model.addAttribute("equipmentLabDTOs", equipmentLabDTOs);
         model.addAttribute("bookingEquiDTOs", bookingEquiDTOs);
         model.addAttribute("experimentReports", experimentReports);
@@ -243,7 +254,7 @@ public class LabController {
         model.addAttribute("date", date);
 
 //        return "booking/booking-lab";
-        return Redirect("mybooking"+"?username="+username,"");
+        return Redirect("mybooking"+"?username="+username,true);
     }
 
     private List<String> GetUsedSeriesOfBookingEquiment(int bookingId){
@@ -273,7 +284,9 @@ public class LabController {
         return peopleService.findByPeopleId(userService.findByUsername(username).getPeopleid());
     }
     @GetMapping("/mybooking")
-    public String myBooking(Model model, @RequestParam("username")String username){
+    public String myBooking(Model model, @RequestParam("username")String username,
+                            @RequestParam(value = "success", defaultValue = "false") boolean success,
+                            @RequestParam(value = "unsuccess", defaultValue = "false") boolean unsuccess){
         People teacher = FindPeopleByUsername(username);
         List<Content> contents = contentService.findAllByReservationistId(teacher.getId());
         List<BookingDTO> bookingDTOs = new ArrayList<>();
@@ -286,6 +299,8 @@ public class LabController {
         /** Sắp xếp lại bookingDTOs theo thứ tự ngày gần nhất đến xa nhất = Override: BookingDateComparator */
         Collections.sort(bookingDTOs, new BookingDateComparator());
         model.addAttribute("bookingDTOs", bookingDTOs);
+        model.addAttribute("success", success);
+        model.addAttribute("unsuccess", unsuccess);
         return "booking/my-booking";
     }
 
@@ -301,6 +316,48 @@ public class LabController {
         return "managers/account-info";
     }
 
+    @GetMapping("/myBookingDetail/{id}")
+    public String myBookingDetail(Model model, @PathVariable("id") int id,
+                                  @RequestParam("username") String username,
+                                  @RequestParam(value = "success", defaultValue = "false") boolean success,
+                                  @RequestParam(value = "unsuccess", defaultValue = "false") boolean unsuccess){
+        ShowBookingPendding(model, id, false);
+        List<People> reservationists = new ArrayList<>();
+        GetPeoPleByRole("ROLE_RESERVATIONIST").forEach(people -> reservationists.add(people));
+        if(FindPeopleByUsername(username) != null){
+            reservationists.add(FindPeopleByUsername(username));
+        }
+        model.addAttribute("reservationists", reservationists);
+        model.addAttribute("success", success);
+        model.addAttribute("unsuccess", unsuccess);
+        return "booking/booking-detail-teacher";
+    }
+
+    @PostMapping({"/myBookingDetail/{id}"})
+    public String myBookingDetailPost(Model model, @PathVariable("id") int id,
+                                      @RequestParam("username") String username,
+                                      @RequestParam("name") String name,
+                                      @RequestParam("experiment_group") int experiment_groupId,
+                                      @RequestParam("experiment_type") int experiment_typeId,
+                                      @RequestParam("experiment_report") int experiment_reportId,
+                                      @RequestParam("reservationist") int reservationistId,
+                                      @RequestParam("class_name") String class_name,
+                                      @RequestParam("amount_of_people") int amount_of_people,
+                                      @RequestParam(value = "series", defaultValue = "") List<String> series,
+                                      @RequestParam("work_time") int work_time,
+                                      @RequestParam("note") String note) {
+        PostBookingPendding(model, id, name, experiment_groupId, experiment_typeId, experiment_reportId, reservationistId, class_name, amount_of_people, series, work_time, note);
+        return Redirect("myBookingDetail/"+id+"?username="+username,true);
+    }
+
+    @GetMapping("/myBookingDetail/Cancel")
+    public String PostMappingmyBookingDetail(Model model,
+                                             @RequestParam("username") String username,
+                                             @RequestParam("bookingId") int bookingId,
+                                             @RequestParam(value = "success", defaultValue = "false") boolean success){
+        CancelBookingPendding(model, bookingId, success);
+        return Redirect("mybooking?username=" + username, true);
+    }
 
 /******************************************************************************************************/
                                         /** Khu vực Admin*/
@@ -362,23 +419,67 @@ public class LabController {
         model.addAttribute("managers", managers.size());
 
         /** Dashboard Lab - Score*/
-        model.addAttribute("labsOnLineAndScores", LabsOnLineAndScore());
+        model.addAttribute("labsOnLineAndScores", LabsOnLineAndScore(365));
         model.addAttribute("title", "Tổng quan");
         return template;
     }
-    private List<LabsOnLineAndScore> LabsOnLineAndScore(){
+    private List<LabsOnLineAndScore> LabsOnLineAndScore(int day) {
+        LocalDate defaultDate1, defaultDate2;
+        switch (day) {
+            case 7:
+                defaultDate1 = LocalDate.now().minusWeeks(1);
+                defaultDate2 = LocalDate.now();
+            case 30:
+                defaultDate1 = LocalDate.now().minusMonths(1);
+                defaultDate2 = LocalDate.now();
+            case 90:
+                defaultDate1 = LocalDate.now().minusMonths(3);
+                defaultDate2 = LocalDate.now();
+            case 180:
+                defaultDate1 = LocalDate.now().minusMonths(6);
+                defaultDate2 = LocalDate.now();
+            default:
+                defaultDate1 = LocalDate.now().minusYears(1);
+                defaultDate2 = LocalDate.now();
+        }
+        return LabsOnLineAndScore(defaultDate1, defaultDate2);
+    }
+    private List<LabsOnLineAndScore> LabsOnLineAndScore(LocalDate date1, LocalDate date2){
         List<Score> scores = scoreService.getAllScore();
         List<LabsOnLineAndScore> labsOnLineAndScores = new ArrayList<>();
         List<Lab> labsOnLine = labService.getAllLabsOnLine();
         labsOnLine.forEach(lab -> {
             LabsOnLineAndScore labsOnLineAndScore = new LabsOnLineAndScore();
             labsOnLineAndScore.setLab(lab);
-            List<Booking> bookings = bookingService.findAllByLab_id(lab.getId());
+            List<Booking> bookings = bookingService.findAllByLab_id(lab.getId())
+                    .stream().filter(booking -> {
+                        return booking.getConfirmStatus().equals(ComfirmStatus.APPROVE)
+                               && booking.getBookingDate().toLocalDate().isAfter(date1)
+                               && booking.getBookingDate().toLocalDate().isBefore(date2);
+                    })
+                    .collect(Collectors.toList());
             bookings.forEach(booking -> {
                 Content content = contentService.getContentById(booking.getContentid());
                 scores.forEach(score -> {
                     if(score.getExperimentTypeId()==content.getExperimentType() && score.getExperimentReportId()==content.getExperimentReport()){
                         labsOnLineAndScore.setScore(labsOnLineAndScore.getScore() + score.getScore());
+                        String typename = experimentReportService.getExperimentReportById(score.getExperimentReportId()).getReportType()
+                                            +" (" + experimentTypeService.getExperimentTypeById(score.getExperimentTypeId()).getTypeName() +")";
+                        if(labsOnLineAndScore.getTypeName().size()!=0){
+                            for (int i = 0; i < labsOnLineAndScore.getTypeName().size(); i++) {
+                                if(labsOnLineAndScore.getTypeName().get(i).equals(typename)){
+                                    labsOnLineAndScore.increaseQuantityAtIndex(i);
+                                }else {
+                                    double doubleScore = score.getScore();
+                                    int quantity = 1;
+                                    labsOnLineAndScore.addDetailScore(typename, quantity, doubleScore);
+                                }
+                            }
+                        } else {
+                            double doubleScore = score.getScore();
+                            int quantity = 1;
+                            labsOnLineAndScore.addDetailScore(typename, quantity, doubleScore);
+                        }
                     }
                 });
             });
@@ -996,9 +1097,8 @@ public class LabController {
         return Redirect("admin/ShowBookingPendding/"+bookingId,true);
     }
 
-    @PostMapping("/admin/ShowBookingPendding/{id}")
+    @PostMapping({"/admin/ShowBookingPendding/{id},"})
     public String PostBookingPendding(Model model, @PathVariable("id") int id,
-//                                      @RequestParam("selectlabid") int selectlabid,
                                       @RequestParam("name") String name,
                                       @RequestParam("experiment_group") int experiment_groupId,
                                       @RequestParam("experiment_type") int experiment_typeId,
@@ -1024,8 +1124,12 @@ public class LabController {
         content.setAmountOfPeople(amount_of_people);
 
         contentService.saveContent(content);
-
-        return Redirect("admin/ShowBookingPendding/"+id,true);
+//        String currentUrl = request.getRequestURI();
+//        if (currentUrl.contains("admin/ShowBookingPendding")) {
+            return Redirect("admin/ShowBookingPendding/"+id,true);
+//        } else {
+//            return Redirect("mybooking",true);
+//        }
     }
     @GetMapping({"/admin/ShowBookingPendding/Approve"})
     public String ApproveBookingPendding(Model model,
@@ -1491,12 +1595,13 @@ public class LabController {
     public String LabRankings(Model model,
                               @RequestParam(value = "success", defaultValue = "false") boolean success,
                               @RequestParam(value = "unsuccess", defaultValue = "false") boolean unsuccess){
-        model.addAttribute("labsOnLineAndScores",LabsOnLineAndScore());
+        List<LabsOnLineAndScore> labsOnLineAndScores = LabsOnLineAndScore(365);
+//        labsOnLineAndScores.forEach(labsOnLineAndScore -> {
+//            System.out.println(labsOnLineAndScore);
+//        });
+        model.addAttribute("labsOnLineAndScores",labsOnLineAndScores);
+        model.addAttribute("title","BXH chấm điểm PTN");
         return template;
     }
-
-//    @GetMapping({"/admin/ExperimentManagement/ExperimentType"})
-//    @GetMapping({"/admin/ExperimentManagement/ExperimentReport"})
-//    @GetMapping({"/admin/ExperimentManagement/Score"})
 
 }

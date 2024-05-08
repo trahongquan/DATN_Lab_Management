@@ -8,11 +8,7 @@
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" ></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" ></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" ></script>
-    <!--<script src="js/script.js"></script>-->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" >
-    <!--<link rel="stylesheet" href="/css/base2.min.css">-->
-    <!--<link rel="stylesheet" href="/css/styles.css">-->
-
 </head>
 <body>
 <div th:replace="headernew::header"></div>
@@ -34,9 +30,10 @@
     </style>
     <!--<div th:replace="headernew::header"></div>-->
     <h1 style="margin-top: 50px; text-align: center;">CHI TIẾT ĐẶT PHÒNG THÍ NGHIỆM</h1><br>
-
     <div style="background-color: rgba(230,239,255,0.6); padding: 2em; border-radius: 3em">
-        <form th:object="${bookingDTO}" th:action="@{'/Lab/admin/ShowBookingPendding/' + ${bookingDTO.getId}}" method="post" enctype="multipart/form-data">
+    <div th:replace="admin/add-nocite.html :: notice"></div>
+    <div th:replace="admin/add-nocite.html :: noticeUnSuccess"></div>
+        <form th:object="${bookingDTO}" th:action="@{'/Lab/myBookingDetail/' + ${bookingDTO.getId}}" method="post" enctype="multipart/form-data">
             <div class="row justify-content-around p-2">
                 <div class="form-group col-5" >
                     <div class="form-group">
@@ -74,7 +71,7 @@
                     <div class="form-group">
                         <label for="reservationist">Người phụ trách:</label>
                         <select class="form-control bg-danger-subtle" id="reservationist"
-                                th:value="${bookingDTO.getContentDTO.getReservationist.getId}" name="reservationist" required>
+                                th:data="${bookingDTO.getContentDTO.getReservationist.getId}" name="reservationist" required>
                             <option th:each="reservationist : ${reservationists}" th:value="${reservationist.getId}"
                                     th:text="${reservationist.getName}"></option>
                         </select>
@@ -156,15 +153,10 @@
                     </div>
                 </div>
             </div>
+            <input type="hidden" th:value="${#authentication.name}" name="username">
             <!-- Submit button -->
-            <div class="row d-flex justify-content-center" th:if="${#strings.contains(#request.requestURI, '/Lab/admin/ShowBookingPendding')}">
-                <button type="submit" class="btn btn-primary col-3 mx-2" onclick="return confirm('Bạn có chắc chắn muốn sửa?')">Sửa thông tin</button>
-                <button type="button" class="btn btn-success col-3 mx-2">Duyệt</button>
-                <button type="button" class="btn btn-danger col-3 mx-2">Hủy</button>
-            </div>
             <div class="row d-flex justify-content-center" th:if="${#strings.contains(#request.requestURI, '/Lab/myBookingDetail') && bookingDTO.confirm_Status == 'Đang chờ duyệt'}">
                 <button type="submit" class="btn btn-primary col-3 mx-2" onclick="return confirm('Bạn có chắc chắn muốn sửa?')">Sửa thông tin</button>
-                <button type="button" class="btn btn-success col-3 mx-2">Duyệt</button>
                 <button type="button" class="btn btn-danger col-3 mx-2">Hủy</button>
             </div>
         </form>
@@ -220,6 +212,7 @@
         var experimentTypes = [[${experimentTypes}]];
         var experimentReports = [[${experimentReports}]];
         var bookingId = [[${bookingDTO.getId}]];
+        var bookingStatus = [[${bookingDTO.confirm_Status}]];
         var tempGroupId
         $(document).ready(function() {
             /** ******* Đặt value cho các select*/
@@ -234,13 +227,13 @@
                     }, 50);
                 }, 50);
             }, 50);
-
+            $('#reservationist').val($('#reservationist').attr('data'))
             /** ******* Set date **********/
             $('#date').val([[${date}]]);
             $('#experiment_type').prop('disabled','true');
             $('#experiment_report').prop('disabled','true');
 
-            if(window.location.pathname === '/Lab/admin/ShowBookingPendding/'+bookingId){
+            if(bookingStatus === 'Đang chờ duyệt'){
                 $('#experiment_group').change(function () {
                     var groupId = $(this).val();
                     SetExperiment_Type(groupId);
@@ -301,15 +294,10 @@
             return trimmedArray;
         }
 
-        $('.btn-success').click(function () {
-            if (confirm('Bạn có chắc chắn muốn duyệt đơn đặt này?')) {
-                window.location.href = "/Lab/admin/ShowBookingPendding/Approve?bookingId=" + bookingId;
-            }
-        });
-
         $('.btn-danger').click(function () {
+            var username = [[${#authentication.name}]]
             if (confirm('Bạn có chắc chắn muốn hủy đơn này?')) {
-                window.location.href = "/Lab/admin/ShowBookingPendding/Cancel?bookingId=" + bookingId;
+                window.location.href = "/Lab/myBookingDetail/Cancel?bookingId=" + bookingId + '&username='+username;
             }
         });
 
@@ -361,6 +349,7 @@
             seriesElement.focus();
         }
     </script>
+    <script th:src="@{/js/noticePopUp.js}"></script>
     <br>
     <br>
 </booking-detail>

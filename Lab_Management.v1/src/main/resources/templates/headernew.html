@@ -133,7 +133,7 @@
                         </div>
                     </a>
                     <div id="Account" class="icon-wrapper" th:if="${#authorization.expression('isAuthenticated()')}">
-                        <a sec:authorize="hasRole('ROLE_TEACHER')" th:href="'/Lab/myAccount/'+${#authentication.name}">
+                        <a sec:authorize="hasAnyRole('ROLE_TEACHER', 'ROLE_RESERVATIONIST')" th:href="'/Lab/myAccount/'+${#authentication.name}">
                             <svg width="20" height="20"  viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <path
                                         d="M10.1004 11.2755C10.0837 11.2755 10.0587 11.2755 10.0421 11.2755C10.0171 11.2755 9.98372 11.2755 9.95872 11.2755C8.06706 11.2171 6.65039 9.74214 6.65039 7.92547C6.65039 6.07547 8.15872 4.56714 10.0087 4.56714C11.8587 4.56714 13.3671 6.07547 13.3671 7.92547C13.3587 9.75047 11.9337 11.2171 10.1254 11.2755C10.1087 11.2755 10.1087 11.2755 10.1004 11.2755ZM10.0004 5.80881C8.83372 5.80881 7.89206 6.75881 7.89206 7.91714C7.89206 9.0588 8.78372 9.98381 9.91706 10.0255C9.94206 10.0171 10.0254 10.0171 10.1087 10.0255C11.2254 9.96714 12.1004 9.05047 12.1087 7.91714C12.1087 6.75881 11.1671 5.80881 10.0004 5.80881Z"
@@ -178,7 +178,7 @@
                         </form>
                         <ul th:if="${#authorization.expression('isAuthenticated()')}"
                             style="margin: unset; padding: unset">
-                            <li class=""><a sec:authorize="hasRole('ROLE_TEACHER')" th:href="'/Lab/myAccount/'+${#authentication.name}" class="ico-cart">
+                            <li class=""><a sec:authorize="hasAnyRole('ROLE_TEACHER', 'ROLE_RESERVATIONIST')" th:href="'/Lab/myAccount/'+${#authentication.name}" class="ico-cart">
                                 <!--<span style="align-self: center">Xin trào:</span><br>-->
                                 <span class="title" sec:authentication="name"
                                       style="font-size: 1em; display: inline-block; max-width: 10ch; overflow: hidden; text-overflow: ellipsis;"

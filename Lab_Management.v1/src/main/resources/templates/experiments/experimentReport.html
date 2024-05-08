@@ -123,23 +123,6 @@
                     <textarea type="text" id="typeNameInput" name="ReportType" required class="form-control"></textarea>
                     <button type="submit" class="btn btn-primary" id="btnEdit">Sửa</button>
                 </div>
-                <!--<div>
-                    <label for="experimentGroupId" >Thuộc nhóm:</label>
-                    <select class="form-control" id="experimentGroupId" name="experimentGroupId" required>
-                        <option th:each="experiment : ${experimentGroups}" th:value="${experiment.id}" th:text="${experiment.groupName}"></option>
-                    </select>
-                </div>
-                <div class="main-card my-3 card">
-                    <div class="card-body">
-                        <h5 class="card-title">Chọn loại hình thí nghiệm </h5>
-                        <select multiple="multiple" class="multiselect-dropdown form-control"
-                                id="experiment_type_popup" name="experimentTypeIdPopup" onchange="CheckTypeFromGroupPopup()">
-                            <th:block th:each="experiment, iterStat : ${experimentTypes}">
-                                <option th:value="${experiment.id}" th:text="${experiment.typeName}"></option>
-                            </th:block>
-                        </select>
-                    </div>
-                </div>-->
             </form>
             <br>
             <button type="button" class="btn btn-secondary close-btn">Đóng</button>

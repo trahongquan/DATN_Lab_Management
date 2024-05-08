@@ -44,7 +44,7 @@
                                 <div style="background-color: #007bff">
                                     <div class="card-header justify-content-center" th:text="${booking.lab.labName}"></div>
                                     <div>
-                                        <button th:data="${booking.id}" type="button" class="btn btn-primary btn-detail-booking" style="border: black thin;">Xem chi tiết</button>
+                                        <button th:data="${booking.id}" th:data-user="${#authentication.name}" type="button" class="btn btn-primary btn-detail-booking" style="border: black thin;">Xem chi tiết</button>
                                     </div>
                                 </div>
                                 <div class="card-body">
@@ -67,6 +67,8 @@
                         </div>
                     </div>
                 </form>
+                <div th:replace="admin/add-nocite.html :: notice"></div>
+                <div th:replace="admin/add-nocite.html :: noticeUnSuccess"></div>
             </div>
         </div>
     </div>
@@ -78,6 +80,7 @@
 
 </script>
 <script src="/js/my-booking.js"></script>
+<script src="/js/noticePopUp.js"></script>
 </body>
 </html>
 

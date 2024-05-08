@@ -26,6 +26,8 @@ $(document).ready(function() {
     $(".btn-detail-booking").click(function () {
         var dateValue = $("#date").val();
         var bookingId = $(this).attr('data');
-        window.location.href = "/Lab/BookingDetail/" + bookingId;
+        var username = $(this).attr('data-user');
+        window.location.href = "/Lab/myBookingDetail/" + bookingId + "?username=" + username;
     });
+
 });
