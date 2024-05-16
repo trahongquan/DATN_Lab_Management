@@ -29,6 +29,7 @@
                         <th>Liên lạc</th>
                         <th>Tên đăng nhập</th>
                         <th>Quyền đăng nhập</th>
+                        <th>Thao tác</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -49,7 +50,7 @@
                                     <button type="submit" class="btn btn-info btn-sm mr-1">Chi tiết</button>
                                 </form>
                                 <form th:action="@{'/Lab/admin/Manager/showFormForUpdate/' + ${manager.getId}}"
-                                      method="POST" >
+                                      method="POST">
                                     <button type="button" class="btn btn-danger btn-sm"
                                             onclick="return comfirm('Bạn có chắc chắn muốn xóa?')">Xóa
                                     </button>
@@ -66,16 +67,13 @@
                         <th>Số hiệu QN</th>
                         <th>Liên lạc</th>
                         <th>Tên đăng nhập</th>
-                        <th>Quyền đăng nhập</th>
+                        <th>Thao tác</th>
                     </tr>
                     </tfoot>
                 </table>
             </div>
         </div>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> <!--Phải load jquery trước khi load bootstrap js-->
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-</manager>
+    </manager>
 </div>
 </body>
 </html>

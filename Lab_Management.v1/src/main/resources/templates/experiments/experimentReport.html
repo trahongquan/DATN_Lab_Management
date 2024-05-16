@@ -56,8 +56,8 @@
                     <option th:each="experiment : ${unusedExperimentReports}" th:value="${experiment.id}" th:text="${experiment.reportType}"></option>
                 </select>
             </div>
-            <label class="text-warning"><span class="text-danger"><strong>Chú ý:</strong></span> Chỉ hiển thị những loại có thể xóa</label> <br>
-            <label class="text-warning"><span class="text-danger"><strong>Chú ý:</strong></span> Nếu bạn muốn xóa loại báo cáo nào đó hãy chắc chắn bạn không sử dụng
+            <label class="text-warning"><span class="text-danger"><strong><i class="pe-7s-attention"></i> Chú ý:</strong></span> Chỉ hiển thị những loại có thể xóa</label> <br>
+            <label class="text-warning"><span class="text-danger"><strong><i class="pe-7s-attention"></i> Chú ý:</strong></span> Nếu bạn muốn xóa loại báo cáo nào đó hãy chắc chắn bạn không sử dụng
                 <br> ở phần tính điểm phòng thí nghiệm hoặc mục yêu cầu đặt phòng nào</label>
             <br>
             <button type="submit" class="btn btn-danger" > Xóa </button>
@@ -88,8 +88,8 @@
                             <p style="margin: unset" th:text="'- ' + ${experimentType.typeName}"></p>
                         </th:block>
                     </td>
-                    <td th:if="${checkExperiments[iter.index].aBoolean}" th:text="'✅ '"> </td>
-                    <td th:unless="${checkExperiments[iter.index].aBoolean}"> ❌ </td>
+                    <td th:if="${checkExperiments[iter.index].aBoolean}"> <div class="d-flex justify-content-center align-content-center">✅</div></td>
+                    <td th:unless="${checkExperiments[iter.index].aBoolean}"> <div class="d-flex justify-content-center align-content-center">❌</div> </td>
                     <td>
                         <button type="button" class="form-control btn btn-primary btn-edit"
                                 th:data-typeName="${experimentReport.reportType}"
@@ -165,7 +165,7 @@
     <script th:inline="javascript">
         var experimentTypes = [[${experimentTypes}]];
         $(document).ready(function() {
-            $('#experiment_type').prop('disabled','true');
+            $('#experiment_type').attr('disabled','true');
             $('#experiment_group').trigger('change');
             $('#experiment_type').trigger('change');
         });
@@ -174,6 +174,7 @@
             SetExperiment_Type(groupId);
         });
         function SetExperiment_Type(groupId) {
+            // $('#experiment_type').removeAttr('disabled');
             $('#experiment_type').removeAttr('disabled');
             $('#experiment_type').empty();
             experimentTypes.forEach(experimentType => {

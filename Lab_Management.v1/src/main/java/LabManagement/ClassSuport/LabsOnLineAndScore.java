@@ -10,6 +10,7 @@ public class LabsOnLineAndScore {
     private Double score;
     private List<String> typeName;
     private List<Integer> quantity;
+    private Integer hour;
     private List<Double> scores;
 
     public LabsOnLineAndScore(Lab lab, double score) {
@@ -17,11 +18,12 @@ public class LabsOnLineAndScore {
         this.score = score;
     }
 
-    public LabsOnLineAndScore(Lab lab, Double score, List<String> typeName, List<Integer> quantity, List<Double> scores) {
+    public LabsOnLineAndScore(Lab lab, Double score, List<String> typeName, List<Integer> quantity, int hour, List<Double> scores) {
         this.lab = lab;
         this.score = score;
         this.typeName = typeName;
         this.quantity = quantity;
+        this.hour = hour;
         this.scores = scores;
     }
 
@@ -29,6 +31,7 @@ public class LabsOnLineAndScore {
         this.score = new Double(0);
         typeName = new ArrayList<>();
         quantity = new ArrayList<>();
+        hour = new Integer(0);
         scores = new ArrayList<>();
     }
 
@@ -39,6 +42,7 @@ public class LabsOnLineAndScore {
                 ", score=" + score +
                 ", typeName=" + typeName +
                 ", quantity=" + quantity +
+                ", hour=" + hour +
                 ", scores=" + scores +
                 '}';
     }
@@ -92,5 +96,13 @@ public class LabsOnLineAndScore {
     public void increaseQuantityAtIndex(int index) {
         int currentValue = quantity.get(index);
         quantity.set(index, currentValue + 1);
+    }
+
+    public Integer getHour() {
+        return hour;
+    }
+
+    public void setHour(Integer hour) {
+        this.hour = hour;
     }
 }

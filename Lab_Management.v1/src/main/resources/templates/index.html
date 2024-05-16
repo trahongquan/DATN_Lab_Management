@@ -10,8 +10,8 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" ></script>
     <!--<script src="https://cdn.jsdelivr.net/momentjs/2.29.1/moment.min.js"></script>-->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" >
-    <link rel="stylesheet" href="/css/base2.min.css">
-    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="/css/base2.min.css" type="text/css">
+    <link rel="stylesheet" href="/css/styles.css" type="text/css">
 </head>
 <body>
 <div th:replace="headernew::header"></div>
@@ -88,10 +88,14 @@
 </main>
 <br>
 <br>
-<br>
 <script th:inline="javascript">
     $(document).ready(function() {
+        var authority = [[${#authentication.authorities}]][0].authority;
+        console.log(authority[0].authority)
         var username = [[${#authentication.name}]];
+        // if(authority === 'ROLE_ADMIN' || authority === 'ROLE_MANAGER'){
+        //     window.location.href = "/Lab/admin/Dashboard?username="+username;
+        // }
         var dateAndStatusLabsList = [[${dateAndStatusLabsList}]];
         var currentDate = [[${currentDate}]];
         setIndex(username,dateAndStatusLabsList, currentDate);
@@ -110,7 +114,7 @@
         });
     });
 </script>
-<script src="js/index.js"></script>
+<script src="/js/index.js"></script>
 </body>
 </html>
 

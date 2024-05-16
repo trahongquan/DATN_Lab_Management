@@ -1,10 +1,11 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="UTF-8">
     <title>Thông tin tài khoản</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.5.2/css/bootstrap.min.css">
     <!--<link rel="stylesheet" href="/css/Header.css">-->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" >
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <script src="/js/header.js"></script>
     <script src="/js/headernew/headernew.js"></script>
@@ -13,12 +14,11 @@
 </head>
 <body >
 <div th:replace="headernew :: header"></div>
-
 <account-info>
-    <style>
+    <!--<style>
         .passCustomer:focus{border:1px solid black;}.container{max-width:960px;margin:0 auto;}.row{display:flex;flex-wrap:wrap;margin:0 -15px;}.col-md-6{flex:0 0 50%;padding:0 15px;}.table{width:100%;border-collapse:collapse;}.th,.td{padding:8px;border:1px solid #ccc;}.th{background-color:#eee;}.table-account-info th:first-child{width:20%;}.table-account-info td:first-child{font-weight:bold;}.body{font-family:sans-serif;font-size:1rem;}.table-container{display:flex;justify-content:center;}.table{width:90%;}.td,.th{white-space:nowrap;text-align:center;vertical-align:middle;}.wrap{white-space:unset;}.h1{margin-top:50px;text-align:center;}.tbody,.td{background:white;}
         @import url("https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css");
-    </style>
+    </style>-->
     <div class="container" style="margin-top: 100px">
         <div style="display: flex; justify-content: center">
             <h1>Thông tin tài khoản</h1>
@@ -57,40 +57,47 @@
                     <tr>
                         <th>Tên đăng nhập</th>
                         <td th:text="${peopleDTO.getUser.getUsername}">
-
                         </td>
                     </tr>
                     <tr>
-                        <th class="d-flex flex-column justify-content-center align-content-center">
-                            <div class="row justify-content-center align-items-center">
-                                <span>Mật khẩu</span>
-                                <span class="ml-2 d-flex justify-content-center align-items-center">
-                                    <i class="fa fa-eye" style="cursor: pointer; display: block" id="eye"></i>
-                                    <i class="fa fa-eye-slash" style="cursor: pointer; display: none" id="eye-slash"></i>
-                                </span>
-                            </div>
+                        <th class="col-3 justify-content-center align-content-center">
+                            <p th:text="'Mật khẩu'" style="margin: auto"></p>
                         </th>
-                        <td>
-                            <div class="d-flex" style="flex-direction: row; justify-content: center">
-                                <form th:action="@{/Lab/admin/myAccount}" method="post"
-                                      style="display: flex; flex-direction: row;justify-content: space-around"
-                                class="d-flex flex-column justify-content-center align-items-center">
-                                    <div class="row justify-content-center align-items-center">
-                                        <input type="password" th:value="${peopleDTO.getUser.getPassword}" class="passCustomer col-8"
-                                               name="password"
-                                               style="width: 66%; margin: unset; border: 1px solid lightgray;">
-                                        <input type="hidden" th:value="${peopleDTO.getUser.getUsername}" name="username">
-                                        <button type="submit" class="btn btn-primary col-4"
-                                                onclick="return confirm('Bạn có chắc chắn đổi mật khẩu?')"
-                                                style="width: 33%;">Đổi MK
-                                        </button>
-                                    </div>
-                                    <div class="row justify-content-start align-items-start">
-                                        <input type="text" name="oldpass" id="passwordInput" class="passCustomer col-12" placeholder="Nhập mật khẩu cũ" >
-                                        <!--<button onclick="checkPasswordValidity()" type="button" class="btn btn-gradient-success col-4">Check</button>-->
-                                    </div>
-                                </form>
-                            </div>
+                        <td sec:authorize="hasAnyRole('ROLE_ADMIN','ROLE_MANAGER')" class="col-9">
+                            <form th:action="@{/Lab/admin/myAccount}" method="post" class="d-flex justify-content-center align-content-center flex-column">
+                                <div class="row justify-content-center align-items-center">
+                                    <input type="password" class="col-7 m-1 form-control"
+                                           name="oldpass" placeholder="Nhập mật khẩu cũ" id="oldpass"
+                                           style="width: 66%; margin: unset; border: 1px solid lightgray;">
+                                    <input type="hidden" th:value="${peopleDTO.getUser.getUsername}" name="username">
+                                    <button type="submit" class="btn btn-primary col-3 m-1"
+                                            onclick="return confirm('Bạn có chắc chắn đổi mật khẩu?')">Đổi MK
+                                    </button>
+                                </div>
+                                <div class="row justify-content-center align-content-center">
+                                    <input type="password" style="width: 95%;" name="newpass" id="newpass" class="col-5 m-1 form-control" placeholder="Nhập mật khẩu mới" >
+                                    <input type="password" style="width: 95%;" name="retypenewpass" id="retypenewpass" class="col-5 m-1 form-control" placeholder="Nhập lại mật khẩu mới" >
+                                    <!--<button onclick="checkPasswordValidity()" type="button" class="btn btn-gradient-success col-4">Check</button>-->
+                                </div>
+                            </form>
+                        </td>
+                        <td sec:authorize="hasAnyRole('ROLE_TEACHER','ROLE_RESERVATIONIST')" class="col-9">
+                            <form th:action="@{/Lab/myAccount}" method="post" class="d-flex justify-content-center align-content-center flex-column">
+                                <div class="row justify-content-center align-items-center">
+                                    <input type="password" class="col-7 m-1 form-control"
+                                           name="oldpass" placeholder="Nhập mật khẩu cũ" id="oldpass"
+                                           style="width: 66%; margin: unset; border: 1px solid lightgray;">
+                                    <input type="hidden" th:value="${peopleDTO.getUser.getUsername}" name="username">
+                                    <button type="submit" class="btn btn-primary col-3 m-1"
+                                            onclick="return confirm('Bạn có chắc chắn đổi mật khẩu?')">Đổi MK
+                                    </button>
+                                </div>
+                                <div class="row justify-content-center align-content-center">
+                                    <input type="password" style="width: 95%;" name="newpass" id="newpass" class="col-6 m-1 form-control" placeholder="Nhập mật khẩu mới" >
+                                    <input type="password" style="width: 95%;" name="retypenewpass" id="retypenewpass" class="col-6 m-1 form-control" placeholder="Nhập lại mật khẩu mới" >
+                                    <!--<button onclick="checkPasswordValidity()" type="button" class="btn btn-gradient-success col-4">Check</button>-->
+                                </div>
+                            </form>
                         </td>
                     </tr>
                     </thead>

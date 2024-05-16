@@ -1,47 +1,68 @@
 function clickDetail(labsOnLineAndScores, id) {
-    console.log(labsOnLineAndScores)
+    // console.log(labsOnLineAndScores)
     var tbody = $('#tbody');
     tbody.html('');
     var index = 0;
     for (var i = 0; i < labsOnLineAndScores.length; i++) {
         var score = labsOnLineAndScores[i];
-            console.log(typeof (score.lab.id))
-            console.log(typeof (id))
         if(score.lab.id === id){
-            var row = $('<tr></tr>');
-            // STT
-            var sttCell = $('<td></td>').text(index + 1);
-            row.append(sttCell);
-
-                // Số lượng
-            var quantityCell = $('<td></td>');
-            for (var j = 0; j < score.quantity.length; j++) {
-                var qty = score.quantity[j];
-                var quantityItem = $('<p></p>').text(qty);
-                quantityCell.append(quantityItem);
-                console.log('đã qua đây');
-            }
-            row.append(quantityCell);
+        console.log(labsOnLineAndScores[i])
+            for (var j = 0; j < score.typeName.length; j++) {
+                var row = $('<tr></tr>');
+                // STT
+                var sttCell = $('<td></td>').text(j + 1);
+                row.append(sttCell);
 
                 // Phân loại
-            var typenameCell = $('<td></td>');
-            for (var k = 0; k < score.typeName.length; k++) {
-                var name = score.typeName[k];
-                var typenameItem = $('<p></p>').text(name);
-                typenameCell.append(typenameItem);
-            }
-            row.append(typenameCell);
+                var typenameCell = $('<td></td>');
+                    var name = score.typeName[j];
+                    var nameParts = name.split("-");
+                    var partA = nameParts[0];
+                    var partB = nameParts[1];
 
-                // Điểm số
-            var scoresCell = $('<td></td>');
-            for (var l = 0; l < score.scores.length; l++) {
-                var sco = score.scores[l];
-                var scoreItem = $('<p></p>').html('<strong class="text-danger">' + sco + '</strong>');
-                scoresCell.append(scoreItem);
-            }
-            row.append(scoresCell);
+                    var typenameItem = $('<p></p>');
 
-            tbody.append(row);
+                    var partASpan = $('<span></span>').text(partA);
+                    var partBSpan = $('<span></span>').text(partB);
+
+                    var separator = $('<span></span>').text(' - ');
+
+                    var partAStrong = $('<strong></strong>').append(partASpan);
+                    partAStrong.addClass('text-primary');
+                    partBSpan.addClass('text-info');
+
+                    typenameItem.append(partAStrong);
+                    typenameItem.append(separator);
+                    typenameItem.append(partBSpan);
+
+                    typenameCell.append(typenameItem);
+                row.append(typenameCell);
+
+                // Số lượng
+                var quantityCell = $('<td></td>');
+                    var qty = score.quantity[j];
+                    var quantityItem
+                    if(partA.trim() === 'Giờ khai thác'){
+                        var hour = score.hour;
+                        var str = qty + ' (Tổng: ' + hour+ ' giờ)';
+                        quantityItem = $('<p></p>').text(str);
+                    } else {quantityItem = $('<p></p>').text(qty)}
+                    quantityCell.append(quantityItem);
+                row.append(quantityCell);
+
+                    // Điểm số
+                var scoresCell = $('<td></td>');
+                    var sco
+                    if(partA.trim() === 'Giờ khai thác'){
+                        sco = (score.scores[j]*hour).toFixed(1);
+                    } else {sco = (score.scores[j]*qty).toFixed(1);}
+                    var scoreItem = $('<p></p>').html('<strong class="text-danger">' + sco + '</strong>');
+                    scoresCell.append(scoreItem);
+                row.append(scoresCell);
+
+                /** append vào body table*/
+                tbody.append(row);
+            }
         }
     }
 }

@@ -10,6 +10,8 @@ public interface RoleService {
 
     List<Roles> getAllRoles();
 
+    List<Roles> getAllRolesNotRoleSystem();
+
     Roles createRole(Roles role);
 
     void updateRole(Roles role);

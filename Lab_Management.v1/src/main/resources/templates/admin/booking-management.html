@@ -20,43 +20,36 @@
     </style>
     <div class="row">
         <div class="col-12 d-flex flex-column align-content-center">
-            <th:block th:if="${not #lists.isEmpty(bookingDTOs)}">
-                <th:block th:with="firstBooking=${bookingDTOs[0]}">
-                    <div style="margin: auto">
-                        <h1 class="title-h1 pending" th:if="${firstBooking.confirm_Status=='Đang chờ duyệt'}"
-                        th:text="'Danh sách chờ duyệt' "></h1>
-
-                    </div>
-                    <div style="margin: auto">
-                        <h1 class="title-h1 approve" th:if="${firstBooking.confirm_Status=='Đã xác nhận'}"
-                        th:text="'Danh sách đã duyệt' "></h1>
-
-                    </div>
-                    <div style="margin: auto">
-                        <h1 class="title-h1 cancel" th:if="${firstBooking.confirm_Status=='Bị từ chối'}"
-                        th:text="'Danh sách hủy bỏ' "></h1>
-
-                    </div>
-                    <div style="margin: auto">
-                        <h1 class="title-h1 quantity-h1" th:text="'Số lượng: ' + ${#lists.size(bookingDTOs)}"></h1>
-                    </div>
-                </th:block>
-            </th:block>
+            <div style="margin: auto">
+                <h1 class="title-h1 pending" th:if="${#request.requestURI == '/Lab/admin/LabBookingManagement/Pendding'}"
+                    th:text="'Danh sách chờ duyệt' "></h1>
+            </div>
+            <div style="margin: auto">
+                <h1 class="title-h1 approve" th:if="${#request.requestURI == '/Lab/admin/LabBookingManagement/Approve'}"
+                    th:text="'Danh sách đã duyệt' "></h1>
+            </div>
+            <div style="margin: auto">
+                <h1 class="title-h1 cancel" th:if="${#request.requestURI == '/Lab/admin/LabBookingManagement/Cancel'}"
+                    th:text="'Danh sách hủy bỏ' "></h1>
+            </div>
+            <div style="margin: auto">
+                <h1 class="title-h1 quantity-h1" th:text="'Số lượng: ' + ${#lists.size(bookingDTOs)}"></h1>
+            </div>
         </div>
     </div>
     <br>
     <div class="row">
-        <!--<div class="col-6 d-flex justify-content-center mb-5">
-            <a href="/Lab/admin/Room/add">
-                <button type="button" class="btn btn-primary font-bold font-size-xlg">Thêm phòng</button>
+        <div class="col-12 d-flex justify-content-center mb-5">
+            <a href="/Lab?RedirectLabAdmin=false" target="_blank">
+                <button type="button" class="btn btn-primary font-bold font-size-xlg">Đặt phòng</button>
             </a>
         </div>
-        <br>-->
-        <div class="col-12 d-flex justify-content-center mb-5">
+        <!--<br>-->
+        <!--<div class="col-12 d-flex justify-content-center mb-5">
             <a href="/Lab/admin/ExportLabs">
                 <button type="button" class="btn btn-primary font-bold font-size-xlg">Tài về danh sách</button>
             </a>
-        </div>
+        </div>-->
     </div>
 
     <div class="main-card mb-3 card">
@@ -75,7 +68,7 @@
                 <tbody>
                     <tr th:each="booking, iter : ${bookingDTOs}">
                         <td th:text="${booking.lab.labName}"></td>
-                        <td>
+                        <td style="max-width: 400px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
                             <span class="lab-info text-primary" th:text="${booking.experimentReport.reportType} +': '"> </span>
                             <span class="lab-info" th:text="${booking.content.name}"></span>
                         </td>
@@ -102,25 +95,24 @@
                                 </a>
                                 <form th:action="@{'/Lab/admin/ShowBookingPendding/Approve'}" method="get">
                                     <input type="hidden" name="bookingId" th:value="${booking.getId}">
+                                    <input type="hidden" name="username" th:value="${#authentication.name}">
                                     <button type="submit" class="btn btn-success mx-2" onclick="return confirm('Bạn có chắc chắn muốn Duyệt không?')">Duyệt</button>
                                 </form>
                                 <form th:action="@{'/Lab/admin/ShowBookingPendding/Cancel'}" method="get">
+                                    <input type="hidden" name="username" th:value="${#authentication.name}">
                                     <input type="hidden" name="bookingId" th:value="${booking.getId}">
                                     <button type="submit" class="btn btn-danger mx-2" onclick="return confirm('Bạn có chắc chắn muốn Hủy không?')">Hủy</button>
                                 </form>
                             </div>
                         </td>
                         <td th:if="${#strings.contains(#request.requestURI, '/Lab/admin/LabBookingManagement/Approve')}" >
-                            <div class="d-flex justify-content-center align-content-center row">
+                            <div class="d-flex justify-content-center align-content-center flex-row p-2">
                                 <a th:href="@{'/Lab/admin/ShowBookingApprove/' + ${booking.getId}}">
                                     <button type="button" class="btn btn-info mx-2">Chi tiết</button>
                                 </a>
-                                <!--<form th:action="@{'/Lab/admin/ShowBookingPendding/Approve'}" method="get">
-                                    <input type="hidden" name="bookingId" th:value="${booking.getId}">
-                                    <button type="submit" class="btn btn-success mx-2" onclick="return comfirm('Bạn có chắc chắn muốn Duyệt không?')">Duyệt</button>
-                                </form>-->
                                 <form th:action="@{'/Lab/admin/LabBookingManagement/UnApprove'}" method="get">
                                     <input type="hidden" name="bookingId" th:value="${booking.getId}">
+                                    <input type="hidden" name="username" th:value="${#authentication.name}">
                                     <button type="submit" class="btn btn-danger mx-2" onclick="return confirm('Bạn có chắc chắn muốn HOÀN TÁC không?')">Hoàn tác</button>
                                 </form>
                             </div>
@@ -136,6 +128,7 @@
                                 </form>-->
                                 <form th:action="@{'/Lab/admin/LabBookingManagement/UnCancel'}" method="get">
                                     <input type="hidden" name="bookingId" th:value="${booking.getId}">
+                                    <input type="hidden" name="username" th:value="${#authentication.name}">
                                     <button type="submit" class="btn btn-danger mx-2" onclick="return confirm('Bạn có chắc chắn muốn HOÀN TÁC không?')">Hoàn tác</button>
                                 </form>
                             </div>
@@ -159,7 +152,6 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <!--Phải load jquery trước khi load bootstrap js-->
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    <script th:src="@{/js/script.js}"></script>
     <div style="margin: 20px">
         <!-- Add a Logout button -->
         <form action="#" th:action="@{/logout}" method="POST">

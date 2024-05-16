@@ -12,7 +12,8 @@
 <body>
 <!--<div th:replace="admin/headerAdmin :: header-admin"></div>-->
 <lab-rankings-score>
-    <h1 style="text-align: center"> Bảng xếp hạng chấm điểm Phòng thí nghiệm </h1>
+    <h1 style="text-align: center" class="text-uppercase"> Bảng xếp hạng chấm điểm Phòng thí nghiệm </h1>
+    <h5 style="text-align: center" class="text-warning">(Theo năm học: Tháng 8 năm trước đến hiện tại)</h5>
     <br>
     <div class="form-group" style="display: flex ; justify-content: space-around">
         <!--<div style="display: flex; justify-content: space-around">
@@ -51,9 +52,19 @@
                 </thead>
                 <tbody>
                 <tr th:each="labsOnLineAndScore, iter : ${labsOnLineAndScores}">
-                    <td class="text-primary"><strong><span th:text="${iter.index + 1}"></span></strong></td>
-                    <td th:text="${labsOnLineAndScore.lab.labName}" class="text-info"></td>
-                    <td class="text-danger"> <strong><span th:text="${labsOnLineAndScore.score}"></span></strong> </td>
+                    <td class="text-primary"><strong>
+                        <span th:text="'Hạng ' + ${iter.index + 1}" th:classappend="${iter.index < 3 ? 'text-danger' : ''}"></span>
+                    </strong></td>
+                    <td>
+                        <strong th:classappend="${iter.index < 3 ? 'text-danger' : ''}">
+                            <span th:text="${labsOnLineAndScore.lab.labName}" th:classappend="${iter.index >= 3 ? 'text-info' : ''}"></span>
+                        </strong>
+                    </td>
+                    <td class="text-danger">
+                        <strong>
+                            <span th:text="${#numbers.formatDecimal(labsOnLineAndScore.score, 1, 1, 'POINT')}" />
+                        </strong>
+                    </td>
                     <td>
                         <button type="button" class="form-control btn btn-primary btn-detail"
                         th:data="${labsOnLineAndScore.lab.id}">Chi tiết</button>
@@ -74,14 +85,16 @@
     <!-- Popup -->
     <div id="popup" class="popup">
         <div class="popup-content" style="max-width: 200rem; top: 25%; left: 17%">
+            <h2>CHI TIẾT CHẤM ĐIỂM</h2>
+            <h5 class="text-warning"><strong><span>Chú ý: </span></strong> Điểm chỉ được chấm đến thời điểm hiện tại, chưa tính các đơn được chấp nhận sau hôm nay</h5>
             <div class="main-card mb-3 card">
                 <div class="card-body">
-                    <table style="width: 100%;" class="table table-hover table-striped table-bordered">
+                    <table style="width: 100%;" id="popup-example" class="table table-hover table-striped table-bordered">
                         <thead>
                         <tr>
                             <th>STT</th>
-                            <th>Số lượng</th>
                             <th>Phân loại</th>
+                            <th>Số lượng</th>
                             <th>Điểm số</th>
                         </tr>
                         </thead>
@@ -90,8 +103,8 @@
                         <tfoot>
                         <tr>
                             <th>STT</th>
-                            <th>Số lượng</th>
                             <th>Phân loại</th>
+                            <th>Số lượng</th>
                             <th>Điểm số</th>
                         </tr>
                         </tfoot>
@@ -110,6 +123,7 @@
                 var labid = parseInt($(this).attr('data'));
                 $(".popup").slideDown(300);
                 clickDetail(labsOnLineAndScores, labid);
+
             });
         });
     </script>

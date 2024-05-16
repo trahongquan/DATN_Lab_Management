@@ -46,5 +46,10 @@ public class LabServiceImpl implements LabService {
         lab.setIsDelete(1);
         updateLab(lab);
     }
+
+    @Override
+    public List<Lab> FindAllByLabNameContainingOrLocationContaining(String st1, String st2){
+        return labRepository.findAllByLabNameContainingOrLocationContaining(st1, st2);
+    }
 }
 

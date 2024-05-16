@@ -16,17 +16,17 @@
     <h1 style=" text-align: center; font-size: 2em" th:text="'Số lượng: ' + ${#lists.size(allEquipment)}"></h1>
     <br>
     <div class="row">
-        <div class="col-6 d-flex justify-content-center mb-5">
+        <div class="col-12 d-flex justify-content-center mb-5" sec:authorize="hasRole('ROLE_ADMIN')">
             <a href="/Lab/admin/Equipment/add">
                 <button type="button" class="btn btn-primary font-bold font-size-xlg">Thêm Thiết bị</button>
             </a>
         </div>
         <br>
-        <div class="col-6 d-flex justify-content-center mb-5">
+        <!--<div class="col-6 d-flex justify-content-center mb-5">
             <a href="/Lab/admin/ExportEquipments">
                 <button type="button" class="btn btn-primary font-bold font-size-xlg">Tài về danh sách</button>
             </a>
-        </div>
+        </div>-->
     </div>
 
 
@@ -56,7 +56,8 @@
                                 <form th:action="@{'/Lab/admin/Equipment/showFormForUpdate/' + ${equi.getId}}" method="get">
                                     <button type="submit" class="btn btn-info btn-sm mr-1">Chi tiết</button>
                                 </form>
-                                <form th:action="@{'/Lab//admin/Equipment/delete/' + ${equi.getId}}" method="POST">
+                                <form sec:authorize="hasRole('ROLE_ADMIN')"
+                                        th:action="@{'/Lab//admin/Equipment/delete/' + ${equi.getId}}" method="POST">
                                     <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Bạn có chắc chắn muốn xóa?')">
                                         Xóa
                                     </button>

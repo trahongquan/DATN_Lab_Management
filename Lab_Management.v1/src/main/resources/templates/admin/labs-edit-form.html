@@ -11,18 +11,6 @@
 </head>
 <body class="scroll-container">
 <form-edit-phone>
-    <style>
-        @import url("https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css");
-        .machine-block{border:1px solid #ccc;border-radius:8px;padding:20px;background-color:#f5f5f5;box-shadow:0 2px 4px rgba(0,0,0,0.1);transition:box-shadow 0.3s ease}
-        .machine-block:hover{box-shadow:0 4px 8px rgba(0,15,255,0.6)}
-        .machine-block h4{font-size:18px;font-weight:bold;margin-bottom:10px}
-        .machine-block p{margin-bottom:5px}
-        .machine-block ul{margin-top:10px;padding-left:20px}
-        .machine-block ul li{list-style-type:square}
-        .machine-block img {max-width: 100%;max-height: 100%;}
-        .remove-button{padding: unset; border: unset; font-weight: bold; margin-bottom: 10px}
-        .remove-button:hover{color: red}
-    </style>
 <!--<div th:replace="admin/headerAdmin :: header-admin"></div>-->
 <h1 style="margin-top: 50px; text-align: center;">Cập nhật thông tin phòng thí nghiệm</h1><br>
 
@@ -80,6 +68,18 @@
     <br>
     <h2 th:text="${'Các thiết bị có trong phòng thí nghiệm (' + #lists.size(equipmentLabDTOs) + ')'}"></h2>
     <br>
+    <style>
+        .machine-block{border:1px solid #ccc;border-radius:8px;padding:20px;background-color:var(--white);box-shadow:0 2px 4px rgba(0,0,0,0.1);transition:box-shadow 0.3s ease}
+        .machine-block:hover{box-shadow:0 4px 8px rgba(0,15,255,0.6)}
+        .machine-block h4{font-size:18px;font-weight:bold;margin-bottom:10px}
+        .machine-block p{margin-bottom:5px}
+        .machine-block ul{margin-top:10px;padding-left:20px}
+        .machine-block ul li{list-style-type:square}
+        .machine-block img {max-width: 100%;max-height: 100%;}
+        .remove-button{padding: unset; border: unset; font-weight: bold; margin-bottom: 10px}
+        .remove-button:hover{color: red}
+        .card-title{color:var(--black)}
+    </style>
     <div class="row">
         <div th:each="machine : ${equipmentLabDTOs}" class="col-md-3 mb-3">
             <div class="machine-block">
@@ -135,6 +135,17 @@
             // Gọi sự kiện focus để mở danh sách các lựa chọn
             seriesElement.focus();
         }
+    </script>
+    <script th:inline="javascript">
+        var authorities = [[${#authentication.principal.authorities}]];
+        var role = authorities[0].authority;
+            console.log(role)
+        $(document).ready(function () {
+            if(role === 'ROLE_MANAGER'){
+                $('#Manager').attr('disabled', true);
+            }
+            console.log("helo")
+        })
     </script>
 </form-edit-phone>
 </body>

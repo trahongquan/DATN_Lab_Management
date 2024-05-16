@@ -5,7 +5,7 @@
 <!-- Head -->
 <head>
 
-    <title>Existing Login Form a Flat Responsive Widget Template :: W3layouts</title>
+    <title>Đăng nhập</title>
 
     <!-- Meta-Tags -->
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -77,33 +77,46 @@
     <div class="contact-form1">
         <div class="contact-w3-agileits">
             <h3>Register Form</h3>
-            <form th:action="@{/register}" method="post">
+            <form th:action="@{'/register'}" method="post">
                 <div class="form-sub-w3ls">
-                    <input placeholder="First Name" type="text"  name="firstName" required="">
+                    <input placeholder="Họ và tên" type="text"  name="name" required="">
                     <div class="icon-agile">
                         <i class="fa fa-user" aria-hidden="true"></i>
                     </div>
                 </div>
                 <div class="form-sub-w3ls">
-                    <input placeholder="Last Name"  type="text" name="lastName" required="">
+                    <input placeholder="Quân hàm"  type="text" name="rank" required="">
                     <div class="icon-agile">
                         <i class="fa fa-user" aria-hidden="true"></i>
                     </div>
                 </div>
                 <div class="form-sub-w3ls">
-                    <input placeholder="Phone" name="phone" type="text" required="">
+                    <input placeholder="Đơn vị" name="unit" type="text" required="">
                     <div class="icon-agile">
                         <i class="fa fa-map-marke" aria-hidden="true"></i>
                     </div>
                 </div>
                 <div class="form-sub-w3ls">
-                    <input placeholder="Email" name="email" class="mail" type="email" required="">
+                    <input placeholder="Số hiệu quân nhân" type="text" name="militaryNumber" required="">
                     <div class="icon-agile">
+                        <i class="fa fa-user" aria-hidden="true"></i>
+                    </div>
+                </div>
+                <div class="form-sub-w3ls">
+                    <input placeholder="Liên lạc" name="contact" type="text" required="">
+                    <div class="ui-icon-contact">
                         <i class="fa fa-envelope-o" aria-hidden="true"></i>
                     </div>
                 </div>
                 <div class="form-sub-w3ls">
-                    <input placeholder="Password" name="pass" type="password" required="">
+                    <input placeholder="Tên đăng nhập" name="usernameReg" type="text" required="">
+                    <div class="icon-agile">
+                        <i class="fa fa-user" aria-hidden="true"></i>
+                    </div>
+                </div>
+
+                <div class="form-sub-w3ls">
+                    <input placeholder="Password" name="password" type="password" required="">
                     <div class="icon-agile">
                         <i class="fa fa-unlock-alt" aria-hidden="true"></i>
                     </div>
@@ -114,19 +127,12 @@
                         <i class="fa fa-unlock-alt" aria-hidden="true"></i>
                     </div>
                 </div>
-                <div class="form-sub-w3ls">
-                    <input placeholder="Adress" type="text" name="address" required="">
-                    <div class="icon-agile">
-                        <i class="fa fa-user" aria-hidden="true"></i>
-                    </div>
-                </div>
-                <input type="hidden" id="registrationDate" name="registrationDate" th:value="${#dates.format(#dates.createNow(), 'yyyy-MM-dd HH:mm:ss')}">
                 <div class="login-check">
                     <label class="checkbox">
-                    <input type="checkbox" name="checkbox" checked="">I Accept Terms & Conditions</label>
+                    <input type="checkbox" name="checkbox" checked="">Đồng ý và đăng kí</label>
                 </div>
                 <div class="submit-w3l">
-                    <input type="submit" value="Register">
+                    <input type="submit" value="Register" id="register-btn">
                 </div>
             </form>
         </div>
@@ -135,7 +141,7 @@
 <!-- //for register popup -->
 
 <div class="w3footeragile">
-    <p> &copy; 2023 Existing Login Form. All Rights Reserved | Design by <a href="/" target="_blank">trhquan</a></p>
+    <p> &copy; 2024 Existing Login Form. All Rights Reserved | Design by <a href="/" target="_blank">trhquan</a></p>
 </div>
 
 
@@ -148,7 +154,10 @@
 <!-- pop-up-box-js-file -->
 <script src="js/jquery.magnific-popup.js" type="text/javascript"></script>
 <!--//pop-up-box-js-file -->
-<script>
+<script th:inline="javascript">
+
+    const ranks = ["Thiếu úy", "Trung úy", "Đại úy", "Thượng úy", "Thiếu tá", "Trung tá", "Đại tá"];
+
     $(document).ready(function() {
         $('.w3_play_icon,.w3_play_icon1,.w3_play_icon2').magnificPopup({
             type: 'inline',
@@ -162,22 +171,45 @@
             mainClass: 'my-mfp-zoom-in'
         });
 
+        $('#register-btn').click(function(event) {
+            var password = $('input[name="password"]').val();
+            var confirmPassword = $('input[name="confirmPassword"]').val();
+
+            if (password !== confirmPassword) {
+                alert("Mật khẩu xác nhận không khớp. Vui lòng kiểm tra lại!");
+                event.preventDefault(); // Ngăn chặn việc gửi form nếu mật khẩu không khớp
+            }
+
+            var rank = $('input[name="rank"]').val();
+            if (!ranks.includes(rank)){
+                alert("Vui lòng nhập lại quân hàm, ví dụ: Thượng úy");
+                event.preventDefault();
+            }
+
+            var militaryNumber = $('input[name="militaryNumber"]').val();
+            console.log(militaryNumber)
+            console.log(isNaN(militaryNumber))
+            if (isNaN(militaryNumber)) {
+                alert("Vui lòng nhập đúng định dạng số hiệu quân nhân, ví dụ: 123456789");
+                event.preventDefault();
+            }
+
+            var usernameReg = $('input[name="usernameReg"]').val();
+            var userDB = [[${userDB}]]
+            if (userDB.includes(usernameReg)) {
+                alert("Vui lòng chọn tên đăng nhập khác!");
+                event.preventDefault();
+            }
+            // const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            // var contact = $('input[name="contact"]').val();
+            // if (isNaN(contact) || !emailRegex.test(contact)) {
+            //     alert("Vui lòng nhập đúng định dạng số điện thoại Việt Nam hoặc email");
+            //     event.preventDefault();
+            // }
+        });
     });
-    //xử lý Confirm Password = Password thì mới tiếp tục cho post từ form
-    // $(document).ready(function() {
-    //     $('form').submit(function(event) {
-    //         var password = $('input[name="pass"]').val();
-    //         var confirmPassword = $('input[name="confirmPassword"]').val();
-    //
-    //         if (password !== confirmPassword) {
-    //             alert("Mật khẩu xác nhận không khớp. Vui lòng kiểm tra lại!");
-    //             event.preventDefault(); // Ngăn chặn việc gửi form nếu mật khẩu không khớp
-    //         }
-    //     });
-    // });
 </script>
 
 </body>
-<!-- //Body -->
 
 </html>

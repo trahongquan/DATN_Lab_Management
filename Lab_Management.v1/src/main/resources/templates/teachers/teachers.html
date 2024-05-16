@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="UTF-8">
     <title>Quản lý giáo viên</title>
@@ -10,9 +10,14 @@
 <!--<div th:replace="admin/headerAdmin :: header-admin"></div>-->
 <div class="container">
     <teacher>
-        <h1 style="margin-top: 50px; text-align: center;" th:text="'Danh sách giáo viên' "></h1>
+        <h1 style="margin-top: 50px; text-align: center;"
+            th:if="${#request.requestURI == '/Lab/admin/Teacher'}"
+            th:text="'Danh sách giáo viên' "></h1>
+        <h1 style="margin-top: 50px; text-align: center;"
+            th:if="${#request.requestURI == '/Lab/admin/UserWait'}"
+            th:text="'Danh sách giáo viên đăng kí' "></h1>
         <h1 style=" text-align: center; font-size: 2em" th:text="'Số lượng: ' + ${#lists.size(teacherDTOS)}"></h1>
-        <a href="/Lab/admin/Teacher/add">
+        <a href="/Lab/admin/Teacher/add" sec:authorize="hasRole('ROLE_ADMIN')">
             <button type="button" class="btn btn-primary font-bold font-size-xlg">Thêm giáo viên</button>
         </a>
         <div class="main-card mb-3 card">
@@ -27,6 +32,7 @@
                         <th>Liên lạc</th>
                         <th>Tên đăng nhập</th>
                         <th>Quyền đăng nhập</th>
+                        <th>Thao tác</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -40,19 +46,29 @@
                         <td th:text="${manager.getAuthority.getAuthority}"></td>
                         <!--<td th:if="${manager.hireEndDate != null}" th:text="'✅ ' + ${manager.hireEndDate}"> </td>-->
                         <!--<td th:if="${manager.hireEndDate == null}"> ❌ </td>-->
-                        <td>
+                        <td th:if="${#request.requestURI == '/Lab/admin/Teacher'}" >
                             <div class="d-flex" style="display: flex; justify-content: center; align-items: center;">
                                 <form th:action="@{'/Lab/admin/Teacher/showFormForUpdate/' + ${manager.getId}}"
                                       method="get">
                                     <button type="submit" class="btn btn-info btn-sm mr-1">Chi tiết</button>
                                 </form>
                                 <form th:action="@{'/Lab/admin/Teacher/showFormForUpdate/' + ${manager.getId}}"
+                                      sec:authorize="hasRole('ROLE_ADMIN')"
                                       method="POST" >
                                     <button type="button" class="btn btn-danger btn-sm"
                                             onclick="return comfirm('Bạn có chắc chắn muốn xóa?')">Xóa
                                     </button>
                                 </form>
                             </div>
+                        </td>
+                        <td th:if="${#request.requestURI == '/Lab/admin/UserWait'}" class="d-flex justify-content-center align-content-center">
+                            <button type="button" class="btn btn-primary btn-detail mr-2"
+                                    th:data="${manager.getId}">Duyệt</button>
+
+                                <button type="button" class="btn btn-danger" onclick="return confirm('Bạn có chắc chắn muốn từ chối?')">
+                                    Hủy
+                                    <a th:href="'/Lab/admin/UserWaitCancel?id='+${manager.getId}"></a>
+                                </button>
                         </td>
                     </tr>
                     </tbody>
@@ -65,14 +81,64 @@
                         <th>Liên lạc</th>
                         <th>Tên đăng nhập</th>
                         <th>Quyền đăng nhập</th>
+                        <th>Thao tác</th>
                     </tr>
                     </tfoot>
                 </table>
             </div>
         </div>
+
+        <!-- Popup -->
+        <div id="popup" class="popup">
+            <div class="popup-content">
+                <h4>CHỌN QUYỀN CHO TÀI KHOẢN</h4>
+                <!--<h5 class="text-warning"><strong><span>Chú ý: </span></strong> Điểm chỉ được chấm đến thời điểm hiện tại, chưa tính các đơn được chấp nhận sau hôm nay</h5>-->
+                    <form id="editForm" th:action="'/Lab/admin/UserWait'" method="post" >
+                        <div class="d-flex flex-row justify-content-center align-content-center">
+                            <input type="hidden" id="teacherid" name="teacherid" class="form-control" required>
+                            <select class="form-control" name="roleselected" id="roleselected" required>
+                            </select>
+                            <button type="submit" class="btn btn-primary ml-2"
+                                    onclick="return confirm('Bạn có chắn chắn chọn quyền này?')">Duyệt</button>
+                        </div>
+                    </form>
+                <button type="button" class="btn btn-secondary close-btn mt-2">Đóng</button>
+            </div>
+        </div>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> <!--Phải load jquery trước khi load bootstrap js-->
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            var roles = ["ROLE_TEACHER", "ROLE_RESERVATIONIST"];
+            $(".btn-detail").click(function() {
+                var id = parseInt($(this).attr('data'));
+                $("#teacherid").val(id);
+
+                var selectElement = $('#roleselected');
+                selectElement.empty();
+                $.each(roles, function(index, role) {
+                    selectElement.append($('<option>', {
+                        value: role,
+                        text: role
+                    }));
+                });
+                $(".popup").slideDown(300);
+            });
+
+            $(".close-btn").click(function() {
+                $(".popup").slideUp(300);
+            });
+
+            // Optional: Close the popup when clicking outside the content
+            $(window).click(function(event) {
+                if ($(event.target).hasClass("popup")) {
+                    $(".popup").slideUp(300);
+                }
+            });
+        });
+    </script>
 </teacher>
 </div>
 </body>

@@ -5,32 +5,28 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chi tiết phòng thí nghiệm</title>
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" ></script>
-    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" ></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" ></script>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" >
-</head>
-<body>
-<div th:replace="headernew::header"></div>
-<booking-detail>
+    <link rel="stylesheet" href="/css/base2.min.css">
+    <link rel="stylesheet" href="/css/styles.css">
     <style>
-        @import url("https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css");
-        @import url("/css/base2.min.css");
-        @import url("/css/styles.css");
         .machine-block{border:1px solid #ccc;border-radius:8px;padding:20px;background-color:#f5f5f5;box-shadow:0 2px 4px rgba(0,0,0,0.1);transition:box-shadow 0.3s ease}
         .machine-block:hover{box-shadow:0 4px 8px rgba(0,15,255,0.6)}
         .machine-block h4{font-size:18px;font-weight:bold;margin-bottom:10px}
         .machine-block p{margin-bottom:5px}
         .machine-block ul{margin-top:10px;padding-left:20px}
-        .machine-block ul li{list-style-type:square}
+        .machine-block ul li{list-style-type:square;}
         .machine-block img {max-width: 100%;max-height: 100%;}
         .remove-button{padding: unset; border: unset; font-weight: bold; margin-bottom: 10px}
         .remove-button:hover{color: red}
         label{color: black; font-weight: bold;}
     </style>
+</head>
+<body>
+<div th:replace="headernew::header"></div>
+<booking-detail>
     <!--<div th:replace="headernew::header"></div>-->
     <h1 style="margin-top: 50px; text-align: center;">CHI TIẾT ĐẶT PHÒNG THÍ NGHIỆM</h1><br>
-    <div style="background-color: rgba(230,239,255,0.6); padding: 2em; border-radius: 3em">
+    <div style="background-color: rgba(230,239,255,0.6); padding: 2em; border-radius: 3em;" class="container">
     <div th:replace="admin/add-nocite.html :: notice"></div>
     <div th:replace="admin/add-nocite.html :: noticeUnSuccess"></div>
         <form th:object="${bookingDTO}" th:action="@{'/Lab/myBookingDetail/' + ${bookingDTO.getId}}" method="post" enctype="multipart/form-data">
@@ -165,7 +161,7 @@
         <h2 th:text="${'Các thiết bị đã được chọn (' + #lists.size(bookingDTO.booking_equis) + ')'}"></h2>
         <br>
         <div class="row">
-            <div th:each="machine : ${bookingEquiDTOs}" class="col-md-2 mb-3">
+            <div th:each="machine : ${bookingEquiDTOs}" class="col-md-3 mb-3">
                 <div class="machine-block">
                     <div class="d-flex flex-row justify-content-between">
                         <div>
@@ -196,14 +192,24 @@
             </div>
         </div>
     </div>
-
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" ></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" ></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" ></script>
     <!--CORE-->
-    <script src="https://code.jquery.com/jquery-3.3.1.min.js"
-            integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.bundle.min.js"
-            crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/metismenu"></script>
+    <!--<script src="https://code.jquery.com/jquery-3.3.1.min.js"-->
+            <!--integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>-->
+    <!--<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>-->
+    <!--<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.bundle.min.js"-->
+            <!--crossorigin="anonymous"></script>-->
+    <!--<script src="https://cdn.jsdelivr.net/npm/metismenu"></script>-->
+
+    <!--Multiselect-->
+    <script th:src="@{/js/multiselect/bootstrap-multiselect.js}"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/js/select2.min.js"></script>
+    <script th:src="@{/js/multiselect/input-select.js}"></script>
+    <!--Input Mask-->
+    <script th:src="@{/js/multiselect/input-mask.js}"></script>
+    <script th:src="@{/js/multiselect/input-mask-init.js}"></script>
 
     <script th:inline="javascript">
         if($('.container-xxxl')){
@@ -215,6 +221,7 @@
         var bookingStatus = [[${bookingDTO.confirm_Status}]];
         var tempGroupId
         $(document).ready(function() {
+            checkuser([[${#authentication.name}]])
             /** ******* Đặt value cho các select*/
             setTimeout(function() {
                 $('#experiment_group').val($('#experiment_group').attr('data'));
@@ -320,14 +327,6 @@
         }
 
     </script>
-
-    <!--Multiselect-->
-    <script th:src="@{/js/multiselect/bootstrap-multiselect.js}"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/js/select2.min.js"></script>
-    <script th:src="@{/js/multiselect/input-select.js}"></script>
-    <!--Input Mask-->
-    <script th:src="@{/js/multiselect/input-mask.js}"></script>
-    <script th:src="@{/js/multiselect/input-mask-init.js}"></script>
     <script>
         function addEqui() {
             var seriesElement = $('#chosseSeries');

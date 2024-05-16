@@ -12,6 +12,8 @@ public interface UserService {
 
     List<Users> getAllUsers();
 
+    List<Users> getAllUsersEnable();
+
     Users createUser(Users user);
 
     void updateUser(Users user);

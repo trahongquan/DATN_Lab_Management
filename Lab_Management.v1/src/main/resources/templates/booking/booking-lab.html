@@ -188,6 +188,8 @@
         var experimentReports = [[${experimentReports}]];
         var tempGroupId
         $(document).ready(function() {
+            checkuser([[${#authentication.name}]])
+
             $('#date').val([[${date}]]);
             $('#experiment_type').prop('disabled','true');
             $('#experiment_report').prop('disabled','true');

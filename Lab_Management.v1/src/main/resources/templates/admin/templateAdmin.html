@@ -6,8 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta charset="utf-8">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <link rel="stylesheet" th:href="@{/css/base2.min.css}">
-    <link rel="stylesheet" th:href="@{/css/experiment.css}">
+    <link rel="stylesheet" href="/css/base2.min.css">
+    <link rel="stylesheet" href="/css/experiment.css">
 </head>
 <body>
 <header-admin>
@@ -58,12 +58,12 @@
                     </div>
                     <ul class="header-megamenu nav">
                         <li>
-                            <a class="nav-link" href="/Lab/admin/Dashboard" target="_blank">
+                            <a class="nav-link" th:href="'/Lab/admin/Dashboard?username='+${#authentication.name}" target="_blank">
                                 <i class="nav-link-icon pe-7s-settings"></i> Trang Admin
                             </a>
                         </li>
                         <li>
-                            <a class="nav-link" href="/Lab" target="_blank">
+                            <a class="nav-link" href="/Lab?RedirectLabAdmin=false" target="_blank">
                                 <i class="nav-link-icon pe-7s-home"></i> Đặt phòng Lab
                             </a>
                         </li>
@@ -71,6 +71,26 @@
                 </div>
                 <!--app-header-right-->
                 <div class="app-header-right">
+                    <div class="header-dots" >
+                        <div class="theme-switch-wrapper" >
+                            <label class="theme-switch" for="checkbox" style="background-color: rgba(255,255,255,0.2); border-radius: 34px; padding: 1.5px">
+                                <div class="d-flex justify-content-between flex-row">
+                                    <div class="icon">
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="moon text-warning">
+                                            <path fill-rule="evenodd" d="M9.528 1.718a.75.75 0 01.162.819A8.97 8.97 0 009 6a9 9 0 009 9 8.97 8.97 0 003.463-.69.75.75 0 01.981.98 10.503 10.503 0 01-9.694 6.46c-5.799 0-10.5-4.701-10.5-10.5 0-4.368 2.667-8.112 6.46-9.694a.75.75 0 01.818.162z" clip-rule="evenodd"></path>
+                                        </svg>
+                                    </div>
+                                    <div class="icon">
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="sun text-warning">
+                                            <path d="M12 2.25a.75.75 0 01.75.75v2.25a.75.75 0 01-1.5 0V3a.75.75 0 01.75-.75zM7.5 12a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM18.894 6.166a.75.75 0 00-1.06-1.06l-1.591 1.59a.75.75 0 101.06 1.061l1.591-1.59zM21.75 12a.75.75 0 01-.75.75h-2.25a.75.75 0 010-1.5H21a.75.75 0 01.75.75zM17.834 18.894a.75.75 0 001.06-1.06l-1.59-1.591a.75.75 0 10-1.061 1.06l1.59 1.591zM12 18a.75.75 0 01.75.75V21a.75.75 0 01-1.5 0v-2.25A.75.75 0 0112 18zM7.758 17.303a.75.75 0 00-1.061-1.06l-1.591 1.59a.75.75 0 001.06 1.061l1.591-1.59zM6 12a.75.75 0 01-.75.75H3a.75.75 0 010-1.5h2.25A.75.75 0 016 12zM6.697 7.757a.75.75 0 001.06-1.06l-1.59-1.591a.75.75 0 00-1.061 1.06l1.59 1.591z"></path>
+                                        </svg>
+                                    </div>
+                                </div>
+                                <input type="checkbox" id="checkbox" />
+                                <div class="slider round"></div>
+                            </label>
+                        </div>
+                    </div>
                     <div class="header-dots">
                         <div class="dropdown">
                             <button type="button" aria-haspopup="true" aria-expanded="false" data-toggle="dropdown"
@@ -866,80 +886,80 @@
                 <div class="scrollbar-sidebar">
                     <div class="app-sidebar__inner">
                         <ul class="vertical-nav-menu">
-                            <li class="app-sidebar__heading"><a href="/Lab/admin/Dashboard" style="padding: unset">
+                            <li class="app-sidebar__heading"><a th:href="'/Lab/admin/Dashboard?username='+${#authentication.name}" style="padding: unset">
                                 Dashboard
                             </a></li>
+                            <li class="app-sidebar__heading">QUẢN LÝ ĐẶT PHÒNG</li>
+                            <li>
+                                <a th:href="'/Lab/admin/LabBookingManagement/Pendding?username='+${#authentication.name}">
+                                    <i class="metismenu-icon pe-7s-timer">
+                                    </i>Yêu cầu đặt phòng
+                                </a>
+                            </li>
+                            <li>
+                                <a th:href="'/Lab/admin/LabBookingManagement/Approve?username='+${#authentication.name}">
+                                    <i class="metismenu-icon pe-7s-graph">
+                                    </i>Yêu cầu đã xử lý
+                                </a>
+                            </li>
+                            <li>
+                                <a th:href="'/Lab/admin/LabBookingManagement/Cancel?username='+${#authentication.name}">
+                                    <i class="metismenu-icon pe-7s-less">
+                                    </i>Yêu cầu đã hủy
+                                </a>
+                            </li>
                             <li class="app-sidebar__heading">QUẢN LÝ DANH MỤC</li>
                             <li>
-                                <a href="/Lab/admin/Room">
+                                <a th:href="'/Lab/admin/Room?username='+${#authentication.name}">
                                     <i class="metismenu-icon pe-7s-ball">
                                     </i>Danh mục phòng
                                 </a>
                             </li>
+                            <li>
+                                <a th:href="'/Lab/admin/Equipment?username='+${#authentication.name}">
+                                    <i class="metismenu-icon pe-7s-server">
+                                    </i>Danh mục thiết bị
+                                </a>
+                            </li>
+                            <li sec:authorize="hasRole('ROLE_ADMIN')">
+                                <a href="/Lab/admin/Role">
+                                    <i class="metismenu-icon pe-7s-server">
+                                    </i>Danh mục quyền
+                                </a>
+                            </li>
+                            <li class="app-sidebar__heading">QUẢN LÝ CHẤM ĐIỂM</li>
                             <li>
                                 <a href="/Lab/admin/LabRankings">
                                     <i class="metismenu-icon pe-7s-ball">
                                     </i>BXH chấm điểm
                                 </a>
                             </li>
-                            <li>
-                                <a href="/Lab/admin/Equipment">
-                                    <i class="metismenu-icon pe-7s-server">
-                                    </i>Danh mục thiết bị
-                                </a>
-                            </li>
-                            <li>
-                                <a href="/Lab/admin/Role">
-                                    <i class="metismenu-icon pe-7s-server">
-                                    </i>Danh mục quyền
-                                </a>
-                            </li>
-                            <li class="app-sidebar__heading">QUẢN LÝ ĐẶT PHÒNG</li>
-                            <li>
-                                <a href="/Lab/admin/LabBookingManagement/Pendding">
-                                    <i class="metismenu-icon pe-7s-timer">
-                                    </i>Yêu cầu đặt phòng
-                                </a>
-                            </li>
-                            <li>
-                                <a href="/Lab/admin/LabBookingManagement/Approve">
-                                    <i class="metismenu-icon pe-7s-graph">
-                                    </i>Yêu cầu đã xử lý
-                                </a>
-                            </li>
-                            <li>
-                                <a href="/Lab/admin/LabBookingManagement/Cancel">
-                                    <i class="metismenu-icon pe-7s-less">
-                                    </i>Yêu đã hủy
-                                </a>
-                            </li>
-                            <li class="app-sidebar__heading">QUẢN LÝ CHẤM ĐIỂM</li>
-                            <li>
+                            <li sec:authorize="hasRole('ROLE_ADMIN')">
                                 <a href="/Lab/admin/ExperimentManagement/ExperimentGroup">
                                     <i class="metismenu-icon pe-7s-timer">
                                     </i>DM Nhóm loại hình TN
                                 </a>
                             </li>
-                            <li>
+                            <li sec:authorize="hasRole('ROLE_ADMIN')">
                                 <a href="/Lab/admin/ExperimentManagement/ExperimentType">
                                     <i class="metismenu-icon pe-7s-graph">
                                     </i>DM Loại hình TN
                                 </a>
                             </li>
-                            <li>
+                            <li sec:authorize="hasRole('ROLE_ADMIN')">
                                 <a href="/Lab/admin/ExperimentManagement/ExperimentReport">
                                     <i class="metismenu-icon pe-7s-less">
                                     </i>DM Loại BCTN
                                 </a>
                             </li>
-                            <li>
+                            <li sec:authorize="hasRole('ROLE_ADMIN')">
                                 <a href="/Lab/admin/ExperimentManagement/Score">
-                                    <i class="metismenu-icon pe-7s-less">
+                                    <i class="metismenu-icon pe-7s-eyedropper">
                                     </i>DM Chấm điểm
                                 </a>
                             </li>
                             <li class="app-sidebar__heading">Quản lý tài khoản</li>
-                            <li>
+                            <li sec:authorize="hasRole('ROLE_ADMIN')">
                                 <a href="#">
                                     <i class="metismenu-icon pe-7s-user">
                                     </i>Tài khoản quản lý
@@ -981,6 +1001,14 @@
                                         </a>
                                     </li>
                                 </ul>
+                            </li>
+                            <li sec:authorize="hasRole('ROLE_ADMIN')">
+                            <!--<li sec:authorize="hasRole('ROLE_ADMIN')" >-->
+                                <a href="/Lab/admin/UserWait">
+                                    <i class="metismenu-icon pe-7s-hourglass">
+                                    </i>Tài khoản chờ duyệt
+                                    <!--<i class="metismenu-state-icon pe-7s-angle-down caret-left"></i>-->
+                                </a>
                             </li>
                             <li>
                                 <a th:href="'/Lab/admin/myAccount/'+${#authentication.name}">My Account
@@ -1062,6 +1090,9 @@
                 <div th:if="${#strings.contains(#request.requestURI, '/Lab/admin/Teacher/showFormForUpdate/')}" class="app-main__inner">
                     <div th:replace="teachers/teacher-edit-form.html :: teacher-edit-form"></div>
                 </div>
+                <div th:if="${#request.requestURI == '/Lab/admin/UserWait'}" class="app-main__inner" style="display: flex; justify-content: center; align-content: center; flex-direction: column;">
+                    <div th:replace="teachers/teachers.html :: teacher"></div>
+                </div>
 
                                                 <!--/////////////////////////////////-->
                                                             <!-- Role -->
@@ -1120,6 +1151,14 @@
                 <div th:if="${#strings.contains(#request.requestURI, '/Lab/admin/ShowBookingCancel/')}" class="app-main__inner">
                     <div th:replace="admin/booking-detail-admin.html :: booking-detail"></div>
                 </div>
+
+                                                <!--/////////////////////////////////-->
+                                                            <!--  Eror  -->
+                                                <!--/////////////////////////////////-->
+
+                <div th:if="${#request.requestURI == '/access-denied'}" class="app-main__inner" style="display: flex; justify-content: center; align-content: center; flex-direction: column;">
+                    <div th:replace="security/access-denied.html :: accessDenied"></div>
+                </div>
             </div>
         </div>
         <!--MAIN PAGE END-->
@@ -1162,22 +1201,11 @@
                     <!-- Orther -->
     <script th:src="@{/js/noticePopUp.js}"></script>
 
-
-    <script>
-        window.addEventListener('load', function() {
-            // Lấy các phần tử cần click
-            var nightskyBeachElement = document.querySelector('.swatch-holder.bg-night-sky.switch-header-cs-class.active');
-            var midnightBloomElement = document.querySelector('.swatch-holder.bg-midnight-bloom.switch-sidebar-cs-class.active');
-            // var malibuBeachElement = document.querySelector('.swatch-holder.bg-malibu-beach.switch-header-cs-class.active');
-
-            // Thực hiện click vào các phần tử
-            if (midnightBloomElement) {
-                midnightBloomElement.click();
-            }
-            if (nightskyBeachElement) {
-                nightskyBeachElement.click();
-            }
-        });
+    <script th:inline="javascript">
+        /** Xử lý nếu cố tình truy cập bằng user name khác */
+        $(document).ready(function () {
+            checkuser([[${#authentication.name}]])
+        })
     </script>
 </body>
 </html>

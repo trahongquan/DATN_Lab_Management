@@ -39,8 +39,8 @@
                     <option th:each="experiment : ${unusedExperimentTypes}" th:value="${experiment.id}" th:text="${experiment.typeName}"></option>
                 </select>
             </div>
-            <label class="text-warning"><span class="text-danger"><strong>Chú ý:</strong></span> Chỉ hiển thị những loại có thể xóa</label> <br>
-            <label class="text-warning"><span class="text-danger"><strong>Chú ý:</strong></span> Nếu bạn muốn xóa loại nào đó hãy chắc chắn bạn không sử dụng
+            <label class="text-warning"><span class="text-danger"><strong><i class="pe-7s-attention"></i> Chú ý:</strong></span> Chỉ hiển thị những loại có thể xóa</label> <br>
+            <label class="text-warning"><span class="text-danger"><strong><i class="pe-7s-attention"></i> Chú ý:</strong></span> Nếu bạn muốn xóa loại nào đó hãy chắc chắn bạn không sử dụng
                 <br> ở phần tính điểm phòng thí nghiệm hoặc mục yêu cầu đặt phòng nào</label>
             <br>
             <button type="submit" class="btn btn-danger" > Xóa </button>

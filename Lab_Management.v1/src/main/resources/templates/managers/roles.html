@@ -17,10 +17,12 @@
     <div class="form-group" style="display: flex ; justify-content: space-around">
         <form th:action="@{'/Lab/admin/Role/delete'}" method="post">
             <div>
-                <label th:for="@{'role'}" >Quyền:</label>
-                <select th:class="@{'form-control'}" th:id="@{'role'}" th:name="@{'roleid'}"  required>
-                    <option th:each="role : ${roles}" th:value="${role.id}" th:text="${role.role}"></option>
+                <label for="role" >Quyền:</label>
+                <select th:class="@{'form-control'}" id="role" th:name="@{'roleid'}"  required>
+                    <option th:each="role : ${rolesNotRoleSystem}" th:value="${role.id}" th:text="${role.role}"></option>
                 </select>
+                <label for="role" class="text-warning">Không xóa được các quyền cơ bản của hệ thống</label><br>
+                <label for="role" class="text-warning">Chỉ xóa được các quyền do người dùng thêm vào</label>
             </div>
             <button type="submit" class="btn btn-danger" > Xóa quyền </button>
         </form>
@@ -32,6 +34,35 @@
                 </div>
                 <button type="submit" class="btn btn-primary" > Thêm mới</button>
             </form>
+        </div>
+    </div>
+    <br>
+    <div class="main-card mb-3 card">
+        <div class="card-body">
+            <table style="width: 100%;" id="example" class="table table-hover table-striped table-bordered">
+                <thead>
+                <tr>
+                    <th>STT</th>
+                    <th>Tên quyền</th>
+                    <!--<th>Loại quyền</th>-->
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="role, iter : ${roles}">
+                    <td th:text="${iter.index + 1}"></td>
+                    <td th:text="${role.role}"></td>
+                    <!--<td th:if="${role.role == rolesNotRoleSystem[iter.index].role}" th:text="'Quyền cơ bản của Hệ thống'"></td>-->
+                    <!--<td th:unless="${role.role == rolesNotRoleSystem[iter.index].role}" th:text="'Quyền nười dùng thêm'"></td>-->
+                </tr>
+                </tbody>
+                <tfoot>
+                <tr>
+                    <th>STT</th>
+                    <th>Tên quyền</th>
+                    <!--<th>Loại quyền</th>-->
+                </tr>
+                </tfoot>
+            </table>
         </div>
     </div>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>

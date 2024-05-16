@@ -49,6 +49,104 @@
 }
 
 
-/**************************************/
-                /*Table*/
-/**************************************/
+/************************************************/
+                /* Dark - Light */
+/***********************************************/
+@import url("https://fonts.googleapis.com/css?family=Lora:400,400i,700");
+:root {
+    --white: white;
+    --black: black;
+    --gray: #fafafa;
+    --light: red;
+}
+
+[data-theme=dark] {
+    --white: rgba(33, 33, 33, 0.89);
+    --black: white;
+    --gray: black;
+    --light: red;
+}
+
+.title + p {
+    color: var(--black);
+    font-size: 20px;
+}
+
+.theme-switch-wrapper {
+    display: flex;
+    align-items: center;
+    position: absolute;
+    top: 15px;
+    right: 500px;
+    z-index: 1000;
+}
+
+.theme-switch {
+    display: inline-block;
+    height: 34px;
+    position: relative;
+    width: 60px;
+}
+
+.theme-switch input {
+    display: none;
+}
+
+.slider {
+    /*background-color: #999;*/
+    background-color: transparent;
+    /*background-color: rgba(255,255,255,0.6);*/
+    bottom: 0;
+    cursor: pointer;
+    left: 0;
+    position: absolute;
+    right: 0;
+    top: 0;
+    transition: 0.4s;
+}
+
+.slider:before {
+    background-color: rgba(217, 248, 255, 0.8);
+    bottom: 1.9px;
+    content: "";
+    height: 30px;
+    left: 0px;
+    position: absolute;
+    transition: 0.4s;
+    width: 30px;
+}
+
+input:checked + .slider {
+    /*background-color: #eee;*/
+    background-color: transparent;
+}
+
+input:checked + .slider:before {
+    background-color: rgba(0, 0, 0, 0.8);
+    transform: translateX(31px);
+}
+
+.slider.round {
+    border-radius: 34px;
+}
+
+.slider.round:before {
+    border-radius: 50%;
+}
+.theme-switch .moon,
+.theme-switch .sun {
+    display: inline-block;
+    width: 28px;
+    /*height: 16px;*/
+    vertical-align: middle;
+}
+.theme-switch .moon{margin-top: 3px}
+.theme-switch .sun {margin-top: 2px}
+
+.app-main__outer, .col-sm-4, .col-sm-6, .main-card, #example, .popup-content, #popup-example{
+    background-color: var(--white);
+    color: var(--black);
+}
+.text-score{
+    color: var(--light);
+}

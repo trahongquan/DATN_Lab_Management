@@ -1,5 +1,22 @@
 $( document ).ready(function() {
 
+    /**  ************ set màu mặc định **********************/
+    window.addEventListener('load', function() {
+        // Lấy các phần tử cần click
+        var nightskyBeachElement = document.querySelector('.swatch-holder.bg-night-sky.switch-header-cs-class.active');
+        var midnightBloomElement = document.querySelector('.swatch-holder.bg-midnight-bloom.switch-sidebar-cs-class.active');
+        // var malibuBeachElement = document.querySelector('.swatch-holder.bg-malibu-beach.switch-header-cs-class.active');
+
+        // Thực hiện click vào các phần tử
+        if (midnightBloomElement) {
+            midnightBloomElement.click();
+        }
+        if (nightskyBeachElement) {
+            nightskyBeachElement.click();
+        }
+    });
+    /**  ************ **********************/
+
     // Sidebar Menu
 
     setTimeout(function () {
@@ -158,4 +175,45 @@ $( document ).ready(function() {
 
 
 });
+/** xóa app nếu người dùng cố tình sửa username*/
 
+
+    function checkuser(usernameHeader) {
+        var username = getParameterValue('username',window.location.href)
+        if(username != null && username !== usernameHeader){
+            $('.app-main__inner').remove();
+        }
+    }
+    function getParameterValue(parameterName, url) {
+        var params = new URLSearchParams(new URL(url).search);
+        return params.get(parameterName);
+    }
+
+/************************************ **********/
+
+/**************** Dark & Light *************** */
+
+var toggleSwitch = document.querySelector('.theme-switch input[type="checkbox"]');
+var currentTheme = localStorage.getItem('theme');
+
+if (currentTheme) {
+    document.documentElement.setAttribute('data-theme', currentTheme);
+
+    if (currentTheme === 'dark') {
+        toggleSwitch.checked = true;
+    }
+}
+
+function switchTheme(e) {
+    if (e.target.checked) {
+        document.documentElement.setAttribute('data-theme', 'dark');
+        localStorage.setItem('theme', 'dark');
+    } else {
+        document.documentElement.setAttribute('data-theme', 'light');
+        localStorage.setItem('theme', 'light');
+    }
+}
+
+toggleSwitch.addEventListener('change', switchTheme, false);
+
+/********************************************* */

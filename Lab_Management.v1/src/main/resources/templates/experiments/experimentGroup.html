@@ -32,8 +32,8 @@
                     <option th:each="experiment : ${unusedExperimentGroups}" th:value="${experiment.id}" th:text="${experiment.groupName}"></option>
                 </select>
             </div>
-            <label class="text-warning"><span class="text-danger"><strong>Chú ý:</strong></span> Chỉ hiển thị những nhóm có thể xóa</label> <br>
-            <label class="text-warning"><span class="text-danger"><strong>Chú ý:</strong></span> Nếu bạn muốn xóa nhóm nào đó hãy chắc chắn <br> bạn không sử dụng nó ở phần tính điểm phòng thí nghiệm</label>
+            <label class="text-warning"><span class="text-danger"><strong> <i class="pe-7s-attention"></i> Chú ý:</strong></span> Chỉ hiển thị những nhóm có thể xóa</label> <br>
+            <label class="text-warning"><span class="text-danger"><strong> <i class="pe-7s-attention"></i> Chú ý:</strong></span> Nếu bạn muốn xóa nhóm nào đó hãy chắc chắn <br> bạn không sử dụng nó ở phần tính điểm phòng thí nghiệm</label>
             <br>
             <button type="submit" class="btn btn-danger" > Xóa </button>
         </form>

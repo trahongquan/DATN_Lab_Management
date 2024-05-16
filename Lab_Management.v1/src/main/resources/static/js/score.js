@@ -36,14 +36,20 @@ function TaoDS_PhuThuoc(date, experimentTypes, experimentReports, scores) {
         tempGroupId = groupId;
         // $('#experiment_report').prop('disabled','true');
         $('#experiment_type').trigger('change')
+        var selectedOptionText = $(this).find("option:selected").text();
+        triggerTable(selectedOptionText);
         checkScore(scores);
     });
     $('#experiment_type').change(function () {
         var typeId = $(this).val();
         SetExperiment_Report(tempGroupId, typeId)
+        var selectedOptionText = $(this).find("option:selected").text();
+        triggerTable(selectedOptionText);
         checkScore(scores);
     })
     $('#experiment_report').change(function () {
+        var selectedOptionText = $(this).find("option:selected").text();
+        triggerTable(selectedOptionText);
         checkScore(scores);
     })
     $('#experiment_group').trigger('change');
@@ -116,3 +122,6 @@ function checkScore(scores) {
         console.log(filteredScore);
     });
 }
+function triggerTable(selectedOptionText) {
+    $('input[type="search"]').val(selectedOptionText).focus()
+    $('input[type="search"]').trigger('input').trigger('change')}
