@@ -116,18 +116,22 @@ header{
 
 @import url("https://fonts.googleapis.com/css?family=Lora:400,400i,700");
 :root {
-    --white: url("../images/login_bg.jpg") no-repeat fixed center / cover;
+    --imgBody: url("../images/login_bg.jpg") no-repeat fixed center / cover;
+    --white: white;
     --black: black;
     --gray: #fafafa;
-    --filter: brightness(100%);
+    --header: rgba(255,255,255,0.6);
+    --header-item: #007bff;
 }
 
 [data-theme=dark] {
-    /*--white: rgba(33, 33, 33, 0.89);*/
-    --white: url("../images/login_bg.jpg") no-repeat fixed center / cover;
+    --imgBody: rgba(33, 33, 33, 0.89);
+    --white: rgba(33, 33, 33, 0.89);
+    /*--white: url("../images/login_bg.jpg") no-repeat fixed center / cover;*/
     --black: white;
     --gray: black;
-    --filter: brightness(30%);
+    --header: rgba(55, 98, 86, 0.6);
+    --header-item: rgba(33, 33, 33, 0.89);
 }
 
 .title + p {
@@ -207,7 +211,17 @@ input:checked + .slider:before {
 .theme-switch .sun {margin-top: 2px}
 
 body{
+    background: var(--imgBody);
+    color: var(--black);
+}
+.lab-card, .machine-block{
     background: var(--white);
     color: var(--black);
-    filter: var(--filter);
+}
+.nav-bar-header{
+    background: var(--header);
+    color: var(--black);
+}
+.header-item, .header-item > .card-header{
+    background: var(--header-item);
 }

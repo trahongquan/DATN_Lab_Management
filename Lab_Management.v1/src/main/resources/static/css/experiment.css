@@ -60,7 +60,7 @@
     --light: red;
 }
 
-[data-theme=dark] {
+[data-theme=darkAdmin] {
     --white: rgba(33, 33, 33, 0.89);
     --black: white;
     --gray: black;

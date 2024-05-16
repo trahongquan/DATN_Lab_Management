@@ -42,15 +42,20 @@
                     <div class="choose-room d-flex justify-content-around align-content-center">
                         <div class="col-3 room" th:each="lab : ${labDTOS}" style="border-radius:1em 1em 65px 65px">
                             <div class="card lab-card" style="border-radius:50px" >
-                                <div style="background-color: #007bff">
+                                <div class="header-item">
                                     <div class="card-header justify-content-center" th:text="${lab.getLabName}"></div>
                                     <div>
                                         <button th:data="${lab.getId}" type="button" class="btn btn-success btn-booking" style="border: black thin;">Đặt phòng</button>
                                     </div>
                                 </div>
                                 <div class="card-body">
-                                    <p class="lab-info text-primary"> Người phụ trách: </p>
-                                    <p class="lab-info" th:text="${lab.getLab_managemet.getRank + ' ' + lab.getLab_managemet.getName}"></p>
+                                    <div>
+                                        <span class="lab-info text-primary"> Người phụ trách: </span>
+                                    </div>
+                                    <div>
+                                        <span class="lab-info" th:text="${lab.getLab_managemet.getRank + ' ' + lab.getLab_managemet.getName}"></span>
+                                    </div>
+                                    <br>
                                     <div>
                                         <span class="lab-info text-primary">Liên hệ:</span>
                                         <span class="lab-info" th:text="${lab.getLab_managemet.getContact}"></span>

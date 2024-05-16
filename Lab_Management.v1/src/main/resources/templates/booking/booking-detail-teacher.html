@@ -164,9 +164,9 @@
             <div th:each="machine : ${bookingEquiDTOs}" class="col-md-3 mb-3">
                 <div class="machine-block">
                     <div class="d-flex flex-row justify-content-between">
-                        <div>
-                            <h4 th:text="${machine.equipment.name}"></h4>
-                        </div>
+                        <strong>
+                            <span th:text="${machine.equipment.name}"></span>
+                        </strong>
                         <form th:action="@{/Lab/admin/ShowBookingPendding/removeBookingEqui}" method="post">
                             <input type="hidden" th:value="${machine.bookingId}" name="bookingId">
                             <input type="hidden" th:value="${machine.id}" name="removeBookingEqui">
@@ -176,8 +176,8 @@
                             <button type="submit"  class="remove-button" style=""> Bỏ </button>
                         </form>
                     </div>
-                    <p>Số lượng: <span th:text="${#lists.size(machine.getEquipmentSerieList)}"></span></p>
-                    <p>Seri:</p>
+                    <span>Số lượng: <span th:text="${#lists.size(machine.getEquipmentSerieList)}"></span></span><br>
+                    <span>Seri:</span>
                     <ul>
                         <li th:each="seri : ${machine.getEquipmentSerieList}">
                             <span th:text="${seri}"></span>
