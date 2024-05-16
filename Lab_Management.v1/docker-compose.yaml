@@ -1,25 +1,30 @@
-version: '3'
+version: '3.8'
+
 services:
-  mysql-container:
-    image: mysql:8.0.30
+  mysql-container-lab:
+    image: mysql:latest
     container_name: mysql-container-lab
     ports:
-      - "3307:3306"
+      - "3306:3306"
     environment:
-      - MYSQL_ROOT_PASSWORD=123456789
-      - MYSQL_DATABASE=lab_management
-      - MYSQL_USER=root
-      - MYSQL_PASSWORD=123456789
-    networks:
-      - lab-network
+      MYSQL_ROOT_PASSWORD: root
+#      MYSQL_DATABASE: lab_management
     volumes:
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - lab-network
 
   web-container-lab:
+    depends_on:
+      - mysql-container-lab
     build:
       context: .
-      dockerfile: dockerfile
+      dockerfile: Dockerfile
     container_name: web-container-lab
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql-container-lab:3306/lab_management
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
     ports:
       - "8081:8080"
     networks:
@@ -27,4 +32,4 @@ services:
 
 networks:
   lab-network:
-    external: true
+    driver: bridge

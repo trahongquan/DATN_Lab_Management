@@ -19,7 +19,7 @@ create database lab_management;
 --
 -- Table structure for table `authorities`
 --
-
+USE lab_management;
 DROP TABLE IF EXISTS `authorities`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
