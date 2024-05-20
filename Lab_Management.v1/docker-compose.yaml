@@ -4,15 +4,16 @@ services:
   mysql-container-lab:
     image: mysql:latest
     container_name: mysql-container-lab
+    restart: always
     ports:
-      - "3306:3306"
+      - "3307:3306"
     environment:
       MYSQL_ROOT_PASSWORD: root
-#      MYSQL_DATABASE: lab_management
+      MYSQL_DATABASE: lab_management
     volumes:
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
-    networks:
-      - lab-network
+    expose:
+      - 3306
 
   web-container-lab:
     depends_on:
@@ -22,14 +23,17 @@ services:
       dockerfile: Dockerfile
     container_name: web-container-lab
     environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://mysql-container-lab:3306/lab_management
-      SPRING_DATASOURCE_USERNAME: root
-      SPRING_DATASOURCE_PASSWORD: root
+      - DB_PORT=3306
+      - DB_HOST=mysql-container-lab
     ports:
       - "8081:8080"
-    networks:
-      - lab-network
 
-networks:
-  lab-network:
-    driver: bridge
+
+  # docker-compose -p spring-mysql up -d
+  # hoặc
+  # docker-compose -p spring-mysql test up --build
+
+  #  docker login
+  #  docker tag <existing-image>:<tag> <username>/<new-image>:<tag>
+  #  docker push <username>/<new-image>:<tag>
+  #  docker pull <username>/<new-image>:<tag>
