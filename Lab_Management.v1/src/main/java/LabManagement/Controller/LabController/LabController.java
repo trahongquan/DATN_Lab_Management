@@ -957,7 +957,6 @@ public class LabController {
                                     @RequestParam("username") String username,
                                     @RequestParam("password") String password,
                                     @RequestParam("authority") String role) {
-
         People people = peopleService.findByPeopleId(id);
         people.setName(name);
         people.setRank(rank);

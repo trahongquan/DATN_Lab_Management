@@ -1,4 +1,4 @@
-create database lab_management;
+create database lab_management CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 -- MySQL dump 10.13  Distrib 5.5.28, for Win64 (x86)
 --
 -- Host: localhost    Database: lab_Management
@@ -28,7 +28,7 @@ CREATE TABLE `authorities` (
   `username` varchar(255) NOT NULL,
   `authority` varchar(255) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -63,7 +63,7 @@ CREATE TABLE `booking` (
   KEY `booking_content_id_foreign` (`content_id`),
   CONSTRAINT `booking_content_id_foreign` FOREIGN KEY (`content_id`) REFERENCES `content` (`id`),
   CONSTRAINT `booking_lab_id_foreign` FOREIGN KEY (`lab_id`) REFERENCES `lab` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -82,7 +82,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `booking_equi`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `booking_equi` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `equi_id` int(10) unsigned NOT NULL,
@@ -91,7 +91,7 @@ CREATE TABLE `booking_equi` (
   PRIMARY KEY (`id`),
   KEY `booking_equi_booking_id_foreign` (`booking_id`),
   CONSTRAINT `booking_equi_booking_id_foreign` FOREIGN KEY (`booking_id`) REFERENCES `booking` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
-) ENGINE=InnoDB AUTO_INCREMENT=55 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=55 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -110,7 +110,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `content`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `content` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(255) NOT NULL,
@@ -127,7 +127,7 @@ CREATE TABLE `content` (
   CONSTRAINT `content_experiment_report_id` FOREIGN KEY (`experiment_report`) REFERENCES `experiment_report` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
   CONSTRAINT `content_experiment_type_foreign` FOREIGN KEY (`experiment_type`) REFERENCES `experiment_type` (`id`),
   CONSTRAINT `content_reservationist_id_foreign` FOREIGN KEY (`reservationist_id`) REFERENCES `people` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=22 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=22 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -146,7 +146,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `equipment`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `equipment` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `series` varchar(255) NOT NULL,
@@ -156,7 +156,7 @@ CREATE TABLE `equipment` (
   `is_deleted` tinyint(4) NOT NULL,
   `series_fixed` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=44 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=44 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -175,7 +175,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `equipment_lab`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `equipment_lab` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `lab_id` int(10) unsigned NOT NULL,
@@ -186,7 +186,7 @@ CREATE TABLE `equipment_lab` (
   KEY `equipment_lab_lab_id_foreign` (`lab_id`),
   CONSTRAINT `equipment_lab_equi_id_foreign` FOREIGN KEY (`equi_id`) REFERENCES `equipment` (`id`),
   CONSTRAINT `equipment_lab_lab_id_foreign` FOREIGN KEY (`lab_id`) REFERENCES `lab` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=45 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=45 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -205,12 +205,12 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `experiment_group`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `experiment_group` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `group_name` varchar(255) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -229,14 +229,14 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `experiment_report`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `experiment_report` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `report_type` varchar(50) NOT NULL,
   `experiment_group_id` int(10) unsigned NOT NULL,
   `experiment_type_id` varchar(50) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -255,7 +255,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `experiment_type`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `experiment_type` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `type_name` varchar(255) NOT NULL,
@@ -263,7 +263,7 @@ CREATE TABLE `experiment_type` (
   PRIMARY KEY (`id`),
   KEY `experiment_type_experiment_group_id_foreign` (`experiment_group_id`),
   CONSTRAINT `experiment_type_experiment_group_id_foreign` FOREIGN KEY (`experiment_group_id`) REFERENCES `experiment_group` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -282,7 +282,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `lab`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `lab` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `lab_name` varchar(255) NOT NULL,
@@ -293,7 +293,7 @@ CREATE TABLE `lab` (
   PRIMARY KEY (`id`),
   KEY `lab_lab_managemet_id_foreign` (`lab_managemet_id`),
   CONSTRAINT `lab_lab_managemet_id_foreign` FOREIGN KEY (`lab_managemet_id`) REFERENCES `people` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -312,7 +312,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `people`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `people` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(255) NOT NULL,
@@ -322,7 +322,7 @@ CREATE TABLE `people` (
   `contact` varchar(255) NOT NULL,
   `is_delete` tinyint(4) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=24 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=24 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -341,12 +341,12 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `roles`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `roles` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `role` varchar(255) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -365,7 +365,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `score`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `score` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `experoment_group_id` int(10) unsigned NOT NULL,
@@ -379,7 +379,7 @@ CREATE TABLE `score` (
   CONSTRAINT `score_experoment_group_id` FOREIGN KEY (`experoment_group_id`) REFERENCES `experiment_group` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
   CONSTRAINT `score_experoment_report_id` FOREIGN KEY (`experoment_report_id`) REFERENCES `experiment_report` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
   CONSTRAINT `score_experoment_type_id` FOREIGN KEY (`experoment_type_id`) REFERENCES `experiment_type` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
-) ENGINE=InnoDB AUTO_INCREMENT=36 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=36 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -398,7 +398,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `users`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `users` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `people_id` int(10) unsigned NOT NULL,
@@ -409,7 +409,7 @@ CREATE TABLE `users` (
   UNIQUE KEY `username_UNIQUE` (`username`),
   KEY `users_people_id_foreign` (`people_id`),
   CONSTRAINT `users_people_id_foreign` FOREIGN KEY (`people_id`) REFERENCES `people` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
