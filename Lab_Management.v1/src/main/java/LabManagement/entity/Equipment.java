@@ -5,7 +5,6 @@ import LabManagement.service.EquipmentService.EquipmentService;
 
 import javax.persistence.*;
 import java.io.Serializable;
-import java.util.Arrays;
 import java.util.List;
 
 @Entity
@@ -35,16 +34,24 @@ public class Equipment implements Serializable {
     @Column(name = "is_deleted", nullable = false)
     private int isDeleted;
 
+    @Column(name = "origin", nullable = false)
+    private String origin;
+
+    @Column(name = "levels", nullable = false)
+    private String levels;
+
     public Equipment() {
     }
 
-    public Equipment(String name, String series, String seriesFixed, String description, int quantity, int isDeleted) {
+    public Equipment(String name, String series, String seriesFixed, String description, int quantity, int isDeleted, String origin, String levels) {
         this.name = name;
         this.series = series;
         this.seriesFixed = seriesFixed;
         this.description = description;
         this.quantity = quantity;
         this.isDeleted = isDeleted;
+        this.origin = origin;
+        this.levels = levels;
     }
 
     public List<String> getSeriesAsList() {
@@ -111,6 +118,21 @@ public class Equipment implements Serializable {
         this.isDeleted = isDeleted;
     }
 
+    public String getOrigin() {
+        return origin;
+    }
+
+    public void setOrigin(String origin) {
+        this.origin = origin;
+    }
+
+    public List<String> getLevelList() {
+        return new ToList().StringLevelsToList(levels);
+    }
+
+    public void setLevelList(String levels) {
+        this.levels = levels;
+    }
 
     public void setEquipmentSeries(String equipmentSeries) {
         this.series = equipmentSeries;
@@ -131,11 +153,17 @@ public class Equipment implements Serializable {
         this.setEquipmentSeries(seriesList.toString());
         equipmentService.updateEquipment(this);
     }
-    public void DelSeri(EquipmentService equipmentService, String seri){
+    public String DelSeri(EquipmentService equipmentService, String seri){
         List<String> seriesList = new ToList().StringToList(series);
-        seriesList.remove(seri);
+        for (int i = 0; i < seriesList.size(); i++) {
+            if(seriesList.get(i).equals(seri)){
+                seriesList.remove(seri);
+                return this.getLevelList().get(i);
+            }
+        }
         this.setEquipmentSeries(seriesList.toString());
         equipmentService.updateEquipment(this);
+        return "";
     }
     public void AddSeriFixed(EquipmentService equipmentService, String seri){
         List<String> seriesList = new ToList().StringToList(seriesFixed);
@@ -150,6 +178,18 @@ public class Equipment implements Serializable {
         equipmentService.updateEquipment(this);
     }
 
+    public void AddLevel(EquipmentService equipmentService, String level){
+        List<String> levelList = new ToList().StringToList(levels);
+        levelList.add(level);
+        this.setLevelList(levelList.toString());
+        equipmentService.updateEquipment(this);
+    }
+    public void DelLevel(EquipmentService equipmentService, String level){
+        List<String> levelList = new ToList().StringToList(levels);
+        levelList.remove(level);
+        this.setLevelList(levelList.toString());
+        equipmentService.updateEquipment(this);
+    }
 
     @Override
     public String toString() {
@@ -161,6 +201,8 @@ public class Equipment implements Serializable {
                 ", description='" + description + '\'' +
                 ", quantity=" + quantity +
                 ", isDeleted=" + isDeleted +
+                ", origin='" + origin + '\'' +
+                ", levels='" + levels + '\'' +
                 '}';
     }
 }

@@ -2,6 +2,8 @@ package LabManagement.ClassSuport;
 
 import java.sql.Date;
 
+/**  Xác định các ngày và trạng thái đặt của các ngày của Lab */
+
 public class DateAndStatusLab {
     private Date date;
     private String status;

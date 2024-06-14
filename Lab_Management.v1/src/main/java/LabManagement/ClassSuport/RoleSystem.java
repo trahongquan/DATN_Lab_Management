@@ -2,6 +2,7 @@ package LabManagement.ClassSuport;
 
 import java.util.ArrayList;
 import java.util.List;
+/** Các ROLE Mặc định của hệ thống */
 
 public class RoleSystem {
     public static String ROLE_ADMIN = "ROLE_ADMIN";

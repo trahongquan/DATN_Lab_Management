@@ -6,6 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta charset="utf-8">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <link rel="stylesheet" href="/css/base2.min.css">
     <link rel="stylesheet" href="/css/experiment.css">
 </head>
@@ -915,15 +918,21 @@
                                     </i>Danh mục phòng
                                 </a>
                             </li>
-                            <li>
+                            <li sec:authorize="hasRole('ROLE_ADMIN')">
                                 <a th:href="'/Lab/admin/Equipment?username='+${#authentication.name}">
                                     <i class="metismenu-icon pe-7s-server">
-                                    </i>Danh mục thiết bị
+                                    </i>DM thiết bị tồn kho
+                                </a>
+                            </li>
+                            <li>
+                                <a th:href="'/Lab/admin/AllEquipment?username='+${#authentication.name}">
+                                    <i class="metismenu-icon pe-7s-calculator">
+                                    </i>DM tất cả thiết bị
                                 </a>
                             </li>
                             <li sec:authorize="hasRole('ROLE_ADMIN')">
                                 <a href="/Lab/admin/Role">
-                                    <i class="metismenu-icon pe-7s-server">
+                                    <i class="metismenu-icon pe-7s-door-lock">
                                     </i>Danh mục quyền
                                 </a>
                             </li>
@@ -1061,6 +1070,13 @@
                 </div>
                 <div th:if="${#strings.contains(#request.requestURI, '/Lab/admin/Equipment/showFormForUpdate/')}" class="app-main__inner">
                     <div th:replace="admin/equipment-edit-form.html :: equipment-edit-form"></div>
+                </div>
+
+                <div th:if="${#request.requestURI == '/Lab/admin/AllEquipment'}" class="app-main__inner">
+                    <div th:replace="admin/equipments.html :: equipment"></div>
+                </div>
+                <div th:if="${#strings.contains(#request.requestURI, '/Lab/admin/AllEquipment/showFormForUpdate/')}" class="app-main__inner">
+                    <div th:replace="admin/equipment-edit-form-readOnly.html :: equipment-edit-form-readOnly"></div>
                 </div>
 
                                                 <!--/////////////////////////////////-->

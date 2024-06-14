@@ -11,4 +11,6 @@ import java.util.Optional;
 public interface EquipmentLabRepository extends JpaRepository<EquipmentLab, Integer> {
     List<EquipmentLab> findAllByLabId(int id);
     EquipmentLab findByLabIdAndEquipmentId(int lab_id, int equi_id);
+    List<EquipmentLab> findAllByLabIdAndEquipmentId(int lab_id, int equi_id);
+    List<EquipmentLab> findAllByEquipmentId(int equi_id);
 }

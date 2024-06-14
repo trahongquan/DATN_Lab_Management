@@ -3,6 +3,8 @@ package LabManagement.ClassSuport;
 import java.math.BigInteger;
 import java.security.SecureRandom;
 
+/** Chưa dùng tới */
+
 public class SecretKeyGenerator {
     public String SecretKeyGenerator() {
         SecureRandom secureRandom = new SecureRandom();

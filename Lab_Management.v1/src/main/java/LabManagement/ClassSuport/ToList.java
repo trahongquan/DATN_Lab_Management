@@ -2,6 +2,8 @@ package LabManagement.ClassSuport;
 import java.util.ArrayList;
 import java.util.List;
 
+/** Hỗ trợ chuyển chuỗi thành list int, string */
+
 public class ToList {
     /*public static void main(String[] args) {
         String inputString = "[23, 25, 26]";
@@ -34,6 +36,22 @@ public class ToList {
             if(!containsSpace(seri) && !seri.equals("")){
                 result.add(seri);
             }
+        }
+        return result;
+    }
+    public /*static*/ List<String> StringLevelsToList(String input) {
+        List<String> result = new ArrayList<>();
+
+        // Xóa ký tự "[" và "]" từ chuỗi
+        String cleanedInput = input.replace("[", "").replace("]", "");
+
+        // Tách các số bằng dấu phẩy
+        String[] seris = cleanedInput.split(",\\s*");
+
+        // Chuyển các số từ kiểu String sang kiểu Integer và thêm vào danh sách
+        for (String seri : seris) {
+            seri = seri.trim();
+            result.add(seri);
         }
         return result;
     }

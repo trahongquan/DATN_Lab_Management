@@ -1,5 +1,7 @@
 package LabManagement.ClassSuport;
 
+/** Trạng thái xác nhận đơn đặt */
+
 public class ComfirmStatus {
     public static String PENDDING = "Đang chờ duyệt";
     public static String APPROVE = "Đã xác nhận";

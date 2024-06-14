@@ -5,6 +5,8 @@ import java.util.List;
 
 import static LabManagement.ClassSuport.ToList.containsSpace;
 
+/** Chưa dùng tới */
+
 public class EquiDesFix {
     public static List<String> seriFixed;
     public static List<DateAndDesEqui> dateAndDesEquis;

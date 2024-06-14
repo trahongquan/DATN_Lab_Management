@@ -1,5 +1,7 @@
 package LabManagement.ClassSuport;
 
+/** Hỗ trợ so sánh số lượng đặt phòng... ngày hôm trước với ngày hôm nay*/
+
 public class Comparator {
     private int quantity;
     private String compared;

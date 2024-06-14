@@ -4,6 +4,8 @@ import LabManagement.dto.BookingDTO;
 
 import java.util.Comparator;
 
+/** Hỗ trợ sắp xếp BookingDTO theo ngày */
+
 public class BookingDateComparator implements Comparator<BookingDTO> {
     @Override
     public int compare(BookingDTO booking1, BookingDTO booking2) {

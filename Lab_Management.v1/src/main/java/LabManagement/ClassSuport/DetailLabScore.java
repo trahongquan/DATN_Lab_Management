@@ -4,6 +4,8 @@ import LabManagement.entity.Score;
 
 import java.util.List;
 
+/** Chưa dùng tới */
+
 public class DetailLabScore {
     private List<Integer> quantity;
     private List<String> typeName;

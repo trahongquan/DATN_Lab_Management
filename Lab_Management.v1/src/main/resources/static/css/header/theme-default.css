@@ -92,7 +92,7 @@ pre {
     font-size: 1em;
 }
 
-/* Text-level semantics
+/* Text-Level semantics
 	 ========================================================================== */
 
 /**
@@ -353,7 +353,7 @@ template {
 /* Box sizing
 --------------------------------------------- */
 
-/* Inherit box-sizing to more easily change it's value on a component level.
+/* Inherit box-sizing to more easily change it's value on a component Level.
 @link http://css-tricks.com/inheriting-box-sizing-probably-slightly-better-best-practice/ */
 *,
 *::before,

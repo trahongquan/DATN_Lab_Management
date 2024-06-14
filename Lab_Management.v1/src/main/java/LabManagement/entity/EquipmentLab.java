@@ -25,13 +25,17 @@ public class EquipmentLab implements Serializable {
     @Column(name = "equi_series", nullable = false)
     private String equipmentSeries;
 
+    @Column(name = "levels", nullable = false)
+    private String levels;
+
     public EquipmentLab() {
     }
 
-    public EquipmentLab(int labId, int equipmentId, List<String> equipmentSeriesList) {
+    public EquipmentLab(int labId, int equipmentId, List<String> equipmentSeriesList, List<String> levels) {
         this.labId = labId;
         this.equipmentId = equipmentId;
         this.equipmentSeries = equipmentSeriesList.toString();
+        this.levels = levels.toString();
     }
 
     @Override
@@ -80,6 +84,14 @@ public class EquipmentLab implements Serializable {
         return new ToList().StringToList(equipmentSeries);
     }
 
+    public List<String> getLevelList() {
+        return new ToList().StringLevelsToList(levels);
+    }
+
+    public void setLevelList(String levels) {
+        this.levels = levels;
+    }
+
     public void AddSeri(EquipmentLabService equipmentLabService, String seri){
         List<String> series = new ToList().StringToList(equipmentSeries);
         series.add(seri);
@@ -90,6 +102,20 @@ public class EquipmentLab implements Serializable {
         List<String> series = new ToList().StringToList(equipmentSeries);
         series.remove(seri);
         this.setEquipmentSeries(series.toString());
+        equipmentLabService.saveEquipmentLab(this);
+    }
+
+
+    public void AddLevel(EquipmentLabService equipmentLabService, String level){
+        List<String> levelList = new ToList().StringToList(levels);
+        levelList.add(level);
+        this.setLevelList(levelList.toString());
+        equipmentLabService.saveEquipmentLab(this);
+    }
+    public void DelLevel(EquipmentLabService equipmentLabService, String level){
+        List<String> levelList = new ToList().StringToList(levels);
+        levelList.remove(level);
+        this.setLevelList(levelList.toString());
         equipmentLabService.saveEquipmentLab(this);
     }
 }

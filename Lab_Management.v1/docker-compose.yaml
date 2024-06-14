@@ -28,7 +28,6 @@ services:
     ports:
       - "8081:8080"
 
-
   # docker-compose -p spring-mysql up -d
   # hoặc
   # docker-compose -p spring-mysql test up --build

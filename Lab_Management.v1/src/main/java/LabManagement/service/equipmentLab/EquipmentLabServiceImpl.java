@@ -56,5 +56,21 @@ public class EquipmentLabServiceImpl implements EquipmentLabService {
             return equipmentLab;
         }
     }
+    @Override
+    public List<EquipmentLab> findAllByLabIdAndEquipmentId(int lab_id, int equi_id){
+        if (equipmentLabRepository.findAllByLabIdAndEquipmentId(lab_id, equi_id) != null) {
+            return equipmentLabRepository.findAllByLabIdAndEquipmentId(lab_id, equi_id);
+        } else {
+            return new ArrayList<>();
+        }
+    }
+    @Override
+    public List<EquipmentLab> findAllByEquipmentId(int equi_id){
+        if (equipmentLabRepository.findAllByEquipmentId(equi_id) != null) {
+            return equipmentLabRepository.findAllByEquipmentId(equi_id);
+        } else {
+            return new ArrayList<>();
+        }
+    }
 
 }

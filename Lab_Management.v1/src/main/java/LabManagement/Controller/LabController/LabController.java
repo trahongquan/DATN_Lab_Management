@@ -2,6 +2,7 @@ package LabManagement.Controller.LabController;
 
 import LabManagement.ClassSuport.*;
 import LabManagement.ClassSuport.Comparator;
+import LabManagement.ClassSuport.EquidLevel.EquidAndLevel;
 import LabManagement.dao.*;
 import LabManagement.dto.*;
 import LabManagement.entity.*;
@@ -691,16 +692,19 @@ public class LabController {
         return template;
     }
 
-    private int DelSeriInEquiBySeri(String seri) {
+    private int DelSeriInEquiBySeri(EquidAndLevel equidAndLevel, String seri) {
         List<Equipment> equipments = equipmentService.getAllEquipment();
         for (Equipment equipmentCopy : equipments) {
             List<String> seriesList = equipmentCopy.getSeriesAsList();
-            for (String seriCopy : seriesList) {
-                if (seriCopy.equals(seri)) {
+            for (int i = 0; i < seriesList.size(); i++) {
+                if (seriesList.get(i).equals(seri)) {
                     Equipment equipment = equipmentService.findByEquipmentId(equipmentCopy.getId());
-                    equipment.getSeriesAsList().remove(seri);
+                    equipment.getSeriesAsList().remove(i);
                     equipment.setSeries(equipment.getSeriesAsList().toString());
                     equipmentService.updateEquipment(equipment);
+                    String level = equipment.getLevelList().get(i);
+                    equidAndLevel.setEquidid(equipmentCopy.getId());
+                    equidAndLevel.setLevel(level);
                     return equipmentCopy.getId();
                 }
             }
@@ -716,10 +720,11 @@ public class LabController {
                              @RequestParam(value = "series", defaultValue = "") List<String> selectedSeries) {
         Lab lab = labService.createLab(new Lab(LabName, LabCapacity, LabLocation, Managementid, 0));
         for (String seri : selectedSeries) {
-            int equi_id = DelSeriInEquiBySeri(seri);
+            EquidAndLevel equidAndLevel = new EquidAndLevel();
+            int equi_id = DelSeriInEquiBySeri(equidAndLevel, seri);
             EquipmentLab equipmentLab = equipmentLabService.findByLabIdAndEquipmentId(lab.getId(), equi_id);
             if (equipmentLab.getId() == 0){
-                equipmentLabService.saveEquipmentLab(new EquipmentLab(lab.getId(), equi_id, new ToList().StringToList(seri)));
+                equipmentLabService.saveEquipmentLab(new EquipmentLab(lab.getId(), equi_id, new ToList().StringToList(seri), new ToList().StringToList(equidAndLevel.getLevel())));
             } else {
                 equipmentLab.AddSeri(equipmentLabService, seri);
             }
@@ -785,14 +790,16 @@ public class LabController {
                 for (String seriEqui: equipment.getEquipmentSerieList()) {
                     if(seriEqui.equals(seri)){
                         /** Remove seri trong Equi*/
-                        equipment.DelSeri(equipmentService, seriEqui);
+                        String level = equipment.DelSeri(equipmentService, seriEqui);
                         /** Add seri vào trong EquiLab*/
                         EquipmentLab equipmentLab = equipmentLabService.findByLabIdAndEquipmentId(lab.getId(),equipment.getId());
                         if(equipmentLab.getId() != 0){
                             equipmentLab.AddSeri(equipmentLabService, seri);
+                            equipmentLab.AddLevel(equipmentLabService, level);
                         } else {
-                            EquipmentLab equipmentLabNew = new EquipmentLab(lab.getId(),equipment.getId(),new ArrayList<>());
+                            EquipmentLab equipmentLabNew = new EquipmentLab(lab.getId(),equipment.getId(),new ArrayList<>(), new ArrayList<>());
                             equipmentLabNew.AddSeri(equipmentLabService, seri);
+                            equipmentLabNew.AddSeri(equipmentLabService, level);
                         }
                     }
                 }
@@ -837,6 +844,76 @@ public class LabController {
         return template;
     }
 
+    private List<Equipment> GetAllEquipmentHasAllSeri(String username){
+        People people = peopleService.findByPeopleId(GetPeopleIdByUsername(username));
+        List<EquipmentLab> allEquipmentLab = equipmentLabService.getAllEquipmentLabs();
+
+        if(CheckRole(people, RoleSystem.ROLE_ADMIN)){
+            List<Equipment> allEquipment = equipmentService.getAllEquipment().stream().filter(equipment -> equipment.getIsDeleted()==0).collect(Collectors.toList());
+            for (EquipmentLab equipmentLab : allEquipmentLab) {
+                for (Equipment equipment : allEquipment) {
+                    if (equipmentLab.getEquipmentId() == equipment.getId()) {
+
+                        List<String> equipListSeri = equipment.getSeriesAsList();
+                        for (String seriLab : equipmentLab.getEquipmentSerieList()) equipListSeri.add(seriLab);
+                        equipment.setEquipmentSeries(equipListSeri.toString());
+
+                        List<String> equipListLevel = equipment.getLevelList();
+                        for (String levelLab : equipmentLab.getLevelList()) equipListLevel.add(levelLab);
+                        equipment.setLevelList(equipListLevel.toString());
+                    }
+                }
+            }
+            return allEquipment;
+        } else if (CheckRole(people, RoleSystem.ROLE_MANAGER)){
+            List<Lab> labs = labService.getAllLabsOnLine()
+                                        .stream().filter(lab ->lab.getLab_managemet_id()==people.getId())
+                                        .collect(Collectors.toList());
+            /** Dùng Set đề lưu phần tử chỉ tồn tại duy nhất */
+            List<EquipmentLab> allEquipmentLabByManager = new ArrayList<>();
+            Set<Integer> uniqueEquipmentIds = new HashSet<>();
+
+            for (Lab lab : labs) {
+                for (EquipmentLab equipmentLab : allEquipmentLab) {
+                    if (equipmentLab.getLabId() == lab.getId()) {
+                        allEquipmentLabByManager.add(equipmentLab);
+                        uniqueEquipmentIds.add(equipmentLab.getEquipmentId());
+                    }
+                }
+            }
+
+            List<Equipment> allEquipmentByManager = new ArrayList<>();
+            uniqueEquipmentIds.forEach(id ->{
+                Equipment equipment = equipmentService.findByEquipmentId(id);
+                equipment.setSeries("[]");
+                allEquipmentByManager.add(equipment);
+            });
+
+            for (EquipmentLab equipmentLab : allEquipmentLabByManager) {
+                Equipment equipmentFindByEquiLab = equipmentService.findByEquipmentId(equipmentLab.getEquipmentId());
+                for (Equipment equipment : allEquipmentByManager) {
+                    if(equipment.getId() == equipmentFindByEquiLab.getId()){
+                        List<String> seriesEquipment = equipment.getSeriesAsList();
+                        List<String> seriesEquipmentLab = equipmentLab.getEquipmentSerieList();
+                        for (String seri : seriesEquipmentLab) seriesEquipment.add(seri);
+                        equipment.setSeries(seriesEquipment.toString());
+                    }
+                }
+            }
+            return allEquipmentByManager;
+        } else {return new ArrayList<>();}
+    }
+
+    @GetMapping({"/admin/AllEquipment"})
+    public String AllEquipmentList(Model model,
+                                   @RequestParam("username") String username,
+                                   @RequestParam(value = "success", defaultValue = "false") boolean success) {
+        model.addAttribute("allEquipment", GetAllEquipmentHasAllSeri(username));
+        model.addAttribute("success",success);
+        model.addAttribute("title", "QLDS thiết bị");
+        return template;
+    }
+
     @GetMapping("/admin/Equipment/add")
     public String AddEquipment(Model model){
         model.addAttribute("title", "Thêm mới Thiết bị");
@@ -845,8 +922,10 @@ public class LabController {
     @PostMapping("/admin/Equipment/add")
     public String AddEquipment(@RequestParam("name") String name,
                                @RequestParam("description") String description,
+                               @RequestParam("origin") String origin,
+                               @RequestParam("levels") List<String> levels,
                                @RequestParam("series") List<String> series) {
-        Equipment equipment = equipmentService.createEquipment(new Equipment(name, series.toString(), "[]", description, series.size(),0));
+        Equipment equipment = equipmentService.createEquipment(new Equipment(name, series.toString(), "[]", description, series.size(),0, origin, levels.toString()));
 
         return Redirect("admin/Equipment",true);
     }
@@ -859,16 +938,50 @@ public class LabController {
         return template;
     }
 
+    @GetMapping("/admin/AllEquipment/showFormForUpdate/{id}")
+    public String AllEquipmentDetail(Model model, @PathVariable(value = "id") int id) {
+
+        Equipment equipment = equipmentService.findByEquipmentId(id);
+        List<String> series = new ArrayList<>();
+        List<String> levels = new ArrayList<>();
+        List<EquipmentLab> equipmentLabs = equipmentLabService.findAllByEquipmentId(id);
+
+        List<String> LabNames = new ArrayList<>();
+        List<Integer> LabId = new ArrayList<>();
+
+        for (EquipmentLab equipmentLab : equipmentLabs) {
+            for (String seriLab : equipmentLab.getEquipmentSerieList()) {
+                series.add(seriLab);
+                Lab lab = labService.findByLabId(equipmentLab.getLabId());
+                LabNames.add(lab.getLabName());
+                LabId.add(lab.getId());
+            }
+            for (String levelLab : equipmentLab.getLevelList()) {
+                levels.add(levelLab);
+            }
+        }
+        equipment.setSeries(series.toString());
+        equipment.setLevelList(levels.toString());
+
+        model.addAttribute("equipment", equipment);
+        model.addAttribute("LabNames", LabNames);
+        model.addAttribute("LabIds", LabId);
+        model.addAttribute("title", "Thông tin chi tiết thiết bị");
+        return template;
+    }
+
     @PostMapping("/admin/Equipment/showFormForUpdate/{id}")
     public String EquipmentDetailPost(@PathVariable(value = "id") int id,
                                       @RequestParam("name") String name,
                                       @RequestParam("description") String description,
                                       @RequestParam(value = "series", defaultValue = "[]") List<String> series,
+                                      @RequestParam(value = "levels", defaultValue = "[]") List<String> levels,
                                       @RequestParam(value = "seriesfixed", defaultValue = "[]") List<String> seriesfixed) {
         Equipment equipment = equipmentService.findByEquipmentId(id);
         equipment.setName(name);
         equipment.setDescription(description);
         equipment.setSeries(series.toString());
+        equipment.setLevelList(levels.toString());
         equipment.setSeriesFixed(seriesfixed.toString());
         equipment.setQuantity(series.size());
         equipmentService.updateEquipment(equipment);

@@ -1,7 +1,38 @@
+$(document).ready(function() {
+    $('#submitButton').click(function(event) {
+        event.preventDefault(); // Ngăn chặn hành vi mặc định của nút submit
+
+        if (checkseri()) {
+            var confirmed = confirm('Bạn có chắc chắn sửa?');
+            if (confirmed) {
+                $('form').submit();
+            }
+        }
+    });
+});
+function checkseri() {
+    var seriesData = [];
+    var isValid = true;
+
+    $('input[name="series"]').each(function() {
+        var value = $(this).val().trim();
+        if (value === "" || value === "    ") {
+            alert("Vui lòng điền đầy đủ thông tin seri!");
+            isValid = false;
+            return false;
+        }
+        seriesData.push(value);
+    });
+
+    console.log(seriesData);
+    return isValid;
+}
+
 function removeSeri(button) {
     var inputseriDiv = button.parentNode;
     inputseriDiv.remove();
 }
+
 function addInput(button) {
     var formGroup = button.parentNode;
     var div_inputseri = document.createElement('div');
@@ -38,13 +69,27 @@ function addInput(button) {
     icon_btnfix.setAttribute('class', 'fa fa-wrench');
     btnfix.appendChild(icon_btnfix);
 
+    var select = document.createElement('select');
+    select.setAttribute('class', 'form-control m-3 col-sm-6');
+    select.name = 'levels';
+    select.required = true;
 
-    div_inputseri.appendChild(btnfix);
+    var options = ['Cấp 1', 'Cấp 2', 'Cấp 3', 'Cấp 4', 'Cấp 5'];
+    options.forEach(function(option) {
+        var opt = document.createElement('option');
+        opt.value = option;
+        opt.text = option;
+        select.add(opt);
+    });
+
     div_inputseri.appendChild(input);
+    div_inputseri.appendChild(btnfix);
+    div_inputseri.appendChild(select);
     div_inputseri.appendChild(btnremove);
 
     formGroup.insertBefore(div_inputseri, button);
 }
+
 function addInputseriesfixed(button) {
     var formGroup = button.parentNode;
     var div_inputseri = document.createElement('div');
@@ -77,7 +122,8 @@ function addInputseriesfixed(button) {
 }
 function Seri2Fix(button) {
     // Lấy giá trị seri từ input
-    var inputseri = button.nextElementSibling;
+    // var inputseri = button.nextElementSibling; //Lấy phần tử Element kế sau
+    var inputseri = button.previousElementSibling; //Lấy phần tử Element kế trước
     var seri = "";
     if (inputseri.tagName === 'INPUT') {
         var seri = inputseri.defaultValue;

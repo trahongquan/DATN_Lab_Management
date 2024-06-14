@@ -1,5 +1,7 @@
 package LabManagement.ClassSuport;
 
+/** Hỗ trợ kiểm tra Experiment đã có trong danh sách chưa */
+
 public class CheckExperiment {
     private int id;
     private boolean aBoolean;

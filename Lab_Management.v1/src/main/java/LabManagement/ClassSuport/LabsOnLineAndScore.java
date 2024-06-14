@@ -5,6 +5,8 @@ import LabManagement.entity.Lab;
 import java.util.ArrayList;
 import java.util.List;
 
+/** Hỗ trợ truyền dữ liệu điểm của từng phòng lên FE */
+
 public class LabsOnLineAndScore {
     private Lab lab;
     private Double score;

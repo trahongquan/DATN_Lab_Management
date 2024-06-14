@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+
+<html xmlns:th="http://www.thymeleaf.org">
+<!--<html xmlns:th="http://www.springframework.org/schema/data/jaxb">-->
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Phone</title>
+    <!-- Link to Bootstrap CSS for styling -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" th:href="@{/css/base2.min.css}">
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+
+</head>
+<body class="scroll-container">
+<equipment-edit-form-readOnly>
+    <!--<div th:replace="admin/headerAdmin :: header-admin"></div>-->
+    <h1 style="margin-top: 50px; text-align: center;text-transform: uppercase;">Thông tin Thiết bị</h1><br>
+    <div class="container">
+        <form th:object="${equipment}" th:action="@{'/Lab/admin/Equipment/showFormForUpdate/'+ ${equipment.getId}}" method="post" enctype="multipart/form-data">
+            <div class="form-group">
+                <h4 for="name">Tên phòng thiết bị:</h4>
+                <input type="text" class="form-control font-weight-bold" id="name" name="name" required
+                       th:value="*{getName}">
+            </div>
+            <div class="main-card mb-3 card form-group">
+                <div class="card-body">
+                    <h4 for="description">Mô tả:</h4>
+                    <textarea rows="1" class="form-control autosize-input font-weight-bold" style="height: 35px"
+                              id="description" name="description" required
+                              th:text="*{getDescription}"
+                    ></textarea>
+                </div>
+            </div>
+            <div class="main-card mb-3 card form-group">
+                <div class="card-body">
+                    <h4 for="description">Xuất xứ:</h4>
+                    <input rows="1" class="form-control font-weight-bold" style="height: 35px;"
+                           id="origin" name="origin" required
+                           th:value="*{getOrigin}"
+                    >
+                </div>
+            </div>
+            <div class="form-group seriesDiv ">
+                <h4 for="series">Danh sách seri máy và phân cấp loại trang bị:</h4>
+                <div class="grid-menu-3col">
+                    <th:block th:each="seri, iter : ${equipment.getEquipmentSerieList}">
+                        <div class="inputseri row">
+                            <div class="form-group col-sm-3">
+                                <input type="search" class="form-control" id="series" name="series" required th:value="${seri}" style="font-weight: bold">
+                            </div>
+                            <div class="form-group col-sm-3">
+                                <select class="form-control font-weight-bold" id="levels" name="levels" required>
+                                    <option value="Cấp 1" th:selected="${equipment.getLevelList[iter.index] == 'Cấp 1'}">Cấp 1</option>
+                                    <option value="Cấp 2" th:selected="${equipment.getLevelList[iter.index] == 'Cấp 2'}">Cấp 2</option>
+                                    <option value="Cấp 3" th:selected="${equipment.getLevelList[iter.index] == 'Cấp 3'}">Cấp 3</option>
+                                    <option value="Cấp 4" th:selected="${equipment.getLevelList[iter.index] == 'Cấp 4'}">Cấp 4</option>
+                                    <option value="Cấp 5" th:selected="${equipment.getLevelList[iter.index] == 'Cấp 5'}">Cấp 5</option>
+                                </select>
+                            </div>
+                            <div class="form-group col-sm-3" th:if="${LabIds[iter.index]}!=0">
+                                <p class="form-control font-weight-bold" >Thuộc phòng:
+                                    <a th:href="'/Lab/admin/room/showFormForUpdate/' + ${LabIds[iter.index]}">
+                                    <span class="text-info" th:text="${LabNames[iter.index]}"></span>
+                                </a></p>
+                            </div>
+                        </div>
+                    </th:block>
+                </div>
+            </div>
+            <div class="form-group seriesDiv" th:if="false">
+                <h4 for="series">Danh sách seri máy đã qua sửa chữa:</h4>
+                <div class="d-flex flex-row flex-wrap justify-content-start row seriesFixedDiv">
+                    <th:block th:each="seri : ${equipment.getEquipmentSerieFixedList}">
+                        <div class="inputseri d-flex flex-row flex-wrap justify-content-start">
+                            <input type="search" class="form-control m-3 col-sm-6" id="seriesfixed" name="seriesfixed" required
+                                   th:value="${seri}" style="font-weight: bold">
+                            <button type="button" class="btnremove btn btn-primary my-3 col-sm-2" onclick="removeSeri(this)"> <i class="fa fa-times-circle"></i>  </button>
+                        </div>
+                    </th:block>
+                    <button type="button" class="btn btn-primary m-3" onclick="addInputseriesfixed(this)"> <i class="fa fa-plus-circle"></i> </button>
+                </div>
+            </div>
+            <style>
+                .inputseri:hover {
+                    box-shadow: -1.5em 0 5px 2px rgba(0, 0, 125, 0.2);
+                }
+            </style>
+            <button th:if="false" type="submit" class="btn btn-primary" id="submitButton">Sửa</button>
+        </form>
+    </div>
+
+    <!-- Link to Bootstrap JS and jQuery -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <script th:src="@{/js/equipment-edit-form.js}"></script>
+    <script>
+        var inputElements = document.querySelectorAll('input, textarea, select');
+        for (var i = 0; i < inputElements.length; i++) {
+            if (inputElements[i].type !== 'checkbox') {
+                inputElements[i].disabled = true;
+            }
+        }
+    </script>
+</equipment-edit-form-readOnly>
+</body>
+</html>
