@@ -25,7 +25,31 @@
 <div th:replace="headernew::header"></div>
 <booking-detail>
     <!--<div th:replace="headernew::header"></div>-->
-    <h1 style="margin-top: 50px; text-align: center;">CHI TIẾT ĐẶT PHÒNG THÍ NGHIỆM</h1><br>
+    <h1 style="margin-top: 50px; text-align: center;">CHI TIẾT ĐẶT PHÒNG THÍ NGHIỆM</h1>
+    <div th:if="${bookingDTO.confirm_Status=='Đã xác nhận'}" >
+        <div class="d-flex justify-content-center align-content-center flex-row p-2">
+            <form th:action="@{'/Lab/myBookingDetail/ComfirmUsed'}" method="get"
+                  th:if="${bookingDTO.comfirmUsed == 'Chưa sử dụng'}">
+                <input type="hidden" class="teacher-confirm" name="bookingId" th:value="${bookingDTO.getId}">
+                <input type="hidden" class="teacher-confirm" name="username" th:value="${#authentication.name}">
+                <button type="submit" class="btn btn-success mx-2 teacher-confirm" onclick="return confirm('Bạn có chắc chắn muốn SỬ DỤNG không?')">Xác nhận CÓ sử dụng phòng</button>
+            </form>
+            <form th:action="@{'/Lab/myBookingDetail/ComfirmUsedCancel'}" method="get"
+                  th:if="${bookingDTO.comfirmUsed == 'Chưa sử dụng'}">
+                <input type="hidden" class="teacher-confirm" name="bookingId" th:value="${bookingDTO.getId}">
+                <input type="hidden" class="teacher-confirm" name="username" th:value="${#authentication.name}">
+                <button type="submit" class="btn btn-danger mx-2 teacher-confirm" onclick="return confirm('Bạn có chắc chắn muốn HỦY không?')">Xác nhận KHÔNG sử dụng phòng</button>
+            </form>
+            <span class="text-success font-weight-bold font-size-xlg bg-warning" th:if="${bookingDTO.comfirmUsed == 'Đã sử dụng'}"> GV đã xác nhận sử dụng phòng</span>
+        </div>
+    <br>
+    </div>
+    <div th:if="${bookingDTO.confirm_Status=='Bị từ chối'}" >
+        <div class="d-flex justify-content-center align-content-center flex-row p-2">
+            <span class="text-danger font-weight-bold font-size-xlg bg-warning" th:if="${bookingDTO.comfirmUsed == 'Đã hủy'}"> GV đã xác nhận hủy phòng</span>
+        </div>
+        <br>
+    </div>
     <div style="background-color: rgba(230,239,255,0.6); padding: 2em; border-radius: 3em;" class="container">
     <div th:replace="admin/add-nocite.html :: notice"></div>
     <div th:replace="admin/add-nocite.html :: noticeUnSuccess"></div>
@@ -301,7 +325,7 @@
             return trimmedArray;
         }
 
-        $('.btn-danger').click(function () {
+        $('.btn-danger').not('.teacher-confirm').click(function () {
             var username = [[${#authentication.name}]]
             if (confirm('Bạn có chắc chắn muốn hủy đơn này?')) {
                 window.location.href = "/Lab/myBookingDetail/Cancel?bookingId=" + bookingId + '&username='+username;
@@ -316,9 +340,11 @@
             || window.location.pathname === '/Lab/admin/ShowBookingCancel/'+bookingId
             || (window.location.pathname === '/Lab/myBookingDetail/'+bookingId && bookingStatus == 'Bị từ chối')
             || (window.location.pathname === '/Lab/myBookingDetail/'+bookingId && bookingStatus == 'Đã xác nhận')) {
-                // Lấy danh sách tất cả các thẻ input, nút button và các selection
-                var inputs = document.querySelectorAll('input, button, select, textarea');
-                console.log("đã vô hiệu hóa")
+
+
+
+                var inputs = document.querySelectorAll('input:not(.teacher-confirm), button:not(.teacher-confirm), select, textarea');
+                console.log("đã vô hiệu hóa");
                 // Vòng lặp để thêm thuộc tính disabled vào từng phần tử
                 for (var i = 0; i < inputs.length; i++) {
                     inputs[i].disabled = true;

@@ -37,10 +37,13 @@ public class Booking implements Serializable {
     @Column(name = "auto", nullable = false)
     private String auto;
 
+    @Column(name = "comfirm_used", nullable = false)
+    private String comfirmUsed;
+
     public Booking() {
     }
 
-    public Booking(int labid, int contentid, Date bookingDate, String confirmStatus, int work_times, String note, int is_delete, String auto) {
+    public Booking(int labid, int contentid, Date bookingDate, String confirmStatus, int work_times, String note, int is_delete, String auto, String comfirmUsed) {
         this.labid = labid;
         this.contentid = contentid;
         this.bookingDate = bookingDate;
@@ -49,6 +52,7 @@ public class Booking implements Serializable {
         this.note = note;
         this.is_delete = is_delete;
         this.auto = auto;
+        this.comfirmUsed = comfirmUsed;
     }
 
     @Override
@@ -63,6 +67,7 @@ public class Booking implements Serializable {
                 ", note='" + note + '\'' +
                 ", is_delete=" + is_delete +
                 ", auto=" + auto +
+                ", comfirmUsed=" + comfirmUsed +
                 '}';
     }
 
@@ -136,6 +141,14 @@ public class Booking implements Serializable {
 
     public void setAuto(String auto) {
         this.auto = auto;
+    }
+
+    public String getComfirmUsed() {
+        return comfirmUsed;
+    }
+
+    public void setComfirmUsed(String comfirmUsed) {
+        this.comfirmUsed = comfirmUsed;
     }
 }
 

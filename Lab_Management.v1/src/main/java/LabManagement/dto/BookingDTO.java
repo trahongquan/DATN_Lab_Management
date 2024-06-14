@@ -15,6 +15,7 @@ public class BookingDTO {
     private String note;
     private int is_delete;
     private String auto;
+    private String comfirmUsed;
 
     private Content content;
     private ContentDTO contentDTO;
@@ -36,6 +37,7 @@ public class BookingDTO {
         this.note = booking.getNote();
         this.is_delete = booking.getIs_delete();
         this.auto = booking.getAuto();
+        this.comfirmUsed = booking.getComfirmUsed();
         this.content = content;
         this.lab = lab;
         this.experimentReport = experimentReport;
@@ -51,6 +53,7 @@ public class BookingDTO {
         this.note = booking.getNote();
         this.is_delete = booking.getIs_delete();
         this.auto = booking.getAuto();
+        this.comfirmUsed = booking.getComfirmUsed();
         this.contentDTO = contentDTO;
         this.labDTO = labDTO;
         this.booking_equis = booking_equis;
@@ -68,6 +71,7 @@ public class BookingDTO {
                 ", note='" + note + '\'' +
                 ", is_delete=" + is_delete +
                 ", auto=" + auto +
+                ", comfirmUsed=" + comfirmUsed +
                 ", content=" + content +
                 ", lab=" + lab +
                 ", experimentReport=" + experimentReport +
@@ -144,6 +148,14 @@ public class BookingDTO {
 
     public void setAuto(String auto) {
         this.auto = auto;
+    }
+
+    public String getComfirmUsed() {
+        return comfirmUsed;
+    }
+
+    public void setComfirmUsed(String comfirmUsed) {
+        this.comfirmUsed = comfirmUsed;
     }
 
     public Content getContent() {

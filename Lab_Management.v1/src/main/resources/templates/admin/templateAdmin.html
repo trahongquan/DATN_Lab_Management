@@ -902,7 +902,13 @@
                             <li>
                                 <a th:href="'/Lab/admin/LabBookingManagement/Approve?username='+${#authentication.name}">
                                     <i class="metismenu-icon pe-7s-graph">
-                                    </i>Yêu cầu đã xử lý
+                                    </i>Yêu cầu đã duyệt
+                                </a>
+                            </li>
+                            <li>
+                                <a th:href="'/Lab/admin/LabBookingManagement/WaitComfirmUsed?username='+${#authentication.name}">
+                                    <i class="metismenu-icon pe-7s-graph">
+                                    </i>Chờ GV sử dụng
                                 </a>
                             </li>
                             <li>
@@ -1075,7 +1081,10 @@
                 <div th:if="${#request.requestURI == '/Lab/admin/AllEquipment'}" class="app-main__inner">
                     <div th:replace="admin/equipments.html :: equipment"></div>
                 </div>
-                <div th:if="${#strings.contains(#request.requestURI, '/Lab/admin/AllEquipment/showFormForUpdate/')}" class="app-main__inner">
+                <div th:if="${#strings.contains(#request.requestURI, '/Lab/admin/AllEquipment/showAll/')}" class="app-main__inner">
+                    <div th:replace="admin/equipment-edit-form-readOnly.html :: equipment-edit-form-readOnly"></div>
+                </div>
+                <div th:if="${#strings.contains(#request.requestURI, '/Lab/admin/AllEquipment/showForManager/')}" class="app-main__inner">
                     <div th:replace="admin/equipment-edit-form-readOnly.html :: equipment-edit-form-readOnly"></div>
                 </div>
 
@@ -1155,6 +1164,9 @@
                 </div>
 
                 <div th:if="${#request.requestURI == '/Lab/admin/LabBookingManagement/Approve'}" class="app-main__inner" style="display: flex; justify-content: center; align-content: center; flex-direction: column;">
+                    <div th:replace="admin/booking-management.html :: management"></div>
+                </div>
+                <div th:if="${#request.requestURI == '/Lab/admin/LabBookingManagement/WaitComfirmUsed'}" class="app-main__inner" style="display: flex; justify-content: center; align-content: center; flex-direction: column;">
                     <div th:replace="admin/booking-management.html :: management"></div>
                 </div>
                 <div th:if="${#strings.contains(#request.requestURI, '/Lab/admin/ShowBookingApprove/')}" class="app-main__inner">

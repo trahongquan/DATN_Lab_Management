@@ -234,7 +234,8 @@ public class LabController {
         List<EquipmentLab> equipmentLabs = equipmentLabService.findAllByLabId(id);
         List<EquipmentLab> equipmentLabsCoppy = new ArrayList<>(equipmentLabs);
         Content content = contentService.saveContent(new Content(name, reservationistId, experiment_typeId, experiment_reportId, class_name, amount_of_people, "[]"));
-        Booking booking = bookingService.createBooking(new Booking(id,content.getId(),date, new ComfirmStatus().PENDDING, work_time, note,0, AutoComfirmStatusBooking.NULL));
+        Booking booking = bookingService.createBooking(new Booking(id,content.getId(),date, new ComfirmStatus().PENDDING, work_time, note,0, AutoComfirmStatusBooking.NULL, ComfirmUsed.UNUSED));
+
         List<Booking_equi> booking_equis = new ArrayList<>();
         series.forEach(seri -> {
             equipmentLabsCoppy.forEach( equipmentLab -> {
@@ -421,6 +422,24 @@ public class LabController {
                                              @RequestParam("bookingId") int bookingId,
                                              @RequestParam(value = "success", defaultValue = "false") boolean success){
         CancelBookingPendding(model, username, bookingId, success);
+        return Redirect("mybooking?username=" + username, true);
+    }
+
+    @GetMapping({"/myBookingDetail/ComfirmUsed"})
+    public String myBookingDetailComfirmUsed(Model model,
+                              @RequestParam("bookingId") int bookingId,
+                              @RequestParam("username") String username,
+                              @RequestParam(value = "success", defaultValue = "false") boolean success){
+        ComfirmUsed(model, bookingId, username, success);
+        return Redirect("mybooking?username=" + username, true);
+    }
+
+    @GetMapping({"/myBookingDetail/ComfirmUsedCancel"})
+    public String myBookingDetailComfirmUsedCancel(Model model,
+                                    @RequestParam("bookingId") int bookingId,
+                                    @RequestParam("username") String username,
+                                    @RequestParam(value = "success", defaultValue = "false") boolean success){
+        ComfirmUsedCancel(model, bookingId, username, success);
         return Redirect("mybooking?username=" + username, true);
     }
 
@@ -938,9 +957,42 @@ public class LabController {
         return template;
     }
 
-    @GetMapping("/admin/AllEquipment/showFormForUpdate/{id}")
+    @GetMapping("/admin/AllEquipment/showAll/{id}")
     public String AllEquipmentDetail(Model model, @PathVariable(value = "id") int id) {
+        Equipment equipment = equipmentService.findByEquipmentId(id);
+        List<String> series = equipment.getSeriesAsList();
+        List<String> levels = equipment.getLevelList();
+        List<EquipmentLab> equipmentLabs = equipmentLabService.findAllByEquipmentId(id);
 
+        List<String> LabNames = new ArrayList<>();
+        List<Integer> LabId = new ArrayList<>();
+
+        for (String seri : series) {
+            LabNames.add(""); LabId.add(0);
+        }
+        for (EquipmentLab equipmentLab : equipmentLabs) {
+            for (String seriLab : equipmentLab.getEquipmentSerieList()) {
+                Lab lab = labService.findByLabId(equipmentLab.getLabId());
+                series.add(seriLab);
+                LabNames.add(lab.getLabName());
+                LabId.add(lab.getId());
+            }
+            for (String levelLab : equipmentLab.getLevelList()) {
+                levels.add(levelLab);
+            }
+        }
+        equipment.setLevelList(levels.toString());
+        equipment.setSeries(series.toString());
+
+        model.addAttribute("equipment", equipment);
+        model.addAttribute("LabIds", LabId);
+        model.addAttribute("LabNames", LabNames);
+        model.addAttribute("title", "Thông tin chi tiết thiết bị");
+        return template;
+    }
+
+    @GetMapping("/admin/AllEquipment/showForManager/{id}")
+    public String AllEquipmentshowForManagerDetail(Model model, @PathVariable(value = "id") int id) {
         Equipment equipment = equipmentService.findByEquipmentId(id);
         List<String> series = new ArrayList<>();
         List<String> levels = new ArrayList<>();
@@ -969,6 +1021,8 @@ public class LabController {
         model.addAttribute("title", "Thông tin chi tiết thiết bị");
         return template;
     }
+
+
 
     @PostMapping("/admin/Equipment/showFormForUpdate/{id}")
     public String EquipmentDetailPost(@PathVariable(value = "id") int id,
@@ -1329,6 +1383,13 @@ public class LabController {
         return bookingDTOs;
     }
 
+    /*private List<BookingDTO> GetBookingByStatus(Model model, String status, String comfirmUsed, String username){
+        List<BookingDTO> bookingDTOS = GetBookingByStatus(model, status, username)
+                                        .stream().filter(bookingDTO ->
+                                            bookingDTO.getComfirmUsed().equals(ComfirmUsed.));
+
+    }*/
+
     @GetMapping({"/admin/LabBookingManagement/Pendding"})
     public String PeddingBooking(Model model,
                                @RequestParam("username") String username,
@@ -1404,7 +1465,7 @@ public class LabController {
 
     @PostMapping("/admin/ShowBookingPendding/removeBookingEqui")
     public String removeBookingEqui(@RequestParam("bookingId") int bookingId,
-                                @RequestParam("removeBookingEqui") int removeBookingEqui){
+                                    @RequestParam("removeBookingEqui") int removeBookingEqui){
         booking_equiService.deleteBookingEquipment(removeBookingEqui);
         return Redirect("admin/ShowBookingPendding/"+bookingId,true);
     }
@@ -1459,6 +1520,7 @@ public class LabController {
         Booking booking = bookingService.findByBookingId(bookingId);
         booking.setConfirmStatus(ComfirmStatus.CANCEL);
         booking.setAuto(AutoComfirmStatusBooking.ManualBoking);
+        booking.setComfirmUsed(ComfirmUsed.CANCEL);
         bookingService.updateBooking(booking);
         model.addAttribute("success",success);
         return Redirect("admin/LabBookingManagement/Pendding?username="+username, true);
@@ -1472,6 +1534,39 @@ public class LabController {
         model.addAttribute("success", success);
         model.addAttribute("title", "QL đơn đã duyệt");
         return template;
+    }
+
+    @GetMapping({"/admin/LabBookingManagement/WaitComfirmUsed"})
+    public String WaitComfirmUsed(Model model,
+                                 @RequestParam("username") String username,
+                                 @RequestParam(value = "success", defaultValue = "false") boolean success){
+        GetBookingByStatus(model, ComfirmStatus.APPROVE,username);
+        model.addAttribute("success", success);
+        model.addAttribute("title", "QL YC chờ giáo viên xác nhận sử dụng phòng");
+        return template;
+    }
+
+    @GetMapping({"/admin/LabBookingManagement/ComfirmUsed"})
+    public String ComfirmUsed(Model model,
+                              @RequestParam("bookingId") int bookingId,
+                              @RequestParam("username") String username,
+                              @RequestParam(value = "success", defaultValue = "false") boolean success){
+        Booking booking = bookingService.findByBookingId(bookingId);
+        booking.setComfirmUsed(ComfirmUsed.USED);
+        bookingService.updateBooking(booking);
+        model.addAttribute("success", success);
+        model.addAttribute("title", "QL YC chờ giáo viên xác nhận sử dụng phòng");
+        return Redirect("admin/LabBookingManagement/WaitComfirmUsed?username="+username,true);
+    }
+
+    @GetMapping({"/admin/LabBookingManagement/ComfirmUsedCancel"})
+    public String ComfirmUsedCancel(Model model,
+                                    @RequestParam("bookingId") int bookingId,
+                                    @RequestParam("username") String username,
+                                    @RequestParam(value = "success", defaultValue = "false") boolean success){
+        CancelBookingPendding(model, username, bookingId, success);
+        model.addAttribute("title", "QL YC chờ giáo viên xác nhận sử dụng phòng");
+        return Redirect("admin/LabBookingManagement/WaitComfirmUsed?username="+username,true);
     }
 
     @GetMapping({"/admin/ShowBookingApprove/{id}"})
@@ -1489,6 +1584,7 @@ public class LabController {
         Booking booking = bookingService.findByBookingId(bookingId);
         booking.setAuto(AutoComfirmStatusBooking.NULL);
         booking.setConfirmStatus(ComfirmStatus.PENDDING);
+        booking.setComfirmUsed(ComfirmUsed.UNUSED);
         bookingService.updateBooking(booking);
         model.addAttribute("success",success);
         return Redirect("admin/LabBookingManagement/Approve?username="+username,true);

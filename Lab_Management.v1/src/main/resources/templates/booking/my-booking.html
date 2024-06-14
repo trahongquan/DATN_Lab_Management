@@ -82,7 +82,14 @@
                                 <div style="background-color: #007bff">
                                     <div class="card-header justify-content-center" th:text="${booking.lab.labName}"></div>
                                     <div>
-                                        <button th:data="${booking.id}" th:data-user="${#authentication.name}" type="button" class="btn btn-primary btn-detail-booking" style="border: black thin;">Xem chi tiết</button>
+                                        <button th:data="${booking.id}" th:data-user="${#authentication.name}"
+                                                th:if="${booking.comfirmUsed!='Chưa sử dụng'}"
+                                                type="button" class="btn btn-primary btn-detail-booking" style="border: black thin;">Xem chi tiết
+                                        </button>
+                                        <button th:data="${booking.id}" th:data-user="${#authentication.name}"
+                                                th:if="${booking.comfirmUsed=='Chưa sử dụng'}"
+                                                type="button" class="btn btn-warning btn-detail-booking" style="border: black thin;">Vào xác nhận
+                                        </button>
                                     </div>
                                 </div>
                                 <div class="card-body">
