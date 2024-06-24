@@ -21,6 +21,9 @@ public class Lab implements Serializable {
     @Column(name = "location", nullable = false)
     private String location;
 
+    @Column(name = "managing_unit", nullable = false)
+    private String managingUnit;
+
     @Column(name = "lab_managemet_id", nullable = false)
     private int lab_managemet_id;
 
@@ -30,10 +33,11 @@ public class Lab implements Serializable {
     public Lab() {
     }
 
-    public Lab(String labName, int capacity, String location, int lab_managemet_id, int isDelete) {
+    public Lab(String labName, int capacity, String location, String managingUnit, int lab_managemet_id, int isDelete) {
         this.labName = labName;
         this.capacity = capacity;
         this.location = location;
+        this.managingUnit = managingUnit;
         this.lab_managemet_id = lab_managemet_id;
         this.isDelete = isDelete;
     }
@@ -45,6 +49,7 @@ public class Lab implements Serializable {
                 ", labName='" + labName + '\'' +
                 ", capacity=" + capacity +
                 ", location='" + location + '\'' +
+                ", managingUnit='" + managingUnit + '\'' +
                 ", lab_managemet_id=" + lab_managemet_id +
                 ", isDeleted=" + isDelete +
                 '}';
@@ -96,6 +101,14 @@ public class Lab implements Serializable {
 
     public void setIsDelete(int isDeleted) {
         this.isDelete = isDeleted;
+    }
+
+    public String getManagingUnit() {
+        return managingUnit;
+    }
+
+    public void setManagingUnit(String managingUnit) {
+        this.managingUnit = managingUnit;
     }
 }
 

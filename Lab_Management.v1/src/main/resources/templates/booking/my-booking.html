@@ -10,20 +10,23 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" ></script>
     <!--<script src="js/script.js"></script>-->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" >
-    <link rel="stylesheet" href="/css/base2.min.css">
     <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="/css/base2.min.css">
 
 </head>
 <body>
 <div th:replace="headernew::header"></div>
 <main>
-    <div class="container">
+    <div class="">
+    <!--<div class="container">-->
         <!-- search bar with category -->
         <div class="d-flex justify-content-center align-content-center my-3">
-            <div class="d-none d-lg-block col-lg-5 col-xl-4" style="background-color: rgba(230,239,255,0.6); border-radius: 1em; padding: 1em">
+            <div class="d-none d-lg-block col-lg-4 col-xl-3" style="background-color: rgba(230,239,255,0.6); border-radius: 1em; padding: 1em">
                 <div class="el-search-with-category-wrapper">
-                    <div class="product-search electio-filter-available electio-search-style-one electio-ajax-search-header-one" >
-                        <form th:action="@{'/Lab/mybooking?username='+${#authentication.name}+'&search=true'}" method="get" class="electio-search-box d-flex flex-row justify-content-between justify-content-center">
+                    <div class="product-search electio-filter-available electio-search-style-one electio-ajax-search-header-one
+                                d-flex flex-column justify-content-center align-content-center">
+                        <form th:action="@{'/Lab/mybooking?username='+${#authentication.name}+'&search=true'}" method="get"
+                              class="electio-search-box d-flex flex-row justify-content-between justify-content-center">
                             <div>
                                 <input type="hidden" name="search" class="form-control" th:value="'true'">
                                 <input type="hidden" name="username" class="form-control" th:value="${#authentication.name}">
@@ -51,16 +54,17 @@
                                 </div>
                             </div>
                         </form>
+                        <button id="switch-card-table" class="btn btn-success mt-3"> chuyển đổi </button>
                         <div class="search-results electio-search-result"></div>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="row">
+        <div class="row" id="card-booking">
             <div class="col-12">
                 <form action="#" >
                     <div class="choose-room d-flex justify-content-around align-content-center">
-                        <div class="col-3 room" th:each="booking : ${bookingDTOs}" style="border-radius:1em 1em 65px 65px">
+                        <div class="col-2 room" th:each="booking : ${bookingDTOs}" style="border-radius:1em 1em 65px 65px">
                             <div class="card lab-card" style="border-radius:50px" >
                                 <div>
                                     <style>
@@ -87,7 +91,11 @@
                                                 type="button" class="btn btn-primary btn-detail-booking" style="border: black thin;">Xem chi tiết
                                         </button>
                                         <button th:data="${booking.id}" th:data-user="${#authentication.name}"
-                                                th:if="${booking.comfirmUsed=='Chưa sử dụng'}"
+                                                th:if="${booking.comfirmUsed=='Chưa sử dụng' && booking.confirm_Status=='Đang chờ duyệt'}"
+                                                type="button" class="btn btn-primary btn-detail-booking" style="border: black thin;">Xem chi tiết
+                                        </button>
+                                        <button th:data="${booking.id}" th:data-user="${#authentication.name}"
+                                                th:if="${booking.comfirmUsed=='Chưa sử dụng' && booking.confirm_Status=='Đã xác nhận'}"
                                                 type="button" class="btn btn-warning btn-detail-booking" style="border: black thin;">Vào xác nhận
                                         </button>
                                     </div>
@@ -120,6 +128,88 @@
             </div>
         </div>
     </div>
+    <div class="main-card m-3 card p-5" id="table-booking" style="display: none">
+        <div class="card-body">
+            <table style="width: 100%;" id="example" class="table table-hover table-striped table-bordered">
+                <thead>
+                <tr>
+                    <th>STT</th>
+                    <th>Tên phòng</th>
+                    <th>Loại sản phẩm</th>
+                    <th>Tên lớp</th>
+                    <th>Ngày đặt</th>
+                    <th>Trạng thái</th>
+                    <th>Thao tác</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="booking, iter : ${bookingDTOs}">
+                    <td th:text="${iter.index + 1}"></td>
+                    <td th:text="${booking.lab.labName}"></td>
+                    <td style="max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                        <span class="lab-info text-primary" th:text="${booking.experimentReport.reportType} +': '"> </span>
+                        <span class="lab-info" th:text="${booking.content.name}"></span>
+                    </td>
+                    <td>
+                        <span class="lab-info text-primary"> Tên lớp: </span>
+                        <span class="lab-info" th:text="${booking.content.className}"></span>
+                    </td>
+                    <td>
+                        <div class="date-info" th:value="${booking.confirm_Status}">
+                            <!--<span class="lab-info"> Ngày đặt: </span>-->
+                            <span class="lab-info strong" th:text="${booking.booking_Date}"></span>
+                        </div>
+                    </td>
+                    <td th:if="${#strings.contains(#request.requestURI, '/Lab/admin/LabBookingManagement/WaitComfirmUsed')}">
+                        <div class="date-info">
+                            <span class="lab-info strong" th:text="${booking.comfirmUsed}"></span>
+                            <!--<span class="lab-info strong" th:if="${booking.auto == ''}" th:text="'Chưa có'"></span>-->
+                        </div>
+                    </td>
+                    <td>
+                        <form th:action="@{'/Lab/admin/LabBookingManagement/ComfirmUsed'}" method="get" class="m-2"
+                              th:if="${booking.comfirmUsed == 'Chưa sử dụng'}">
+                            <input type="hidden" name="bookingId" th:value="${booking.getId}">
+                            <input type="hidden" name="username" th:value="${#authentication.name}">
+                            <button type="submit" class="btn btn-success mx-2" onclick="return confirm('Bạn có chắc chắn muốn SỬ DỤNG không?')">Dùng</button>
+                        </form>
+                        <form th:action="@{'/Lab/admin/LabBookingManagement/ComfirmUsed'}" method="get" class="m-2"
+                              th:if="${booking.comfirmUsed == 'Chưa sử dụng'}">
+                            <input type="hidden" name="bookingId" th:value="${booking.getId}">
+                            <input type="hidden" name="username" th:value="${#authentication.name}">
+                            <button type="submit" class="btn btn-danger mx-2" onclick="return confirm('Bạn có chắc chắn muốn HỦY không?')">Hủy</button>
+                        </form>
+                        <span class="text-success font-weight-bold" th:if="${booking.comfirmUsed == 'Đã sử dụng'}"> Bạn đã xác nhận <br> sử dụng phòng</span>
+                        <span class="text-danger font-weight-bold" th:if="${booking.comfirmUsed == 'Đã hủy'}"> Bạn Đã xác nhận <br> hủy phòng</span>
+                    </td>
+                    <td>
+                        <div class="d-flex justify-content-center align-content-center flex-row p-2">
+                            <button th:data="${booking.id}" th:data-user="${#authentication.name}"
+                                    th:if="${booking.comfirmUsed!='Chưa sử dụng'}"
+                                    type="button" class="btn btn-primary btn-detail-booking" style="border: black thin;">Xem chi tiết
+                            </button>
+                            <button th:data="${booking.id}" th:data-user="${#authentication.name}"
+                                    th:if="${booking.comfirmUsed=='Chưa sử dụng'}"
+                                    type="button" class="btn btn-warning btn-detail-booking" style="border: black thin;">Vào xác nhận
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+                <tfoot>
+                <tr>
+                    <th>STT</th>
+                    <th>Tên phòng</th>
+                    <th>Loại sản phẩm</th>
+                    <th>Tên lớp</th>
+                    <th>Ngày đặt</th>
+                    <th>Trạng thái</th>
+                    <th>Thao tác</th>
+                </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
 </main>
 <br>
 <br>
@@ -129,6 +219,24 @@
 </script>
 <script src="/js/my-booking.js"></script>
 <script src="/js/noticePopUp.js"></script>
+<!--CORE-->
+<script src="https://code.jquery.com/jquery-3.3.1.min.js"
+        integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.bundle.min.js"
+        crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/metismenu"></script>
+
+<!--TABLES -->
+<!--DataTables-->
+<script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/datatables.net-bs4@1.10.19/js/dataTables.bootstrap4.min.js" crossorigin="anonymous"></script>
+<script src="https://cdn.datatables.net/responsive/2.2.3/js/dataTables.responsive.min.js" crossorigin="anonymous"></script>
+<script src="https://cdn.datatables.net/responsive/2.2.3/js/responsive.bootstrap.min.js" crossorigin="anonymous"></script>
+<!--Bootstrap Tables-->
+<script th:src="@{/js/table/tablesInit.js}"></script>
+<!--Tables Init-->
+<script th:src="@{/js/table/tablesVendors.js}"></script>
 </body>
 </html>
 

@@ -14,6 +14,7 @@ public class LabDTO {
     private String labName;
     private int capacity;
     private String location;
+    private String managingUnit;
     private int lab_managemet_id;
     private int isDeleted;
     private People lab_managemet;
@@ -29,6 +30,7 @@ public class LabDTO {
         this.labName = lab.getLabName();
         this.capacity = lab.getCapacity();
         this.location = lab.getLocation();
+        this.managingUnit = lab.getManagingUnit();
         this.lab_managemet_id = lab.getLab_managemet_id();
         this.isDeleted = lab.getIsDelete();
         this.lab_managemet = lab_managemet;
@@ -39,6 +41,7 @@ public class LabDTO {
         this.labName = lab.getLabName();
         this.capacity = lab.getCapacity();
         this.location = lab.getLocation();
+        this.managingUnit = lab.getManagingUnit();
         this.lab_managemet_id = lab.getLab_managemet_id();
         this.isDeleted = lab.getIsDelete();
         this.lab_managemet = lab_managemet;
@@ -50,6 +53,7 @@ public class LabDTO {
         this.labName = lab.getLabName();
         this.capacity = lab.getCapacity();
         this.location = lab.getLocation();
+        this.managingUnit = lab.getManagingUnit();
         this.lab_managemet_id = lab.getLab_managemet_id();
         this.isDeleted = lab.getIsDelete();
         this.lab_managemet = lab_managemet;
@@ -134,5 +138,13 @@ public class LabDTO {
 
     public void setDateAndStatusLab(List<DateAndStatusLab> dateAndStatusLab) {
         this.dateAndStatusLab = dateAndStatusLab;
+    }
+
+    public String getManagingUnit() {
+        return managingUnit;
+    }
+
+    public void setManagingUnit(String managingUnit) {
+        this.managingUnit = managingUnit;
     }
 }

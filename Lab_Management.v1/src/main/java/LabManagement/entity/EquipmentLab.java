@@ -28,14 +28,18 @@ public class EquipmentLab implements Serializable {
     @Column(name = "levels", nullable = false)
     private String levels;
 
+    @Column(name = "usingdate", nullable = false)
+    private String using;
+
     public EquipmentLab() {
     }
 
-    public EquipmentLab(int labId, int equipmentId, List<String> equipmentSeriesList, List<String> levels) {
+    public EquipmentLab(int labId, int equipmentId, List<String> equipmentSeriesList, List<String> levels, List<String> using) {
         this.labId = labId;
         this.equipmentId = equipmentId;
         this.equipmentSeries = equipmentSeriesList.toString();
         this.levels = levels.toString();
+        this.using = using.toString();
     }
 
     @Override
@@ -92,6 +96,14 @@ public class EquipmentLab implements Serializable {
         this.levels = levels;
     }
 
+    public List<String> getUsingList() {
+        return new ToList().StringLevelsToList(using);
+    }
+
+    public void setUsingList(String using) {
+        this.using = using;
+    }
+
     public void AddSeri(EquipmentLabService equipmentLabService, String seri){
         List<String> series = new ToList().StringToList(equipmentSeries);
         series.add(seri);
@@ -118,4 +130,18 @@ public class EquipmentLab implements Serializable {
         this.setLevelList(levelList.toString());
         equipmentLabService.saveEquipmentLab(this);
     }
+
+    public void AddUsing(EquipmentLabService equipmentLabService, String using1){
+        List<String> usingList = new ToList().StringToList(using);
+        usingList.add(using1);
+        this.setUsingList(usingList.toString());
+        equipmentLabService.saveEquipmentLab(this);
+    }
+    public void DelUsing(EquipmentLabService equipmentLabService, String using1){
+        List<String> usingList = new ToList().StringToList(using);
+        usingList.remove(using1);
+        this.setUsingList(usingList.toString());
+        equipmentLabService.saveEquipmentLab(this);
+    }
+
 }

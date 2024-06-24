@@ -30,4 +30,21 @@ $(document).ready(function() {
         window.location.href = "/Lab/myBookingDetail/" + bookingId + "?username=" + username;
     });
 
+    /** Cài đặt ẩn hiện bảng hiển thị */
+    var toggleStatus = false;
+    $('#switch-card-table').click(function() {
+        if (toggleStatus) {
+            $('#card-booking').fadeOut(300, function() {
+                $('#table-booking').fadeIn(300);
+            });
+            $('#switch-card-table').text('Chuyển sang xem dạng thẻ')
+        } else {
+            $('#table-booking').fadeOut(300, function() {
+                $('#card-booking').fadeIn(300);
+            });
+            $('#switch-card-table').text('Chuyển sang xem dạng bảng')
+        }
+        toggleStatus = !toggleStatus;
+    });
+    $('#switch-card-table').trigger('click')
 });

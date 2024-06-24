@@ -43,9 +43,10 @@
                 </div>
                 <div class="form-group col-6">
                     <label for="LabCapacity">Sức chứa:</label>
-                    <input type="text" class="form-control" id="LabCapacity" name="LabCapacity" required
+                    <input type="number" class="form-control" id="LabCapacity" name="LabCapacity" required
                            th:placeholder="'60'">
-                </div>                <div class="form-group col-md-6" style="padding: 2em">
+                </div>
+                <div class="form-group col-md-6" style="padding: 2em">
                     <div class="main-card mb-3 card">
                         <div class="card-body">
                             <h5 class="card-title">Chọn thiết bị</h5>
@@ -62,7 +63,12 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-6 d-flex">
+                <div class="form-group col-6">
+                    <label for="managingUnit">Chủ quản:</label>
+                    <input type="text" class="form-control" id="managingUnit" name="managingUnit" required
+                           th:placeholder="'Bộ môn Công nghệ phần mềm'">
+                </div>
+                <div class="col-12 d-flex">
                     <button type="submit" class="btn btn-primary" style="margin: auto; padding: 2em">Thêm</button>
                 </div>
             </div>

@@ -69,8 +69,17 @@ function addInput(button) {
     icon_btnfix.setAttribute('class', 'fa fa-wrench');
     btnfix.appendChild(icon_btnfix);
 
+    var div_select = document.createElement('div');
+    div_select.setAttribute('class', 'd-flex flex-row flex-wrap justify-content-start col-sm-6');
+
+    var input_date = document.createElement('input');
+    input_date.type = 'date';
+    input_date.setAttribute('class', 'form-control m-2 col-sm-6');
+    input_date.name = 'using';
+    input_date.required = true;
+
     var select = document.createElement('select');
-    select.setAttribute('class', 'form-control m-3 col-sm-6');
+    select.setAttribute('class', 'form-control m-2 col-sm-4');
     select.name = 'levels';
     select.required = true;
 
@@ -82,9 +91,12 @@ function addInput(button) {
         select.add(opt);
     });
 
+    div_select.appendChild(input_date);
+    div_select.appendChild(select);
+
     div_inputseri.appendChild(input);
     div_inputseri.appendChild(btnfix);
-    div_inputseri.appendChild(select);
+    div_inputseri.appendChild(div_select);
     div_inputseri.appendChild(btnremove);
 
     formGroup.insertBefore(div_inputseri, button);

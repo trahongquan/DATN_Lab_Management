@@ -35,7 +35,7 @@
         </form>
     </div>
 
-    <div id="qickchoosetime" class="d-flex justify-content-between align-content-center mb-4">
+    <div id="qickchoosetime" class="d-flex justify-content-between align-content-center">
         <button id="btn-yesterday" class="btn btn-primary margin-h-center">Hôm qua</button>
         <button id="btn-1-day" class="btn btn-primary margin-h-center">Hôm nay</button>
         <button id="btn-1-week" class="btn btn-primary margin-h-center">1 Tuần</button>
@@ -44,14 +44,36 @@
         <button id="btn-6-months" class="btn btn-primary margin-h-center">6 Tháng</button>
         <button id="btn-1-year" class="btn btn-primary margin-h-center">1 Năm</button>
         <button id="btn-1-year-2" class="btn btn-primary margin-h-center">Năm học</button>
-        <button id="btn-kk" class="btn btn-primary margin-h-center">Tổng KK</button>
+    </div>
+    <div class="form-group" style="display: flex ; justify-content: space-around">
+        <!--<div style="display: flex; justify-content: space-around">
+            <form th:action="'/Lab/admin/ExperimentManagement/ExperimentGroup/add'" method="post">
+                <div style="margin-right: 10px">
+                    <label for="experiment" >Thêm nhóm:</label>
+                    <input type="text" class="form-control" id="experiment" name="experiment" required>
+                </div>
+                <br>
+                <button type="submit" class="btn btn-primary" > Thêm mới</button>
+            </form>
+        </div>
+        <form th:action="@{'/Lab/admin/ExperimentManagement/ExperimentGroup/del'}" method="post">
+            <div>
+                <label th:for="@{'experiment'}" >Nhóm:</label>
+                <select th:class="@{'form-control'}" th:id="@{'experiment'}" th:name="@{'experiment'}"  required>
+                    <option th:each="experiment : ${unusedExperimentGroups}" th:value="${experiment.id}" th:text="${experiment.groupName}"></option>
+                </select>
+            </div>
+            <label class="text-warning"><span class="text-danger"><strong>Chú ý:</strong></span> Chỉ hiển thị những nhóm có thể xóa</label> <br>
+            <label class="text-warning"><span class="text-danger"><strong>Chú ý:</strong></span> Nếu bạn muốn xóa nhóm nào đó hãy chắc chắn <br> bạn không sử dụng nó ở phần tính điểm phòng thí nghiệm</label>
+            <br>
+            <button type="submit" class="btn btn-danger" > Xóa </button>
+        </form>-->
     </div>
     <div class="main-card mb-3 card">
         <div class="card-body">
             <table style="width: 100%;" id="example" class="table table-hover table-striped table-bordered">
                 <thead>
                 <tr>
-                    <th>STT</th>
                     <th>Xếp hạng</th>
                     <th>Tên phòng</th>
                     <th>Điểm</th>
@@ -60,7 +82,6 @@
                 </thead>
                 <tbody>
                 <tr th:each="labsOnLineAndScore, iter : ${labsOnLineAndScores}">
-                    <td th:text="${iter.index+1}"></td>
                     <td class="text-primary"><strong>
                         <span th:text="'Hạng ' + ${iter.index + 1}" th:classappend="${iter.index < 3 ? 'text-danger' : ''}"></span>
                     </strong></td>
@@ -82,7 +103,6 @@
                 </tbody>
                 <tfoot>
                 <tr>
-                    <th>STT</th>
                     <th>Xếp hạng</th>
                     <th>Tên phòng</th>
                     <th>Điểm</th>

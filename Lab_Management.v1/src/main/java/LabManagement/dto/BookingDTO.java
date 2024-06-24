@@ -37,7 +37,7 @@ public class BookingDTO {
         this.note = booking.getNote();
         this.is_delete = booking.getIs_delete();
         this.auto = booking.getAuto();
-        this.comfirmUsed = booking.getComfirmUsed();
+        this.comfirmUsed = booking.getConfirmUsed();
         this.content = content;
         this.lab = lab;
         this.experimentReport = experimentReport;
@@ -53,7 +53,7 @@ public class BookingDTO {
         this.note = booking.getNote();
         this.is_delete = booking.getIs_delete();
         this.auto = booking.getAuto();
-        this.comfirmUsed = booking.getComfirmUsed();
+        this.comfirmUsed = booking.getConfirmUsed();
         this.contentDTO = contentDTO;
         this.labDTO = labDTO;
         this.booking_equis = booking_equis;

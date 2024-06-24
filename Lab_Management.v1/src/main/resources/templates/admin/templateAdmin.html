@@ -908,7 +908,7 @@
                             <li>
                                 <a th:href="'/Lab/admin/LabBookingManagement/WaitComfirmUsed?username='+${#authentication.name}">
                                     <i class="metismenu-icon pe-7s-graph">
-                                    </i>Chờ GV sử dụng
+                                    </i>Trạng thái sử dụng
                                 </a>
                             </li>
                             <li>
@@ -924,17 +924,26 @@
                                     </i>Danh mục phòng
                                 </a>
                             </li>
-                            <li sec:authorize="hasRole('ROLE_ADMIN')">
-                                <a th:href="'/Lab/admin/Equipment?username='+${#authentication.name}">
-                                    <i class="metismenu-icon pe-7s-server">
-                                    </i>DM thiết bị tồn kho
-                                </a>
-                            </li>
                             <li>
-                                <a th:href="'/Lab/admin/AllEquipment?username='+${#authentication.name}">
-                                    <i class="metismenu-icon pe-7s-calculator">
-                                    </i>DM tất cả thiết bị
+                                <a href="#">
+                                    <i class="metismenu-icon pe-7s-timer">
+                                    </i>DM Thiết bị
+                                    <i class="metismenu-state-icon pe-7s-angle-down caret-left"></i>
                                 </a>
+                                <ul>
+                                    <li sec:authorize="hasRole('ROLE_ADMIN')">
+                                        <a th:href="'/Lab/admin/Equipment?username='+${#authentication.name}">
+                                            <i class="metismenu-icon pe-7s-server">
+                                            </i>Tồn kho
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a th:href="'/Lab/admin/AllEquipment?username='+${#authentication.name}">
+                                            <i class="metismenu-icon pe-7s-calculator">
+                                            </i>Tất cả
+                                        </a>
+                                    </li>
+                                </ul>
                             </li>
                             <li sec:authorize="hasRole('ROLE_ADMIN')">
                                 <a href="/Lab/admin/Role">
@@ -942,36 +951,64 @@
                                     </i>Danh mục quyền
                                 </a>
                             </li>
-                            <li class="app-sidebar__heading">QUẢN LÝ CHẤM ĐIỂM</li>
+                            <li class="app-sidebar__heading">QL CHẤM ĐIỂM VÀ KIỂM KÊ</li>
                             <li>
                                 <a href="/Lab/admin/LabRankings">
                                     <i class="metismenu-icon pe-7s-ball">
                                     </i>BXH chấm điểm
                                 </a>
                             </li>
-                            <li sec:authorize="hasRole('ROLE_ADMIN')">
-                                <a href="/Lab/admin/ExperimentManagement/ExperimentGroup">
+                            <li>
+                                <a href="#">
                                     <i class="metismenu-icon pe-7s-timer">
-                                    </i>DM Nhóm loại hình TN
+                                    </i>DM chi tiết chấm điểm
+                                    <i class="metismenu-state-icon pe-7s-angle-down caret-left"></i>
                                 </a>
+                                <ul>
+                                    <li sec:authorize="hasRole('ROLE_ADMIN')">
+                                        <a href="/Lab/admin/ExperimentManagement/ExperimentGroup">
+                                            <i class="metismenu-icon pe-7s-timer">
+                                            </i>DM Nhóm loại hình TN
+                                        </a>
+                                    </li>
+                                    <li sec:authorize="hasRole('ROLE_ADMIN')">
+                                        <a href="/Lab/admin/ExperimentManagement/ExperimentType">
+                                            <i class="metismenu-icon pe-7s-graph">
+                                            </i>DM Loại hình TN
+                                        </a>
+                                    </li>
+                                    <li sec:authorize="hasRole('ROLE_ADMIN')">
+                                        <a href="/Lab/admin/ExperimentManagement/ExperimentReport">
+                                            <i class="metismenu-icon pe-7s-less">
+                                            </i>DM Loại BCTN
+                                        </a>
+                                    </li>
+                                    <li sec:authorize="hasRole('ROLE_ADMIN')">
+                                        <a href="/Lab/admin/ExperimentManagement/Score">
+                                            <i class="metismenu-icon pe-7s-eyedropper">
+                                            </i>DM Chấm điểm
+                                        </a>
+                                    </li>
+                                </ul>
                             </li>
-                            <li sec:authorize="hasRole('ROLE_ADMIN')">
-                                <a href="/Lab/admin/ExperimentManagement/ExperimentType">
-                                    <i class="metismenu-icon pe-7s-graph">
-                                    </i>DM Loại hình TN
-                                </a>
-                            </li>
-                            <li sec:authorize="hasRole('ROLE_ADMIN')">
-                                <a href="/Lab/admin/ExperimentManagement/ExperimentReport">
+                            <li>
+                                <a href="#">
                                     <i class="metismenu-icon pe-7s-less">
-                                    </i>DM Loại BCTN
+                                    </i>Kiểm kê
+                                    <i class="metismenu-state-icon pe-7s-angle-down caret-left"></i>
                                 </a>
-                            </li>
-                            <li sec:authorize="hasRole('ROLE_ADMIN')">
-                                <a href="/Lab/admin/ExperimentManagement/Score">
-                                    <i class="metismenu-icon pe-7s-eyedropper">
-                                    </i>DM Chấm điểm
-                                </a>
+                                <ul>
+                                    <li sec:authorize="hasRole('ROLE_ADMIN')">
+                                        <a th:href="'/Lab/admin/Showinventory/Lab?username='+${#authentication.name}">
+                                            KK theo phòng
+                                        </a>
+                                    </li>
+                                    <li sec:authorize="hasRole('ROLE_ADMIN')">
+                                        <a th:href="'/Lab/admin/Showinventory/Equipment?username='+${#authentication.name}">
+                                            KK theo Thiết bị
+                                        </a>
+                                    </li>
+                                </ul>
                             </li>
                             <li class="app-sidebar__heading">Quản lý tài khoản</li>
                             <li sec:authorize="hasRole('ROLE_ADMIN')">
@@ -1179,6 +1216,19 @@
                 <div th:if="${#strings.contains(#request.requestURI, '/Lab/admin/ShowBookingCancel/')}" class="app-main__inner">
                     <div th:replace="admin/booking-detail-admin.html :: booking-detail"></div>
                 </div>
+
+                                                <!--/////////////////////////////////-->
+                                                            <!--  Inventory  -->
+                                                <!--/////////////////////////////////-->
+
+                <div th:if="${#strings.contains(#request.requestURI, '/Lab/admin/Showinventory/Lab')}" class="app-main__inner">
+                    <div th:replace="admin/inventory-manager.html :: inventory-manager"></div>
+                </div>
+
+                <div th:if="${#strings.contains(#request.requestURI, '/Lab/admin/room/showinventory/')}" class="app-main__inner">
+                    <div th:replace="admin/inventory-equipment-readOnly.html :: inventory-equipment-readOnly"></div>
+                </div>
+
 
                                                 <!--/////////////////////////////////-->
                                                             <!--  Eror  -->

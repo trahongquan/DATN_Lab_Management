@@ -19,6 +19,6 @@ public interface LabService {
 
     void deleteLab(int labId);
 
-    List<Lab> FindAllByLabNameContainingOrLocationContaining(String st1, String st2);
+    List<Lab> findAllByLabNameContainingOrLocationContainingOrAndManagingUnitContaining(String st1, String st2, String st3);
 }
 

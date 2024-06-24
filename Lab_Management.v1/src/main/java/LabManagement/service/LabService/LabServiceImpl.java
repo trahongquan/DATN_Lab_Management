@@ -48,8 +48,8 @@ public class LabServiceImpl implements LabService {
     }
 
     @Override
-    public List<Lab> FindAllByLabNameContainingOrLocationContaining(String st1, String st2){
-        return labRepository.findAllByLabNameContainingOrLocationContaining(st1, st2);
+    public List<Lab> findAllByLabNameContainingOrLocationContainingOrAndManagingUnitContaining(String st1, String st2, String st3){
+        return labRepository.findAllByLabNameContainingOrLocationContainingOrAndManagingUnitContaining(st1, st2, st3);
     }
 }
 

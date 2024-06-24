@@ -77,3 +77,118 @@ $(window).click(function(event) {
         $(".popup").slideUp(300);
     }
 });
+
+
+/** quick choose time */
+{
+    $(document).ready(function () {
+        $('#btn-yesterday').click(function () {
+            var endDate = new Date();
+            var startDate = new Date();
+            startDate.setDate(startDate.getDate() - 2);
+            endDate.setDate(startDate.getDate() + 1);
+            redirectToProfitReport(startDate, endDate);
+            $('#start_date').val(formatDateTime(startDate));
+            $('#end_date').val(formatDateTime(endDate));
+        });
+
+        $('#btn-1-day').click(function () {
+            var endDate = new Date();
+            var startDate = new Date();
+            startDate.setDate(startDate.getDate() - 1);
+            redirectToProfitReport(startDate, endDate);
+            $('#start_date').val(formatDateTime(startDate));
+            $('#end_date').val(formatDateTime(endDate));
+        });
+
+        $('#btn-1-week').click(function () {
+            var endDate = new Date();
+            var startDate = new Date();
+            startDate.setDate(startDate.getDate() - 7);
+            redirectToProfitReport(startDate, endDate);
+            $('#start_date').val(formatDateTime(startDate));
+            $('#end_date').val(formatDateTime(endDate));
+            console.log(startDate)
+            console.log(endDate)
+        });
+
+        $('#btn-1-month').click(function () {
+            var endDate = new Date();
+            var startDate = new Date();
+            startDate.setMonth(startDate.getMonth() - 1);
+            $('#start_date').val(formatDateTime(startDate));
+            $('#end_date').val(formatDateTime(endDate));
+            redirectToProfitReport(startDate, endDate);
+        });
+
+        $('#btn-3-months').click(function () {
+            var endDate = new Date();
+            var startDate = new Date();
+            startDate.setMonth(startDate.getMonth() - 3);
+            $('#start_date').val(formatDateTime(startDate));
+            $('#end_date').val(formatDateTime(endDate));
+            redirectToProfitReport(startDate, endDate);
+        });
+
+        $('#btn-6-months').click(function () {
+            var endDate = new Date();
+            var startDate = new Date();
+            startDate.setMonth(startDate.getMonth() - 6);
+            $('#start_date').val(formatDateTime(startDate));
+            $('#end_date').val(formatDateTime(endDate));
+            redirectToProfitReport(startDate, endDate);
+        });
+
+        $('#btn-1-year').click(function () {
+            var endDate = new Date();
+            var startDate = new Date();
+            startDate.setFullYear(startDate.getFullYear() - 1);
+            $('#start_date').val(formatDateTime(startDate));
+            $('#end_date').val(formatDateTime(endDate));
+            redirectToProfitReport(startDate, endDate);
+        });
+
+        $('#btn-1-year-2').click(function () {
+            var url = '/Lab/admin/LabRankings';
+            url += '?startDate=' + "" + '&endDate=' + "";
+            window.location.href = url;
+        });
+
+        $('#btn-kk').click(function () {
+            var endDate = new Date();
+            var startDate = new Date();
+            startDate.setMonth(0);
+            startDate.setDate(1);
+            $('#start_date').val(formatDateTime(startDate));
+            $('#end_date').val(formatDateTime(endDate));
+            redirectToProfitReport(startDate, endDate);
+        });
+
+        function redirectToProfitReport(startDate, endDate) {
+            var url = '/Lab/admin/LabRankings';
+            var formattedStartDate = formatDateTimeX(startDate);
+            var formattedEndDate = formatDateTimeX(endDate);
+            url += '?startDate=' + formattedStartDate + '&endDate=' + formattedEndDate;
+            window.location.href = url;
+        }
+
+        function formatDateTimeX(date) {
+            var year = date.getFullYear();
+            var month = ('0' + (date.getMonth() + 1)).slice(-2);
+            var day = ('0' + date.getDate()).slice(-2);
+            var hours = ('0' + date.getHours()).slice(-2);
+            var minutes = ('0' + date.getMinutes()).slice(-2);
+            return year + '-' + month + '-' + day;
+            // return year + '-' + month + '-' + day + 'T' + hours + ':' + minutes;
+        }
+        function formatDateTime(date) {
+            var year = date.getFullYear();
+            var month = ('0' + (date.getMonth() + 1)).slice(-2);
+            var day = ('0' + date.getDate()).slice(-2);
+            var hours = ('0' + date.getHours()).slice(-2);
+            var minutes = ('0' + date.getMinutes()).slice(-2);
+            // return year + '-' + month + '-' + day;
+            return year + '-' + month + '-' + day + 'T' + hours + ':' + minutes;
+        }
+    });
+}

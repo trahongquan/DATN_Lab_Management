@@ -8,5 +8,5 @@ import java.util.List;
 
 @Repository
 public interface LabRepository extends JpaRepository<Lab, Integer> {
-    List<Lab> findAllByLabNameContainingOrLocationContaining(String st1, String st2);
+    List<Lab> findAllByLabNameContainingOrLocationContainingOrAndManagingUnitContaining(String st1, String st2, String st3);
 }

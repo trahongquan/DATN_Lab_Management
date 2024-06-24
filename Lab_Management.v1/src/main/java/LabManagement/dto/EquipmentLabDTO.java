@@ -21,6 +21,10 @@ public class EquipmentLabDTO {
 
     private List<String> equipmentSerieList;
 
+    private List<String> levels;
+
+    private List<String> usingdates;
+
     public EquipmentLabDTO() {
     }
 
@@ -31,6 +35,16 @@ public class EquipmentLabDTO {
         this.equipment = equipment;
         this.equipmentSeries = equipmentSerieList.toString();
         this.equipmentSerieList = equipmentSerieList;
+    }
+    public EquipmentLabDTO(EquipmentLab equipmentLab, Equipment equipment, List<String> equipmentSerieList, List<String> levels, List<String> usingdates) {
+        this.id = equipmentLab.getId();
+        this.labId = equipmentLab.getLabId();
+        this.equipmentId = equipmentLab.getEquipmentId();
+        this.equipment = equipment;
+        this.equipmentSeries = equipmentSerieList.toString();
+        this.equipmentSerieList = equipmentSerieList;
+        this.levels = levels;
+        this.usingdates = usingdates;
     }
     public EquipmentLabDTO(EquipmentLab equipmentLab, List<String> equipmentSerieList) {
         this.id = equipmentLab.getId();
@@ -94,6 +108,22 @@ public class EquipmentLabDTO {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public List<String> getLevels() {
+        return levels;
+    }
+
+    public void setLevels(List<String> levels) {
+        this.levels = levels;
+    }
+
+    public List<String> getUsingdates() {
+        return usingdates;
+    }
+
+    public void setUsingdates(List<String> usingdates) {
+        this.usingdates = usingdates;
     }
 }
 

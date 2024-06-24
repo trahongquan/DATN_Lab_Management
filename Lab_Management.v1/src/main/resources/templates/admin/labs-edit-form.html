@@ -17,34 +17,39 @@
 <div class="container">
     <form th:object="${labDTO}" th:action="@{'/Lab/admin/room/showFormForUpdate/' + ${labDTO.getId}}" method="post" enctype="multipart/form-data">
         <div class="row">
-            <div class="form-group col-md-6" >
+            <div class="form-group col-md-6 font-weight-bold" >
                 <!-- Phone ID (hidden) -->
                 <input type="hidden" name="id" th:field="*{id}" />
 
                 <div class="form-group">
                     <label for="LabName">Tên phòng thí nghiệm:</label>
-                    <input type="text" class="form-control" id="LabName" name="labName" th:field="*{labName}" required >
+                    <input type="text" class="form-control font-weight-bold" id="LabName" name="labName" th:field="*{labName}" required >
                 </div>
 
                 <div class="form-group">
                     <label for="Capacity">Sức chứa:</label>
-                    <input type="text" class="form-control" id="Capacity" name="capacity" th:field="*{capacity}" required >
+                    <input type="text" class="form-control font-weight-bold" id="Capacity" name="capacity" th:field="*{capacity}" required >
                 </div>
 
                 <div class="form-group">
                     <label for="Location">Vị trí:</label>
-                    <input type="text" class="form-control" id="Location" name="location" th:field="*{location}" required >
+                    <input type="text" class="form-control font-weight-bold" id="Location" name="location" th:field="*{location}" required >
                 </div>
-
+            </div>
+            <div class="form-group col-md-6" >
                 <div class="form-group">
                     <label for="Manager">Phụ trách quản lý:</label>
-                    <select class="form-control" id="Manager" name="lab_managemet_id" th:field="*{lab_managemet_id}" required >
+                    <select class="form-control font-weight-bold" id="Manager" name="lab_managemet_id" th:field="*{lab_managemet_id}" required >
                         <option th:each="manager : ${Managers}" th:value="${manager.getId}" th:text="${manager.getName}"></option>
                     </select>
                 </div>
-            </div>
-            <div class="form-group col-md-6" style="margin-top: 5em" id="chosseSeries">
-                <div class="main-card mb-3 card">
+                <div class="form-group ">
+                    <label for="managingUnit">Chủ quản:</label>
+                    <input type="text" class="form-control font-weight-bold" id="managingUnit" name="managingUnit" required
+                           th:field="*{managingUnit}"
+                           th:placeholder="'Bộ môn Công nghệ phần mềm'">
+                </div>
+                <div class="main-card mb-3 card" id="chosseSeries">
                     <div class="card-body">
                         <h5 class="card-title">Chọn thêm thiết bị khác </h5>
                         <select multiple="multiple" class="multiselect-dropdown form-control"

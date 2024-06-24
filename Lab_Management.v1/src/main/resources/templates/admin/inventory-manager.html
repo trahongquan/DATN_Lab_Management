@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="https://www.thymeleaf.org/thyme leaf-extras-springsecurity5"
+      xmlns="http://www.w3.org/1999/html">
+<head>
+    <meta charset="UTF-8">
+    <title>Quản lý phòng</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" th:href="@{/css/base2.min.css}">
+</head>
+<body>
+<inventory-manager>
+    <h1 style="margin-top: 50px; text-align: center;text-transform: uppercase;" th:text="'Danh sách kiểm kê PTN' "></h1>
+    <h1 style=" text-align: center; font-size: 2em" th:text="'Số lượng: ' + ${#lists.size(labDTOS)}"></h1>
+    <br>
+    <div class="row">
+        <div class="col-12 d-flex justify-content-center mb-5">
+            <a href="/Lab/admin/Showinventory/AllLab">
+                <button type="button" class="btn btn-primary font-bold font-size-xlg">Kiểm kê tất cả phòng</button>
+            </a>
+        </div>
+        <br>
+    </div>
+    <div class="main-card mb-3 card">
+        <div class="card-body">
+            <table style="width: 100%;" id="example" class="table table-hover table-striped table-bordered">
+                <thead>
+                <tr>
+                    <th>Tên phòng</th>
+                    <th>Vị trí</th>
+                    <th>Người quản lý</th>
+                    <th>Chủ quản</th>
+                    <th>Thao tác</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="lab, iter : ${labDTOS}">
+                    <td th:text="${lab.getLabName}"></td>
+                    <td th:text="${lab.getLocation}"></td>
+                    <td th:text="${lab.getLab_managemet.getName}"></td>
+                    <td th:text="${lab.getManagingUnit}"></td>
+                    <td>
+                        <div class="d-flex" style="display: flex; justify-content: center; align-items: center;">
+                            <form th:action="@{'/Lab/admin/room/showinventory/' + ${lab.getId}}" method="get">
+                                <button type="submit" class="btn btn-primary btn-sm mr-1">Kiểm kê</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+                <tfoot>
+                <tr>
+                    <th>Tên phòng</th>
+                    <th>Vị trí</th>
+                    <th>Người quản lý</th>
+                    <th>Chủ quản</th>
+                    <th>Thao tác</th>
+                </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+</inventory-manager>
+</body>
+</html>

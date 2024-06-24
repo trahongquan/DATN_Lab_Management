@@ -13,10 +13,14 @@
 
 </head>
 <body class="scroll-container">
-<equipment-edit-form-readOnly>
+<inventory-equipment-readOnly>
     <!--<div th:replace="admin/headerAdmin :: header-admin"></div>-->
-    <h1 style="margin-top: 50px; text-align: center;text-transform: uppercase;">Thông tin Thiết bị</h1><br>
-    <div class="container">
+    <style>p{margin: unset}</style>
+    <h1 style="margin-top: 50px; text-align: center;text-transform: uppercase;">danh sách Kiểm kê</h1>
+    <h1 style="text-align: center;text-transform: uppercase;">Phòng: <span class="font-weight-bold text-danger" th:text="${labDTO.getLabName}"></span></h1>
+    <h2 style="text-align: center;" class="text-primary text-uppercase" th:text="${labDTO.getManagingUnit}"></h2>
+    <br>
+    <!--<div class="container">
         <form th:object="${equipment}" th:action="@{'/Lab/admin/Equipment/showFormForUpdate/'+ ${equipment.getId}}" method="post" enctype="multipart/form-data">
             <div class="form-group">
                 <h4 for="name">Tên phòng thiết bị:</h4>
@@ -101,6 +105,69 @@
             </style>
             <button th:if="false" type="submit" class="btn btn-primary" id="submitButton">Sửa</button>
         </form>
+    </div>-->
+    <div class="main-card mb-3 card">
+        <div class="card-body">
+            <table style="width: 100%;" id="example" class="table table-hover table-striped table-bordered">
+                <thead>
+                <tr>
+                    <th>STT</th>
+                    <th>Tên Trang bị</th>
+                    <th>Đơn vị tính</th>
+                    <th>Seri/Mã</th>
+                    <th>Phân cấp</th>
+                    <th>Năm sử dụng</th>
+                    <th>Thực lực 0 giờ <br> <span th:text="'01/01/' + ${(#dates.year(#dates.createNow())) - 1}"></span></th>
+                    <th>Thực lực 0 giờ <br> <span th:text="'01/01/' + ${#dates.year(#dates.createNow())}"></span></th>
+                    <th>Tăng</th>
+                    <th>Giảm</th>
+                    <th>Lý do</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="equipmentLab, iter : ${equipmentLabDTOs}">
+                    <td th:text="${iter.index + 1}"></td>
+                    <td th:text="${equipmentLab.getEquipment.getName}"></td>
+                    <td th:text="${equipmentLab.equipment.getUnit}"></td>
+                    <td>
+                        <th:block th:each="seri : ${equipmentLab.equipmentSerieList}">
+                            <p th:text="${seri}"></p>
+                        </th:block>
+                    </td>
+                    <td>
+                        <th:block th:each="level : ${equipmentLab.levels}">
+                            <p th:text="${level}"></p>
+                        </th:block>
+                    </td>
+                    <td>
+                        <th:block th:each="usingdate : ${equipmentLab.usingdates}">
+                            <p th:text="${usingdate}"></p>
+                        </th:block>
+                    </td>
+                    <td th:text="${#lists.size(equipmentLab.equipmentSerieList)}"></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                </tbody>
+                <tfoot>
+                <tr>
+                    <th>STT</th>
+                    <th>Tên Trang bị</th>
+                    <th>Đơn vị tính</th>
+                    <th>Seri/Mã</th>
+                    <th>Phân cấp</th>
+                    <th>Năm sử dụng</th>
+                    <th>Thực lực 0 giờ <br> <span th:text="'01/01/' + ${(#dates.year(#dates.createNow())) - 1}"></span></th>
+                    <th>Thực lực 0 giờ <br> <span th:text="'01/01/' + ${#dates.year(#dates.createNow())}"></span></th>
+                    <th>Tăng</th>
+                    <th>Giảm</th>
+                    <th>Lý do</th>
+                </tr>
+                </tfoot>
+            </table>
+        </div>
     </div>
 
     <!-- Link to Bootstrap JS and jQuery -->
@@ -117,6 +184,6 @@
             }
         }
     </script>
-</equipment-edit-form-readOnly>
+</inventory-equipment-readOnly>
 </body>
 </html>

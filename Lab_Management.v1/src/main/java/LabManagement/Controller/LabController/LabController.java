@@ -19,6 +19,7 @@ import LabManagement.service.experimentGroupService.ExperimentGroupService;
 import LabManagement.service.experimentReportService.ExperimentReportService;
 import LabManagement.service.experimentTypeService.ExperimentTypeService;
 import LabManagement.service.scoreService.ScoreService;
+import LabManagement.service.unitService.UnitService;
 import LabManagement.service.users.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -27,10 +28,10 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
 import java.security.Principal;
 import java.sql.Date;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -79,9 +80,10 @@ public class LabController {
     private ExperimentReportService experimentReportService;
     private ScoreService scoreService;
     private PasswordEncoder passwordEncoder;
+    private UnitService unitService;
 
     @Autowired
-    public LabController(UserService userService, AuthorityService authorityService, BookingService bookingService, BookingRepository bookingRepository, ContentService contentService, EquipmentService equipmentService, EquipmentLabService equipmentLabService, Booking_equiService booking_equiService, PeopleService peopleService, RoleService roleService, LabService labService, PasswordEncoder passwordEncoder, ExperimentGroupService experimentGroupService, ExperimentTypeService experimentTypeService, ExperimentReportService experimentReportService, ScoreService scoreService) {
+    public LabController(UserService userService, AuthorityService authorityService, BookingService bookingService, BookingRepository bookingRepository, ContentService contentService, EquipmentService equipmentService, EquipmentLabService equipmentLabService, Booking_equiService booking_equiService, PeopleService peopleService, RoleService roleService, LabService labService, PasswordEncoder passwordEncoder, ExperimentGroupService experimentGroupService, ExperimentTypeService experimentTypeService, ExperimentReportService experimentReportService, ScoreService scoreService, UnitService unitService) {
         this.userService = userService;
         this.authorityService = authorityService;
         this.bookingService = bookingService;
@@ -98,6 +100,7 @@ public class LabController {
         this.experimentGroupService = experimentGroupService;
         this.experimentReportService = experimentReportService;
         this.scoreService = scoreService;
+        this.unitService = unitService;
     }
 
     /******************************************************************************************************/
@@ -136,21 +139,43 @@ public class LabController {
                 .filter(lab -> (lab.getIsDelete()!=1))
                 .collect(Collectors.toList());
         labs.forEach(lab -> {
-            List<Booking> PassCurrentDateBookings = bookingService.findAllByLab_id(lab.getId())
-                    .stream().filter(booking ->{
-                                return (booking.getBookingDate().toLocalDate().isBefore(currentDate)
-                                        || booking.getBookingDate().toLocalDate().equals(currentDate))
-                                        && booking.getConfirmStatus().equals(ComfirmStatus.PENDDING);
-                            })
-                    .collect(Collectors.toList());
+            List<Booking> PassCurrentDateBookings = GetBookingFromDateAndStatus(lab, currentDate, ConfirmStatus.PENDDING);
             if(!PassCurrentDateBookings.isEmpty()){
                 PassCurrentDateBookings.forEach(booking -> {
-                    booking.setConfirmStatus(ComfirmStatus.APPROVE);
+                    booking.setConfirmStatus(ConfirmStatus.APPROVE);
                     booking.setAuto(AutoComfirmStatusBooking.AutoBoking);
                     bookingService.updateBooking(booking);
                 });
             }
+            List<Booking> bookingApproveNotUsed = GetBookingFromDateAndStatus(lab, currentDate.minusDays(1), ConfirmStatus.APPROVE, ConfirmUsed.UNUSED);
+            if(!bookingApproveNotUsed.isEmpty()){
+                bookingApproveNotUsed.forEach(booking -> {
+                    booking.setConfirmStatus(ConfirmStatus.CANCEL);
+                    booking.setAuto(AutoComfirmStatusBooking.AutoBoking);
+                    booking.setConfirmUsed(ConfirmUsed.CANCEL);
+                    bookingService.updateBooking(booking);
+                });
+            }
         });
+    }
+
+    /** Lấy các booking còn pennding =< ngày hiện tại và theo trạng thái sử dụng */
+    private List<Booking> GetBookingFromDateAndStatus(Lab lab, LocalDate currentDate, String status, String used){
+        List<Booking> bookingList = GetBookingFromDateAndStatus(lab,currentDate, status)
+                .stream().filter(booking ->
+                booking.getConfirmUsed().equals(used)
+                ).collect(Collectors.toList());
+        return bookingList;
+    }
+    private List<Booking> GetBookingFromDateAndStatus(Lab lab, LocalDate currentDate, String status){
+        List<Booking> PassCurrentDateBookings = bookingService.findAllByLab_id(lab.getId())
+                .stream().filter(booking ->{
+                    return (booking.getBookingDate().toLocalDate().isBefore(currentDate)
+                            || booking.getBookingDate().toLocalDate().equals(currentDate))
+                            && booking.getConfirmStatus().equals(status);
+                })
+                .collect(Collectors.toList());
+        return PassCurrentDateBookings;
     }
 
     @GetMapping({"/",""})
@@ -234,7 +259,7 @@ public class LabController {
         List<EquipmentLab> equipmentLabs = equipmentLabService.findAllByLabId(id);
         List<EquipmentLab> equipmentLabsCoppy = new ArrayList<>(equipmentLabs);
         Content content = contentService.saveContent(new Content(name, reservationistId, experiment_typeId, experiment_reportId, class_name, amount_of_people, "[]"));
-        Booking booking = bookingService.createBooking(new Booking(id,content.getId(),date, new ComfirmStatus().PENDDING, work_time, note,0, AutoComfirmStatusBooking.NULL, ComfirmUsed.UNUSED));
+        Booking booking = bookingService.createBooking(new Booking(id,content.getId(),date, new ConfirmStatus().PENDDING, work_time, note,0, AutoComfirmStatusBooking.NULL, ConfirmUsed.UNUSED));
 
         List<Booking_equi> booking_equis = new ArrayList<>();
         series.forEach(seri -> {
@@ -350,6 +375,7 @@ public class LabController {
         }
         /** Sắp xếp lại bookingDTOs theo thứ tự ngày gần nhất đến xa nhất = Override: BookingDateComparator */
         Collections.sort(bookingDTOs, new BookingDateComparator());
+
         model.addAttribute("AndOr", AndOr);
         model.addAttribute("bookingDTOs", bookingDTOs);
         model.addAttribute("success", success);
@@ -446,7 +472,7 @@ public class LabController {
     @PostMapping("/search")
     public String search(Model model, @RequestParam("inputdatasearch") String inputdatasearch){
         ApprovePassCurrentDateBookings(); /** Check xem các đơn đã cồn pendding mà đã đến ngày đặt thì tự động approve */
-        List<Lab> labs = labService.FindAllByLabNameContainingOrLocationContaining(inputdatasearch, inputdatasearch)
+        List<Lab> labs = labService.findAllByLabNameContainingOrLocationContainingOrAndManagingUnitContaining(inputdatasearch, inputdatasearch, inputdatasearch)
                 .stream().filter(lab -> lab.getIsDelete()==0).collect(Collectors.toList());
         List<LabDTO> labDTOS = Labs2LabDTOsAndDateAndStatus(labs);
         List<List<DateAndStatusLab>> dateAndStatusLabsList = new ArrayList<>();
@@ -463,11 +489,13 @@ public class LabController {
     @GetMapping({"/admin/Dashboard"})
     public String getAdminHomePage(Model model, @RequestParam("username") String username) {
 
+//        ApprovePassCurrentDateBookings(); /** Check xem các đơn đã cồn pendding mà đã đến ngày đặt thì tự động approve */
+
         /** Dashboard Booking */
 
-        List<BookingDTO> bookingAPPROVE = GetBookingByStatus(model, ComfirmStatus.APPROVE, username);
-        List<BookingDTO> bookingCANCEL = GetBookingByStatus(model, ComfirmStatus.CANCEL, username);
-        List<BookingDTO> bookingPENDDING = GetBookingByStatus(model, ComfirmStatus.PENDDING, username);
+        List<BookingDTO> bookingAPPROVE = GetBookingByStatus(model, ConfirmStatus.APPROVE, username);
+        List<BookingDTO> bookingCANCEL = GetBookingByStatus(model, ConfirmStatus.CANCEL, username);
+        List<BookingDTO> bookingPENDDING = GetBookingByStatus(model, ConfirmStatus.PENDDING, username);
         model.addAttribute("bookingAPPROVE", bookingAPPROVE.size());
         model.addAttribute("bookingCANCEL", bookingCANCEL.size());
         model.addAttribute("bookingPENDDING", bookingPENDDING.size());
@@ -475,11 +503,11 @@ public class LabController {
         /** Dashboard Lab - So sánh số lượng đặt hàng ngày */
         List<Booking> bookingsToday = bookingService.getAllBookings()
                 .stream().filter(booking -> booking.getBookingDate().toLocalDate().isEqual(LocalDate.now())
-                                            && !booking.getConfirmStatus().equals(ComfirmStatus.CANCEL))
+                                            && !booking.getConfirmStatus().equals(ConfirmStatus.CANCEL))
                 .collect(Collectors.toList());
         List<Booking> bookingsYesterday = bookingService.getAllBookings()
                 .stream().filter(booking -> booking.getBookingDate().toLocalDate().isEqual(LocalDate.now().minusDays(1))
-                                            && !booking.getConfirmStatus().equals(ComfirmStatus.CANCEL))
+                                            && !booking.getConfirmStatus().equals(ConfirmStatus.CANCEL))
                 .collect(Collectors.toList());
         int comparatorLab = bookingsToday.size() - bookingsYesterday.size();
         Comparator comparatorLabComponet = CretedComparatorComponet(comparatorLab);
@@ -516,6 +544,10 @@ public class LabController {
         model.addAttribute("admins", admins.size());
         List<People> managers = GetPeoPleByRole("ROLE_MANAGER");
         model.addAttribute("managers", managers.size());
+
+        /** Dashboard Lab */
+
+        model.addAttribute("Labs",labService.getAllLabsOnLine());
 
         /** Dashboard Lab - Score*/
         model.addAttribute("labsOnLineAndScores", LabsOnLineAndScore(365).subList(0,3));
@@ -560,9 +592,10 @@ public class LabController {
             /** Lấy các đơn đặt phòng đã được DUYỆT và trong 1 khoảng thời gian nào đó */
             List<Booking> bookings = bookingService.findAllByLab_id(lab.getId())
                     .stream().filter(booking -> {
-                        return booking.getConfirmStatus().equals(ComfirmStatus.APPROVE)
-                               && booking.getBookingDate().toLocalDate().isAfter(date1)
-                               && booking.getBookingDate().toLocalDate().isBefore(date2);
+                        return booking.getConfirmStatus().equals(ConfirmStatus.APPROVE)
+                                && booking.getConfirmUsed().equals(ConfirmUsed.USED)
+                                && booking.getBookingDate().toLocalDate().isAfter(date1)
+                                && booking.getBookingDate().toLocalDate().isBefore(date2);
                     })
                     .collect(Collectors.toList());
             /** Lặp qua các đơn đặt */
@@ -722,8 +755,10 @@ public class LabController {
                     equipment.setSeries(equipment.getSeriesAsList().toString());
                     equipmentService.updateEquipment(equipment);
                     String level = equipment.getLevelList().get(i);
+                    String usingdatte = equipment.getUsingList().get(i);
                     equidAndLevel.setEquidid(equipmentCopy.getId());
                     equidAndLevel.setLevel(level);
+                    equidAndLevel.setUsingdate(usingdatte);
                     return equipmentCopy.getId();
                 }
             }
@@ -731,19 +766,22 @@ public class LabController {
         return -1;
     }
     @PostMapping("/admin/Room/add")
-    public String submitForm(@RequestParam("LabName") String username,
+    public String submitForm(@RequestParam("username") String username,
                              @RequestParam("LabName") String LabName,
                              @RequestParam("LabCapacity") int LabCapacity,
                              @RequestParam("LabLocation") String LabLocation,
+                             @RequestParam("managingUnit") String managingUnit,
                              @RequestParam("Management") int Managementid,
                              @RequestParam(value = "series", defaultValue = "") List<String> selectedSeries) {
-        Lab lab = labService.createLab(new Lab(LabName, LabCapacity, LabLocation, Managementid, 0));
+        Lab lab = labService.createLab(new Lab(LabName, LabCapacity, LabLocation, managingUnit, Managementid, 0));
         for (String seri : selectedSeries) {
             EquidAndLevel equidAndLevel = new EquidAndLevel();
             int equi_id = DelSeriInEquiBySeri(equidAndLevel, seri);
             EquipmentLab equipmentLab = equipmentLabService.findByLabIdAndEquipmentId(lab.getId(), equi_id);
             if (equipmentLab.getId() == 0){
-                equipmentLabService.saveEquipmentLab(new EquipmentLab(lab.getId(), equi_id, new ToList().StringToList(seri), new ToList().StringToList(equidAndLevel.getLevel())));
+                equipmentLabService.saveEquipmentLab(new EquipmentLab(lab.getId(), equi_id, new ToList().StringToList(seri),
+                                                    new ToList().StringToList(equidAndLevel.getLevel()),
+                                                    new ToList().StringToList(equidAndLevel.getUsingdate())));
             } else {
                 equipmentLab.AddSeri(equipmentLabService, seri);
             }
@@ -773,9 +811,11 @@ public class LabController {
                                 @RequestParam("removeEquiLab") int removeEquiLab){
         EquipmentLab equipmentLabRemove = equipmentLabService.getEquipmentLabById(removeEquiLab);
         Equipment equipment = equipmentService.findByEquipmentId(equipmentLabRemove.getEquipmentId());
-        equipmentLabRemove.getEquipmentSerieList().forEach(item -> {
-            equipment.AddSeri(equipmentService, item);
-        });
+        for (int i = 0; i < equipmentLabRemove.getEquipmentSerieList().size(); i++) {
+            equipment.AddSeri(equipmentService, equipmentLabRemove.getEquipmentSerieList().get(i));
+            equipment.AddLevel(equipmentService, equipmentLabRemove.getLevelList().get(i));
+            equipment.AddUsing(equipmentService, equipmentLabRemove.getUsingList().get(i));
+        }
         equipmentLabService.deleteEquipmentLab(removeEquiLab);
         return Redirect("admin/room/showFormForUpdate/"+LabId,true);
     }
@@ -809,16 +849,26 @@ public class LabController {
                 for (String seriEqui: equipment.getEquipmentSerieList()) {
                     if(seriEqui.equals(seri)){
                         /** Remove seri trong Equi*/
-                        String level = equipment.DelSeri(equipmentService, seriEqui);
-                        /** Add seri vào trong EquiLab*/
-                        EquipmentLab equipmentLab = equipmentLabService.findByLabIdAndEquipmentId(lab.getId(),equipment.getId());
-                        if(equipmentLab.getId() != 0){
-                            equipmentLab.AddSeri(equipmentLabService, seri);
-                            equipmentLab.AddLevel(equipmentLabService, level);
+                        int position = equipment.DelSeri(equipmentService, seriEqui);
+                        String level = equipment.getLevelList().get(position);
+                        equipment.DelLevel(equipmentService, level);
+                        String usingdate = equipment.getUsingList().get(position);
+                        equipment.DelUsing(equipmentService, usingdate);
+                        if(position>0){
+                            /** Add seri vào trong EquiLab*/
+                            EquipmentLab equipmentLab = equipmentLabService.findByLabIdAndEquipmentId(lab.getId(),equipment.getId());
+                            if(equipmentLab.getId() != 0){
+                                equipmentLab.AddSeri(equipmentLabService, seri);
+                                equipmentLab.AddLevel(equipmentLabService, level);
+                                equipmentLab.AddUsing(equipmentLabService, usingdate);
+                            } else {
+                                EquipmentLab equipmentLabNew = new EquipmentLab(lab.getId(),equipment.getId(),new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
+                                equipmentLabNew.AddSeri(equipmentLabService, seri);
+                                equipmentLabNew.AddSeri(equipmentLabService, level);
+                                equipmentLabNew.AddUsing(equipmentLabService, usingdate);
+                            }
                         } else {
-                            EquipmentLab equipmentLabNew = new EquipmentLab(lab.getId(),equipment.getId(),new ArrayList<>(), new ArrayList<>());
-                            equipmentLabNew.AddSeri(equipmentLabService, seri);
-                            equipmentLabNew.AddSeri(equipmentLabService, level);
+                            throw new RuntimeException("Không tìm thấy seri: " + seri);
                         }
                     }
                 }
@@ -935,24 +985,29 @@ public class LabController {
 
     @GetMapping("/admin/Equipment/add")
     public String AddEquipment(Model model){
+        List<Unit> units = unitService.getAllUnits();
         model.addAttribute("title", "Thêm mới Thiết bị");
+        model.addAttribute("units", units);
         return template;
     }
     @PostMapping("/admin/Equipment/add")
     public String AddEquipment(@RequestParam("name") String name,
                                @RequestParam("description") String description,
                                @RequestParam("origin") String origin,
+                               @RequestParam("unit") String unit,
                                @RequestParam("levels") List<String> levels,
+                               @RequestParam("using") List<String> using,
                                @RequestParam("series") List<String> series) {
-        Equipment equipment = equipmentService.createEquipment(new Equipment(name, series.toString(), "[]", description, series.size(),0, origin, levels.toString()));
-
+        Equipment equipment = equipmentService.createEquipment(new Equipment(name, series.toString(), "[]", description, series.size(),0, origin, levels.toString(), using.toString(), unit));
         return Redirect("admin/Equipment",true);
     }
 
     @GetMapping("/admin/Equipment/showFormForUpdate/{id}")
     public String EquipmentDetail(Model model, @PathVariable(value = "id") int id) {
         Equipment equipment = equipmentService.findByEquipmentId(id);
+        List<Unit> units = unitService.getAllUnits();
         model.addAttribute("equipment", equipment);
+        model.addAttribute("units", units);
         model.addAttribute("title", "Thông tin chi tiết thiết bị");
         return template;
     }
@@ -962,6 +1017,7 @@ public class LabController {
         Equipment equipment = equipmentService.findByEquipmentId(id);
         List<String> series = equipment.getSeriesAsList();
         List<String> levels = equipment.getLevelList();
+        List<String> usings = equipment.getUsingList();
         List<EquipmentLab> equipmentLabs = equipmentLabService.findAllByEquipmentId(id);
 
         List<String> LabNames = new ArrayList<>();
@@ -980,10 +1036,17 @@ public class LabController {
             for (String levelLab : equipmentLab.getLevelList()) {
                 levels.add(levelLab);
             }
+            for (String usingLab : equipmentLab.getUsingList()) {
+                usings.add(usingLab);
+            }
         }
-        equipment.setLevelList(levels.toString());
         equipment.setSeries(series.toString());
+        equipment.setLevelList(levels.toString());
+        equipment.setUsing(usings.toString());
 
+        List<Unit> units = unitService.getAllUnits();
+
+        model.addAttribute("units", units);
         model.addAttribute("equipment", equipment);
         model.addAttribute("LabIds", LabId);
         model.addAttribute("LabNames", LabNames);
@@ -1028,14 +1091,23 @@ public class LabController {
     public String EquipmentDetailPost(@PathVariable(value = "id") int id,
                                       @RequestParam("name") String name,
                                       @RequestParam("description") String description,
+                                      @RequestParam("unit") String unit,
+                                      @RequestParam("origin") String origin,
                                       @RequestParam(value = "series", defaultValue = "[]") List<String> series,
                                       @RequestParam(value = "levels", defaultValue = "[]") List<String> levels,
+                                      @RequestParam(value = "using", defaultValue = "[]") List<String> using,
                                       @RequestParam(value = "seriesfixed", defaultValue = "[]") List<String> seriesfixed) {
         Equipment equipment = equipmentService.findByEquipmentId(id);
         equipment.setName(name);
         equipment.setDescription(description);
+        equipment.setOrigin(origin);
+        equipment.setUnit(unit);
         equipment.setSeries(series.toString());
         equipment.setLevelList(levels.toString());
+        for (String usingdate : using) {
+            usingdate = usingdate.split("T")[0];
+        }
+        equipment.setUsingList(using.toString());
         equipment.setSeriesFixed(seriesfixed.toString());
         equipment.setQuantity(series.size());
         equipmentService.updateEquipment(equipment);
@@ -1386,7 +1458,7 @@ public class LabController {
     /*private List<BookingDTO> GetBookingByStatus(Model model, String status, String comfirmUsed, String username){
         List<BookingDTO> bookingDTOS = GetBookingByStatus(model, status, username)
                                         .stream().filter(bookingDTO ->
-                                            bookingDTO.getComfirmUsed().equals(ComfirmUsed.));
+                                            bookingDTO.getComfirmUsed().equals(ConfirmUsed.));
 
     }*/
 
@@ -1394,7 +1466,7 @@ public class LabController {
     public String PeddingBooking(Model model,
                                @RequestParam("username") String username,
                                @RequestParam(value = "success", defaultValue = "false") boolean success){
-        GetBookingByStatus(model, ComfirmStatus.PENDDING, username);
+        GetBookingByStatus(model, ConfirmStatus.PENDDING, username);
         model.addAttribute("success", success);
         model.addAttribute("title", "QL đơn chờ duyệt");
         return template;
@@ -1506,7 +1578,7 @@ public class LabController {
                                          @RequestParam(value = "success", defaultValue = "false") boolean success){
         Booking booking = bookingService.findByBookingId(bookingId);
         booking.setAuto(AutoComfirmStatusBooking.ManualBoking);
-        booking.setConfirmStatus(ComfirmStatus.APPROVE);
+        booking.setConfirmStatus(ConfirmStatus.APPROVE);
         bookingService.updateBooking(booking);
         model.addAttribute("success",success);
         return Redirect("admin/LabBookingManagement/Pendding?username="+username, true);
@@ -1518,9 +1590,9 @@ public class LabController {
                                         @RequestParam("bookingId") int bookingId,
                                         @RequestParam(value = "success", defaultValue = "false") boolean success){
         Booking booking = bookingService.findByBookingId(bookingId);
-        booking.setConfirmStatus(ComfirmStatus.CANCEL);
+        booking.setConfirmStatus(ConfirmStatus.CANCEL);
         booking.setAuto(AutoComfirmStatusBooking.ManualBoking);
-        booking.setComfirmUsed(ComfirmUsed.CANCEL);
+        booking.setConfirmUsed(ConfirmUsed.CANCEL);
         bookingService.updateBooking(booking);
         model.addAttribute("success",success);
         return Redirect("admin/LabBookingManagement/Pendding?username="+username, true);
@@ -1530,7 +1602,7 @@ public class LabController {
     public String ApproveBooking(Model model,
                                  @RequestParam("username") String username,
                                  @RequestParam(value = "success", defaultValue = "false") boolean success){
-        GetBookingByStatus(model, ComfirmStatus.APPROVE,username);
+        GetBookingByStatus(model, ConfirmStatus.APPROVE,username);
         model.addAttribute("success", success);
         model.addAttribute("title", "QL đơn đã duyệt");
         return template;
@@ -1540,7 +1612,7 @@ public class LabController {
     public String WaitComfirmUsed(Model model,
                                  @RequestParam("username") String username,
                                  @RequestParam(value = "success", defaultValue = "false") boolean success){
-        GetBookingByStatus(model, ComfirmStatus.APPROVE,username);
+        GetBookingByStatus(model, ConfirmStatus.APPROVE,username);
         model.addAttribute("success", success);
         model.addAttribute("title", "QL YC chờ giáo viên xác nhận sử dụng phòng");
         return template;
@@ -1552,7 +1624,7 @@ public class LabController {
                               @RequestParam("username") String username,
                               @RequestParam(value = "success", defaultValue = "false") boolean success){
         Booking booking = bookingService.findByBookingId(bookingId);
-        booking.setComfirmUsed(ComfirmUsed.USED);
+        booking.setConfirmUsed(ConfirmUsed.USED);
         bookingService.updateBooking(booking);
         model.addAttribute("success", success);
         model.addAttribute("title", "QL YC chờ giáo viên xác nhận sử dụng phòng");
@@ -1583,8 +1655,8 @@ public class LabController {
                                         @RequestParam(value = "success", defaultValue = "false") boolean success){
         Booking booking = bookingService.findByBookingId(bookingId);
         booking.setAuto(AutoComfirmStatusBooking.NULL);
-        booking.setConfirmStatus(ComfirmStatus.PENDDING);
-        booking.setComfirmUsed(ComfirmUsed.UNUSED);
+        booking.setConfirmStatus(ConfirmStatus.PENDDING);
+        booking.setConfirmUsed(ConfirmUsed.UNUSED);
         bookingService.updateBooking(booking);
         model.addAttribute("success",success);
         return Redirect("admin/LabBookingManagement/Approve?username="+username,true);
@@ -1594,7 +1666,7 @@ public class LabController {
     public String CancelBooking(Model model,
                                 @RequestParam("username") String username,
                                 @RequestParam(value = "success", defaultValue = "false") boolean success){
-        GetBookingByStatus(model, ComfirmStatus.CANCEL,username);
+        GetBookingByStatus(model, ConfirmStatus.CANCEL,username);
         model.addAttribute("success", success);
         model.addAttribute("title", "QL đơn đã hủy");
         return template;
@@ -1999,7 +2071,7 @@ public class LabController {
         return Redirect("admin/ExperimentManagement/Score", true);
     }
 
-    @GetMapping({"/admin/LabRankings"})
+/*    @GetMapping({"/admin/LabRankings"})
     public String LabRankings(Model model,
                               @RequestParam(value = "success", defaultValue = "false") boolean success,
                               @RequestParam(value = "unsuccess", defaultValue = "false") boolean unsuccess){
@@ -2007,6 +2079,81 @@ public class LabController {
         model.addAttribute("labsOnLineAndScores",labsOnLineAndScores);
         model.addAttribute("title","BXH chấm điểm PTN");
         return template;
+    }*/
+    @GetMapping({"/admin/LabRankings"})
+    public String LabRankingsFromDate(Model model,
+                              @RequestParam(value = "startDate", defaultValue = "") String startDate,
+                              @RequestParam(value = "endDate", defaultValue = "") String endDate,
+                              @RequestParam(value = "success", defaultValue = "false") boolean success,
+                              @RequestParam(value = "unsuccess", defaultValue = "false") boolean unsuccess){
+        if(!startDate.equals("") && !endDate.equals("")){
+            LocalDateTime x1 = LocalDateTime.parse(startDate+"T12:00:00");
+            LocalDateTime x2 = LocalDateTime.parse(endDate+"T12:00:00");
+            model.addAttribute("start_date",x1);
+            model.addAttribute("end_date",x2);
+        }
+        if(!startDate.equals("")) System.out.println(LocalDateTime.parse(startDate+"T12:00:00"));
+        if(!endDate.equals("")) System.out.println(LocalDateTime.parse(endDate+"T12:00:00"));
+        List<LabsOnLineAndScore> labsOnLineAndScores = new ArrayList<>();
+        if(!startDate.equals("") || !endDate.equals("")){
+            labsOnLineAndScores = LabsOnLineAndScore(LocalDate.parse(startDate), LocalDate.parse(endDate));
+        }else{
+            labsOnLineAndScores = LabsOnLineAndScore(1);
+            LocalDate previousAugust = LocalDate.of(LocalDate.now().getYear() - 1, 8, 1);
+            LocalDateTime defaultDate1 = LocalDateTime.parse(previousAugust.toString()+"T12:00:00");
+            LocalDateTime defaultDate2 = LocalDateTime.now();
+            model.addAttribute("start_date",defaultDate1);
+            model.addAttribute("end_date",defaultDate2);
+        }
+        model.addAttribute("labsOnLineAndScores",labsOnLineAndScores);
+        model.addAttribute("title","BXH chấm điểm PTN");
+        return template;
     }
 
-}
+    @PostMapping({"/admin/LabRankings"})
+    public String LabRankingsFromDatePost(Model model,
+                                      @RequestParam(value = "start_date", defaultValue = "") String startDate,
+                                      @RequestParam(value = "end_date", defaultValue = "") String endDate,
+                                      @RequestParam(value = "success", defaultValue = "false") boolean success,
+                                      @RequestParam(value = "unsuccess", defaultValue = "false") boolean unsuccess){
+        LabRankingsFromDate(model, startDate.split("T")[0], endDate.split("T")[0], success, unsuccess);
+        return template;
+    }
+
+
+                                    /******************************************************/
+                                                    /** Kiểm kê - Inventory */
+                                    /*****************************************************/
+
+    @GetMapping({"/admin/Showinventory/Lab"})
+    public String Score(Model model,
+                        @RequestParam("username") String username,
+                        @RequestParam(value = "success", defaultValue = "false") boolean success,
+                        @RequestParam(value = "unsuccess", defaultValue = "false") boolean unsuccess){
+        RoomList(model, username, success);
+        model.addAttribute("title", "Kiểm kê phòng thí nghiệm");
+    return template;
+    }
+
+    @GetMapping("/admin/room/showinventory/{id}")
+    public String showinventory(Model model, @PathVariable(value = "id") int id,
+                                @RequestParam(value = "success", defaultValue = "false") boolean success) {
+        Lab lab = labService.findByLabId(id);
+        LabDTO labDTO = Lab2LabDTO(lab);
+        List<EquipmentLabDTO> equipmentLabDTOs = new ArrayList<>();
+        equipmentLabService.findAllByLabId(id).forEach(equipmentLab -> {
+            EquipmentLabDTO equipmentLabDTO = new EquipmentLabDTO(equipmentLab, equipmentService.findByEquipmentId(equipmentLab.getEquipmentId()),
+                                                                    equipmentLab.getEquipmentSerieList(), equipmentLab.getLevelList(), equipmentLab.getUsingList());
+            equipmentLabDTOs.add(equipmentLabDTO);
+        });
+
+        model.addAttribute("equipmentLabDTOs", equipmentLabDTOs);
+        model.addAttribute("labDTO", labDTO);
+        model.addAttribute("success", success);
+        model.addAttribute("title", "Chi tiết phòng thí nghiệm");
+        return template;
+    }
+//    @GetMapping({"/admin/Showinventory/AllshowinventoryLab"})
+
+
+    }
