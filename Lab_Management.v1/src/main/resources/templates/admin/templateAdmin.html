@@ -1225,7 +1225,7 @@
                     <div th:replace="admin/inventory-manager.html :: inventory-manager"></div>
                 </div>
 
-                <div th:if="${#strings.contains(#request.requestURI, '/Lab/admin/room/showinventory/')}" class="app-main__inner">
+                <div th:if="${#strings.contains(#request.requestURI, '/Lab/admin/room/showinventory/') || #strings.contains(#request.requestURI, 'Lab/admin/room/showinventoryForyear/')}" class="app-main__inner">
                     <div th:replace="admin/inventory-equipment-readOnly.html :: inventory-equipment-readOnly"></div>
                 </div>
 

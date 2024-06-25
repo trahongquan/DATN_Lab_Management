@@ -125,5 +125,20 @@ public class EquipmentLabDTO {
     public void setUsingdates(List<String> usingdates) {
         this.usingdates = usingdates;
     }
+
+    @Override
+    public String toString() {
+        return "EquipmentLabDTO{" +
+                "id=" + id +
+                ", labId=" + labId +
+                ", equipmentId=" + equipmentId +
+                ", equipment=" + equipment +
+                ", name='" + name + '\'' +
+                ", equipmentSeries='" + equipmentSeries + '\'' +
+                ", equipmentSerieList=" + equipmentSerieList +
+                ", levels=" + levels +
+                ", usingdates=" + usingdates +
+                '}';
+    }
 }
 

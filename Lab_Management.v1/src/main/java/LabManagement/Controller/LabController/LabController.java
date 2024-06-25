@@ -7,6 +7,7 @@ import LabManagement.dao.*;
 import LabManagement.dto.*;
 import LabManagement.entity.*;
 import LabManagement.service.BookingService.BookingService;
+import LabManagement.service.EquipmentLabDtoInventoryService.EquipmentLabDtoInventoryService;
 import LabManagement.service.EquipmentService.EquipmentService;
 import LabManagement.service.PeopleService.PeopleService;
 import LabManagement.service.RoleService.RoleService;
@@ -21,6 +22,8 @@ import LabManagement.service.experimentTypeService.ExperimentTypeService;
 import LabManagement.service.scoreService.ScoreService;
 import LabManagement.service.unitService.UnitService;
 import LabManagement.service.users.UserService;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -28,6 +31,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.lang.reflect.Type;
 import java.security.Principal;
 import java.sql.Date;
 import java.time.LocalDate;
@@ -81,9 +85,10 @@ public class LabController {
     private ScoreService scoreService;
     private PasswordEncoder passwordEncoder;
     private UnitService unitService;
+    private EquipmentLabDtoInventoryService equipmentLabDtoService;
 
     @Autowired
-    public LabController(UserService userService, AuthorityService authorityService, BookingService bookingService, BookingRepository bookingRepository, ContentService contentService, EquipmentService equipmentService, EquipmentLabService equipmentLabService, Booking_equiService booking_equiService, PeopleService peopleService, RoleService roleService, LabService labService, PasswordEncoder passwordEncoder, ExperimentGroupService experimentGroupService, ExperimentTypeService experimentTypeService, ExperimentReportService experimentReportService, ScoreService scoreService, UnitService unitService) {
+    public LabController(UserService userService, AuthorityService authorityService, BookingService bookingService, BookingRepository bookingRepository, ContentService contentService, EquipmentService equipmentService, EquipmentLabService equipmentLabService, Booking_equiService booking_equiService, PeopleService peopleService, RoleService roleService, LabService labService, PasswordEncoder passwordEncoder, ExperimentGroupService experimentGroupService, ExperimentTypeService experimentTypeService, ExperimentReportService experimentReportService, ScoreService scoreService, UnitService unitService, EquipmentLabDtoInventoryService equipmentLabDtoService) {
         this.userService = userService;
         this.authorityService = authorityService;
         this.bookingService = bookingService;
@@ -101,6 +106,7 @@ public class LabController {
         this.experimentReportService = experimentReportService;
         this.scoreService = scoreService;
         this.unitService = unitService;
+        this.equipmentLabDtoService = equipmentLabDtoService;
     }
 
     /******************************************************************************************************/
@@ -2135,25 +2141,168 @@ public class LabController {
     return template;
     }
 
-    @GetMapping("/admin/room/showinventory/{id}")
-    public String showinventory(Model model, @PathVariable(value = "id") int id,
-                                @RequestParam(value = "success", defaultValue = "false") boolean success) {
-        Lab lab = labService.findByLabId(id);
-        LabDTO labDTO = Lab2LabDTO(lab);
+    private List<EquipmentLabDTO> GetListEquipmentLabDTOFromEquipmentLabDto(EquipmentLabDtoInventory equipmentLabDto){
+        List<EquipmentLabDTO> equipmentLabDTOS = new ArrayList<>();
+        Gson gson = new Gson();
+        // Chuyển đổi chuỗi JSON thành danh sách đối tượng
+        Type type = new TypeToken<List<EquipmentLabDTO>>() {}.getType();
+        equipmentLabDTOS = gson.fromJson(equipmentLabDto.getEquipmentLabData(), type);
+        return equipmentLabDTOS;
+    }
+    private List<EquipmentLabDTO> GetListEquipmentLabDTO_FromLabId(int LabId){
         List<EquipmentLabDTO> equipmentLabDTOs = new ArrayList<>();
-        equipmentLabService.findAllByLabId(id).forEach(equipmentLab -> {
+        equipmentLabService.findAllByLabId(LabId).forEach(equipmentLab -> {
             EquipmentLabDTO equipmentLabDTO = new EquipmentLabDTO(equipmentLab, equipmentService.findByEquipmentId(equipmentLab.getEquipmentId()),
-                                                                    equipmentLab.getEquipmentSerieList(), equipmentLab.getLevelList(), equipmentLab.getUsingList());
+                    equipmentLab.getEquipmentSerieList(), equipmentLab.getLevelList(), equipmentLab.getUsingList());
             equipmentLabDTOs.add(equipmentLabDTO);
         });
+        return equipmentLabDTOs;
+    }
+    private void SaveEquipmentLabDtosToDataBase(int LabId, int year,List<EquipmentLabDTO> equipmentLabDTOs){
+        // Chuyển đổi danh sách thành chuỗi JSON
+        Gson gson = new Gson();
+        String serializedData = gson.toJson(equipmentLabDTOs);
+        equipmentLabDtoService.saveEquipmentLab(new EquipmentLabDtoInventory(LabId, year, serializedData));
+    }
 
+    @GetMapping("/admin/room/showinventory/{id}")
+    public String showinventory(Model model, @PathVariable(value = "id") int LabId,
+                                @RequestParam(value = "success", defaultValue = "false") boolean success) {
+        Lab lab = labService.findByLabId(LabId);
+        LabDTO labDTO = Lab2LabDTO(lab);
+        List<EquipmentLabDtoInventory> equipmentLabDtosInventory = equipmentLabDtoService.getAllEquipmentLabs()
+                                                            .stream().filter(e -> e.getLabId()==LabId)
+                                                            .collect(Collectors.toList());
+
+        List<EquipmentLabDTO> equipmentLabDTOs_1 = new ArrayList<>();
+        int year = LocalDate.now().getYear();
+        boolean found = false;
+        for (EquipmentLabDtoInventory e : equipmentLabDtosInventory) {
+            /*if(e.getYear()==(year-1)){
+                equipmentLabDTOs_2 = GetListEquipmentLabDTOFromEquipmentLabDto(e);
+            }*/
+            if(e.getYear()==year){
+                equipmentLabDTOs_1 = GetListEquipmentLabDTOFromEquipmentLabDto(e);
+                found = true;
+                break;
+            }
+        }
+        if(!found){
+            equipmentLabDTOs_1 = GetListEquipmentLabDTO_FromLabId(LabId);
+            SaveEquipmentLabDtosToDataBase(LabId, LocalDate.now().getYear(), equipmentLabDTOs_1);
+        }
+        List<InventoryCompare> inventoryCompares = new ArrayList<>();
+        List<EquipmentLabDTO> equipmentLabDTOs = new ArrayList<>();
+        List<EquipmentLabDTO> equipmentLabDTOs_2 = new ArrayList<>();
+        EquipmentLabDtoInventory equipmentLabDto2 = equipmentLabDtoService.findByLabIdAndAndYear(LabId, year-1);
+
+        if(equipmentLabDto2.getId()!=0) {
+            equipmentLabDTOs_2 = GetListEquipmentLabDTOFromEquipmentLabDto(equipmentLabDto2);
+            equipmentLabDTOs = CompareInventory(equipmentLabDTOs_1, equipmentLabDTOs_2, inventoryCompares);
+        } else {
+            equipmentLabDTOs = equipmentLabDTOs_1;
+        }
+        /* Lấy lại lần nữa để cập nhật năm danh sách kiểm kê*/
+        equipmentLabDtosInventory = equipmentLabDtoService.getAllEquipmentLabs()
+                .stream().filter(e -> e.getLabId()==LabId)
+                .collect(Collectors.toList());
+
+        model.addAttribute("equipmentLabDtosInventory", equipmentLabDtosInventory);
         model.addAttribute("equipmentLabDTOs", equipmentLabDTOs);
+        model.addAttribute("inventoryCompares", inventoryCompares);
         model.addAttribute("labDTO", labDTO);
+        model.addAttribute("year", year);
         model.addAttribute("success", success);
         model.addAttribute("title", "Chi tiết phòng thí nghiệm");
         return template;
     }
+
+    @GetMapping("/admin/room/showinventoryForyear/{id}")
+    public String showinventory(Model model,
+                                @PathVariable(value = "id") int labid,
+                                @RequestParam("inventoryLab") int inventoryId,
+                                @RequestParam(value = "success", defaultValue = "false") boolean success) {
+        LabDTO labDTO = Lab2LabDTO(labService.findByLabId(labid));
+        List<EquipmentLabDtoInventory> equipmentLabDtosInventory = equipmentLabDtoService.getAllEquipmentLabs()
+                                                            .stream().filter(e -> e.getLabId()==labid)
+                                                            .collect(Collectors.toList());
+
+        EquipmentLabDtoInventory equipmentLabDto = equipmentLabDtoService.getEquipmentLabById(inventoryId);
+        List<EquipmentLabDTO> equipmentLabDTOs_1 = GetListEquipmentLabDTOFromEquipmentLabDto(equipmentLabDto);
+
+        EquipmentLabDtoInventory equipmentLabDto2 = equipmentLabDtoService.findByLabIdAndAndYear(labid, equipmentLabDto.getYear()-1);
+        List<EquipmentLabDTO> equipmentLabDTOs_2 = new ArrayList<>();
+        List<EquipmentLabDTO> equipmentLabDTOs = new ArrayList<>();
+        List<InventoryCompare> inventoryCompares = new ArrayList<>();
+        if(equipmentLabDto2.getId()!=0) {
+            equipmentLabDTOs_2 = GetListEquipmentLabDTOFromEquipmentLabDto(equipmentLabDto2);
+            equipmentLabDTOs = CompareInventory(equipmentLabDTOs_1, equipmentLabDTOs_2, inventoryCompares);
+        } else {
+            equipmentLabDTOs = equipmentLabDTOs_1;
+        }
+
+        model.addAttribute("equipmentLabDtosInventory", equipmentLabDtosInventory);
+        model.addAttribute("labDTO", labDTO);
+        model.addAttribute("year", equipmentLabDto.getYear());
+        model.addAttribute("equipmentLabDTOs", equipmentLabDTOs);
+        model.addAttribute("inventoryCompares", inventoryCompares);
+        model.addAttribute("success", success);
+        model.addAttribute("title", "Chi tiết phòng thí nghiệm");
+        return template;
+    }
+
+    private List<EquipmentLabDTO> CompareInventory(List<EquipmentLabDTO> equipmentLabDTOS1, List<EquipmentLabDTO> equipmentLabDTOS2, List<InventoryCompare> inventoryChanges) {
+        List<EquipmentLabDTO> equipmentLabDTOS = new ArrayList<>();
+        Map<Integer, EquipmentLabDTO> dtoMap1 = new HashMap<>();
+        Map<Integer, EquipmentLabDTO> dtoMap2 = new HashMap<>();
+
+        for (EquipmentLabDTO dto2 : equipmentLabDTOS2) {
+            dtoMap2.put(dto2.getEquipmentId(), dto2);
+        }
+        for (EquipmentLabDTO dto1 : equipmentLabDTOS1) {
+            dtoMap1.put(dto1.getEquipmentId(), dto1);
+        }
+
+        for (EquipmentLabDTO dto1 : equipmentLabDTOS1) {
+            EquipmentLabDTO matchingDTO2 = dtoMap2.get(dto1.getEquipmentId());
+            if (matchingDTO2 == null) {
+                equipmentLabDTOS.add(dto1);
+
+                InventoryCompare inventoryCompare = new InventoryCompare();
+                inventoryCompare.setThisYear(dto1.getEquipmentSerieList().size());
+                inventoryCompare.setLastYear(0);
+                int increase = inventoryCompare.getThisYear() - inventoryCompare.getLastYear();
+                inventoryCompare.setIncrease(increase);
+                inventoryCompare.setReduce(0);
+                inventoryChanges.add(inventoryCompare);
+            } else {
+                equipmentLabDTOS.add(dto1);
+
+                InventoryCompare inventoryCompare = new InventoryCompare();
+                inventoryCompare.setLastYear(matchingDTO2.getEquipmentSerieList().size());
+                inventoryCompare.setThisYear(dto1.getEquipmentSerieList().size());
+                int increase = inventoryCompare.getThisYear() - inventoryCompare.getLastYear();
+                inventoryCompare.setIncrease(Math.max(increase,0));
+                inventoryCompare.setReduce(Math.max(-increase,0));
+                inventoryChanges.add(inventoryCompare);
+            }
+        }
+        for (EquipmentLabDTO dto2 : equipmentLabDTOS2) {
+            EquipmentLabDTO matchingDTO1 = dtoMap1.get(dto2.getEquipmentId());
+            if (matchingDTO1 == null) {
+                equipmentLabDTOS.add(dto2);
+
+                InventoryCompare inventoryCompare = new InventoryCompare();
+                inventoryCompare.setLastYear(dto2.getEquipmentSerieList().size());
+                inventoryCompare.setThisYear(0);
+                int increase = inventoryCompare.getThisYear() - inventoryCompare.getLastYear();
+                inventoryCompare.setReduce(-increase);
+                inventoryCompare.setIncrease(0);
+                inventoryChanges.add(inventoryCompare);
+            }
+        }
+        return equipmentLabDTOS;
+    }
 //    @GetMapping({"/admin/Showinventory/AllshowinventoryLab"})
 
-
-    }
+}
