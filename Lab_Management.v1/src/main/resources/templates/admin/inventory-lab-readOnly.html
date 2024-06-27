@@ -144,15 +144,23 @@
         Danh sách kiểm kê [[${#lists.size(inventoryResults)}]] phòng</h1>
 
     <form th:action="'/Lab/admin/Showinventory/AllshowinventoryLab'" method="get">
-        <div class="row justify-content-center">
+        <div class="d-flex flex-column">
             <input type="hidden" name="username" th:value="${#authentication.name}">
-            <select name="yearSelected" class="form-control m-4 col-3" required>
-                <option th:each="yearSort : ${sortedUniqueYears}"
-                        th:value="${yearSort}"
-                        th:text="'Danh sách kiểm kê ngày 01/01/'+${yearSort}"
-                        th:selected="${yearSort==year}"></option>
-            </select>
-            <button type="submit" class="form-control btn-primary m-4 col-3">Xem</button>
+            <div class="row justify-content-center r">
+                <select name="yearSelected" class="form-control m-4 col-3" required>
+                    <option th:each="yearSort : ${sortedUniqueYears}"
+                            th:value="${yearSort}"
+                            th:text="'Danh sách kiểm kê ngày 01/01/'+${yearSort}"
+                            th:selected="${yearSort==year}"></option>
+                </select>
+                <select name="managingUnitId" class="form-control m-4 col-3" required>
+                    <option th:each="managingUnit : ${managingUnits}"
+                            th:value="${managingUnit.id}"
+                            th:text="${managingUnit.departmentName}"
+                            th:selected="${managingUnit.departmentName == departmentName}"></option>
+                </select>
+            </div>
+            <button type="submit" class="form-control btn-primary m-4 col-3 align-self-center">Xem</button>
         </div>
     </form>
     <th:block th:each="inventoryResult : ${inventoryResults}">

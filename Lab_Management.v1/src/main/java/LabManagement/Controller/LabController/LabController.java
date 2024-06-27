@@ -2227,12 +2227,15 @@ public class LabController {
         int year = LocalDate.now().getYear();
         InventoryResult inventoryResult = ShowInventoryForLabId(LabId, year, new InventoryResult());
 
+        List<ManagingUnit> managingUnits = managingUnitService.getAllManagingUnits();
+
         model.addAttribute("equipmentLabDtosInventoryForYear", inventoryResult.getEquipmentLabDtosInventoryForYear());
         model.addAttribute("equipmentLabDTOs", inventoryResult.getEquipmentLabDTOs());
         model.addAttribute("inventoryCompares", inventoryResult.getInventoryCompares());
         model.addAttribute("labDTO", inventoryResult.getLabDTO());
         model.addAttribute("year", year);
         model.addAttribute("success", success);
+        model.addAttribute("managingUnits", managingUnits);
         model.addAttribute("title", "Chi tiết Kiểm kê PTN năm " + year);
         return template;
     }
@@ -2249,18 +2252,24 @@ public class LabController {
 
         boolean found = false;
         for (EquipmentLabDtoInventory e : inventoryResult.getEquipmentLabDtosInventoryForYear()) {
-            /*if(e.getYear()==(year-1)){
-                equipmentLabDTOs_2 = GetListEquipmentLabDTOFromEquipmentLabDto(e);
-            }*/
             if(e.getYear()==year){
                 equipmentLabDTOs_1 = GetListEquipmentLabDTOFromEquipmentLabDto(e);
                 found = true;
                 break;
             }
         }
+
+        /*Lấy ra list years của các năm (kể cả nhưng năm mà phòng ko có danh sách)*/
+        List<Integer> years = new ArrayList<>();
+        inventoryResult.getEquipmentLabDtosInventoryForYear().forEach(e -> years.add(e.getYear()));
+        Set<Integer> uniqueYears = new HashSet<>(years);
+        List<Integer> sortedUniqueYears = new ArrayList<>(uniqueYears);
+        Collections.sort(sortedUniqueYears);
+        boolean yearPresent = sortedUniqueYears.contains((int) LocalDate.now().getYear());
+
         if(!found){
             equipmentLabDTOs_1 = GetListEquipmentLabDTO_FromLabId(LabId);
-            SaveEquipmentLabDtosToDataBase(LabId, LocalDate.now().getYear(), equipmentLabDTOs_1);
+            if(!yearPresent) SaveEquipmentLabDtosToDataBase(LabId, LocalDate.now().getYear(), equipmentLabDTOs_1);
         }
         List<EquipmentLabDTO> equipmentLabDTOs_2 = new ArrayList<>();
         EquipmentLabDtoInventory equipmentLabDto2 = equipmentLabDtoService.findByLabIdAndAndYear(LabId, year-1);
@@ -2290,21 +2299,8 @@ public class LabController {
                                 @RequestParam(value = "success", defaultValue = "false") boolean success) {
         LabDTO labDTO = Lab2LabDTO(labService.findByLabId(labid));
         EquipmentLabDtoInventory equipmentLabDto = equipmentLabDtoService.getEquipmentLabById(inventoryId);
-
-//        List<EquipmentLabDTO> equipmentLabDTOs_1 = GetListEquipmentLabDTOFromEquipmentLabDto(equipmentLabDto);
-//
-//        EquipmentLabDtoInventory equipmentLabDto2 = equipmentLabDtoService.findByLabIdAndAndYear(labid, equipmentLabDto.getYear()-1);
-//        List<EquipmentLabDTO> equipmentLabDTOs_2 = new ArrayList<>();
-//        List<EquipmentLabDTO> equipmentLabDTOs = new ArrayList<>();
-//        List<InventoryCompare> inventoryCompares = new ArrayList<>();
-//        if(equipmentLabDto2.getId()!=0) {
-//            equipmentLabDTOs_2 = GetListEquipmentLabDTOFromEquipmentLabDto(equipmentLabDto2);
-//            equipmentLabDTOs = CompareInventory(equipmentLabDTOs_1, equipmentLabDTOs_2, inventoryCompares);
-//        } else {
-//            equipmentLabDTOs = equipmentLabDTOs_1;
-//        }
-
         InventoryResult inventoryResult = ShowInventoryForLabId(labid, equipmentLabDto.getYear(), new InventoryResult());
+        List<ManagingUnit> managingUnits = managingUnitService.getAllManagingUnits();
 
         model.addAttribute("equipmentLabDtosInventoryForYear", inventoryResult.getEquipmentLabDtosInventoryForYear());
         model.addAttribute("labDTO", inventoryResult.getLabDTO());
@@ -2312,6 +2308,7 @@ public class LabController {
         model.addAttribute("equipmentLabDTOs", inventoryResult.getEquipmentLabDTOs());
         model.addAttribute("inventoryCompares", inventoryResult.getInventoryCompares());
         model.addAttribute("success", success);
+        model.addAttribute("managingUnits", managingUnits);
         model.addAttribute("title", "Chi tiết kiểm kê PTN năm "+ equipmentLabDto.getYear());
 
         return template;
@@ -2373,6 +2370,7 @@ public class LabController {
     @GetMapping({"/admin/Showinventory/AllshowinventoryLab"})
     public String ShowinventoryAllshowinventoryLab(Model model,
                                 @RequestParam(value = "yearSelected", defaultValue = "0") int yearSelected,
+                                @RequestParam(value = "managingUnitId", defaultValue = "0") int managingUnitId,
                                 @RequestParam("username") String username,
                                 @RequestParam(value = "success", defaultValue = "false") boolean success) {
         int year = LocalDate.now().getYear();
@@ -2385,17 +2383,34 @@ public class LabController {
         List<Integer> sortedUniqueYears = new ArrayList<>(uniqueYears);
         Collections.sort(sortedUniqueYears);
 
-        List<Lab> labs = labService.getAllLabsOnLine();
+        List<Lab> labs = new ArrayList<>();
         List<InventoryResult> inventoryResults = new ArrayList<>();
+        String departmentName = "";
+        if (managingUnitId == 0) {
+            labs = labService.getAllLabsOnLine();
+            model.addAttribute("title", "Chi tiết kiểm kê PTN năm "+ year);
+        } else {
+            String departmentNameX = managingUnitService.getManagingUnitById(managingUnitId).getDepartmentName();
+            labs = labService.getAllLabsOnLine().stream().filter(lab -> {
+                return lab.getManagingUnit().trim().equals(departmentNameX);
+            }).collect(Collectors.toList());
+            departmentName = departmentNameX;
+            model.addAttribute("title", "Kiểm kê "+departmentName+" năm "+ year);
+        }
 
-        for (Lab lab:labs) {
+        for (Lab lab : labs) {
             InventoryResult inventoryResult = ShowInventoryForLabId(lab.getId(), year, new InventoryResult());
             inventoryResults.add(inventoryResult);
         }
+        List<ManagingUnit> managingUnits = managingUnitService.getAllManagingUnits();
+
         model.addAttribute("inventoryResults", inventoryResults);
         model.addAttribute("sortedUniqueYears", sortedUniqueYears);
         model.addAttribute("year", year);
+        model.addAttribute("managingUnits", managingUnits);
+        model.addAttribute("departmentName", departmentName);
         model.addAttribute("success", success);
+
         return template;
     }
 }
