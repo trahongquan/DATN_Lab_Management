@@ -15,7 +15,7 @@
     <br>
     <div class="row">
         <div class="col-12 d-flex justify-content-center mb-5">
-            <a href="/Lab/admin/Showinventory/AllLab">
+            <a th:href="'/Lab/admin/Showinventory/AllshowinventoryLab?username='+${#authentication.name}">
                 <button type="button" class="btn btn-primary font-bold font-size-xlg">Kiểm kê tất cả phòng</button>
             </a>
         </div>
@@ -42,6 +42,7 @@
                     <td>
                         <div class="d-flex" style="display: flex; justify-content: center; align-items: center;">
                             <form th:action="@{'/Lab/admin/room/showinventory/' + ${lab.getId}}" method="get">
+                                <input type="hidden" name="username" th:value="${#authentication.name}" required>
                                 <button type="submit" class="btn btn-primary btn-sm mr-1">Kiểm kê</button>
                             </form>
                         </div>

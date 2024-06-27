@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"><head>
+    <meta charset="UTF-8">
+    <title>Add new Brand or Category</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Phone</title>
+    <!-- Link to Bootstrap CSS for styling -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body>
+<!--<div th:replace="admin/headerAdmin :: header-admin"></div>-->
+<managingunit>
+    <h1 style="text-align: center" class="text-uppercase font-weight-bold"> Danh mục Đơn vị quản lý</h1>
+    <!--<div th:replace="admin/add-nocite.html :: notice"></div>-->
+    <div class="form-group" style="display: flex ; justify-content: space-around">
+        <form th:action="@{'/Lab/admin/ManagingUnit/delete'}" method="post">
+            <div>
+                <label for="managingunit" >Tên đơn vị chủ quản:</label>
+                <select class="form-control" id="managingunit" name="managingunitId"  required>
+                    <option th:each="managingUnit : ${managingUnits}" th:value="${managingUnit.id}" th:text="${managingUnit.departmentName}"></option>
+                </select>
+                <label for="role" class="text-warning">Chỉ xóa được các đv chủ quản chưa có PTN</label>
+            </div>
+            <button type="submit" class="btn btn-danger" onclick="return confirm('Bạn có thực sử muốn xóa đơn vị này')" > Xóa </button>
+        </form>
+        <div style="display: flex; justify-content: space-around">
+            <form th:action="'/Lab/admin/ManagingUnit/add'" method="post">
+                <div style="margin-right: 10px">
+                    <label for="addmanagingunit" >Thêm Đơn vị chủ quản:</label>
+                    <input type="text" class="form-control" id="addmanagingunit" name="managingunit" required>
+                </div>
+                <button type="submit" class="btn btn-primary" onclick="return confirm('Bạn có thực sử muốn thêm đơn vị này')"> Thêm mới</button>
+            </form>
+        </div>
+    </div>
+    <br>
+    <div class="main-card mb-3 card">
+        <div class="card-body">
+            <table style="width: 100%;" id="example" class="table table-hover table-striped table-bordered">
+                <thead>
+                <tr>
+                    <th>STT</th>
+                    <th>Tên đơn vị chủ quản</th>
+                    <!--<th>Loại quyền</th>-->
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="managingUnit, iter : ${AllManagingUnits}">
+                    <td th:text="${iter.index + 1}"></td>
+                    <td th:text="${managingUnit.departmentName}"></td>
+                    <!--<td th:if="${role.role == rolesNotRoleSystem[iter.index].role}" th:text="'Quyền cơ bản của Hệ thống'"></td>-->
+                    <!--<td th:unless="${role.role == rolesNotRoleSystem[iter.index].role}" th:text="'Quyền nười dùng thêm'"></td>-->
+                </tr>
+                </tbody>
+                <tfoot>
+                <tr>
+                    <th>STT</th>
+                    <th>Tên đơn vị chủ quản</th>
+                    <!--<th>Loại quyền</th>-->
+                </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="/js/noticePopUp.js"></script>
+</managingunit>
+</body>
+</html>

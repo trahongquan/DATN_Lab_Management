@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+
+<html xmlns:th="http://www.thymeleaf.org">
+<!--<html xmlns:th="http://www.springframework.org/schema/data/jaxb">-->
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Phone</title>
+    <!-- Link to Bootstrap CSS for styling -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" th:href="@{/css/base2.min.css}">
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+
+</head>
+<body>
+<inventory-lab-readOnly>
+    <!--<div th:replace="admin/headerAdmin :: header-admin"></div>-->
+    <style>p{margin: unset}</style>
+    <h1 style="margin-top: 50px; text-align: center;text-transform: uppercase;">danh sách Kiểm kê</h1>
+    <h1 style="text-align: center;text-transform: uppercase;">Phòng: <span class="font-weight-bold text-danger" th:text="${labDTO.getLabName}"></span></h1>
+    <h2 style="text-align: center;" class="text-primary text-uppercase" th:text="${labDTO.getManagingUnit}"></h2>
+    <br>
+    <form th:action="'/Lab/admin/room/showinventoryForyear/'+${labDTO.getId}" method="get">
+        <div class="row justify-content-center">
+            <input type="hidden" name="username" th:value="${#authentication.name}">
+            <select name="inventoryLab" class="form-control m-4 col-2" required>
+                <option th:each="equipInventory : ${equipmentLabDtosInventoryForYear}"
+                        th:value="${equipInventory.id}"
+                        th:text="'Danh sách kiểm kê ngày 01/01/'+${equipInventory.year}"
+                        th:selected="${equipInventory.year==year}"></option>
+            </select>
+            <button type="submit" class="form-control btn-primary m-4 col-2">Xem</button>
+        </div>
+    </form>
+
+    <!--<a th:href="'/Lab/admin/getInventory/'+${labDTO.getId}">
+        <button style="text-align: center;" class="form-control btn-success text-primary text-uppercase m-4"> Get </button>
+    </a>-->
+    <div class="main-card mb-3 card">
+        <div class="card-body">
+            <table style="width: 100%;" id="example" class="table table-hover table-striped table-bordered">
+                <thead>
+                <tr>
+                    <th>STT</th>
+                    <th>Tên Trang bị</th>
+                    <th>Đơn vị tính</th>
+                    <th>Seri/Mã</th>
+                    <th>Phân cấp</th>
+                    <th>Năm sử dụng</th>
+                    <th>Thực lực 0 giờ <br> <span th:text="'01/01/' + ${year - 1}"></span></th>
+                    <th>Thực lực 0 giờ <br> <span th:text="'01/01/' + ${year}"></span></th>
+                    <th>Tăng</th>
+                    <th>Giảm</th>
+                    <th>Lý do</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="equipmentLab, iter : ${equipmentLabDTOs}">
+                    <td th:text="${iter.index + 1}"></td>
+                    <td th:text="${equipmentLab.getEquipment.getName}"></td>
+                    <td th:text="${equipmentLab.equipment.getUnit}"></td>
+                    <td>
+                        <th:block th:each="seri : ${equipmentLab.equipmentSerieList}">
+                            <p th:text="${seri}"></p>
+                        </th:block>
+                    </td>
+                    <td>
+                        <th:block th:each="level : ${equipmentLab.levels}">
+                            <p th:text="${level}"></p>
+                        </th:block>
+                    </td>
+                    <td>
+                        <th:block th:each="usingdate : ${equipmentLab.usingdates}">
+                            <p th:text="${usingdate}"></p>
+                        </th:block>
+                    </td>
+                    <td>
+                        <div th:if="${#lists.size(inventoryCompares)!=0}" >
+                            <span th:text="${inventoryCompares[iter.index].lastYear}"></span>
+                        </div>
+                    </td>
+                    <td>
+                        <div th:if="${#lists.size(inventoryCompares)!=0}" >
+                            <span th:text="${inventoryCompares[iter.index].thisYear}"></span>
+                        </div>
+                        <div th:unless="${#lists.size(inventoryCompares)!=0}" >
+                            <span th:text="${#lists.size(equipmentLab.equipmentSerieList)}"></span>
+                        </div>
+                    </td>
+                    <td>
+                        <div th:if="${#lists.size(inventoryCompares)!=0}" >
+                            <span th:class="${inventoryCompares[iter.index].increase != 0} ? 'text-success font-weight-bold'"
+                                  th:text="${inventoryCompares[iter.index].increase}"></span>
+                        </div>
+                    </td>
+                    <td class="">
+                        <div th:if="${#lists.size(inventoryCompares)!=0}" >
+                            <span th:class="${inventoryCompares[iter.index].reduce != 0} ? 'text-danger font-weight-bold'"
+                                  th:text="${inventoryCompares[iter.index].reduce}"></span>
+                        </div>
+                    </td>
+                    <td>
+                        <textarea name="note" class="form-control" cols="10" rows="2" placeholder="Ghí chú lý do"></textarea>
+                    </td>
+                </tr>
+                </tbody>
+                <tfoot>
+                <tr>
+                    <th>STT</th>
+                    <th>Tên Trang bị</th>
+                    <th>Đơn vị tính</th>
+                    <th>Seri/Mã</th>
+                    <th>Phân cấp</th>
+                    <th>Năm sử dụng</th>
+                    <th>Thực lực 0 giờ <br> <span th:text="'01/01/' + ${year - 1}"></span></th>
+                    <th>Thực lực 0 giờ <br> <span th:text="'01/01/' + ${year}"></span></th>
+                    <th>Tăng</th>
+                    <th>Giảm</th>
+                    <th>Lý do</th>
+                </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+
+    <!-- Link to Bootstrap JS and jQuery -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <script th:src="@{/js/equipment-edit-form.js}"></script>
+    <script>
+        /*var inputElements = document.querySelectorAll('input, textarea, select');
+        for (var i = 0; i < inputElements.length; i++) {
+            if (inputElements[i].type !== 'checkbox') {
+                inputElements[i].disabled = true;
+            }
+        }*/
+    </script>
+</inventory-lab-readOnly>
+
+<inventory-AllLab-readOnly>
+    <h1 style="margin-top: 50px; text-align: center;" class="text-uppercase text-danger font-weight-bold">
+        Danh sách kiểm kê [[${#lists.size(inventoryResults)}]] phòng</h1>
+
+    <form th:action="'/Lab/admin/Showinventory/AllshowinventoryLab'" method="get">
+        <div class="row justify-content-center">
+            <input type="hidden" name="username" th:value="${#authentication.name}">
+            <select name="yearSelected" class="form-control m-4 col-3" required>
+                <option th:each="yearSort : ${sortedUniqueYears}"
+                        th:value="${yearSort}"
+                        th:text="'Danh sách kiểm kê ngày 01/01/'+${yearSort}"
+                        th:selected="${yearSort==year}"></option>
+            </select>
+            <button type="submit" class="form-control btn-primary m-4 col-3">Xem</button>
+        </div>
+    </form>
+    <th:block th:each="inventoryResult : ${inventoryResults}">
+        <h1 style="margin-top: 50px; text-align: center;text-transform: uppercase;">=========================================================</h1>
+        <style>p{margin: unset}</style>
+        <h1 style="margin-top: 50px; text-align: center;text-transform: uppercase;">danh sách Kiểm kê</h1>
+        <h1 style="text-align: center;text-transform: uppercase;">Phòng: <span class="font-weight-bold text-danger" th:text="${inventoryResult.labDTO.getLabName}"></span></h1>
+        <h2 style="text-align: center;" class="text-primary text-uppercase" th:text="${inventoryResult.labDTO.getManagingUnit}"></h2>
+        <br>
+
+        <!--<a th:href="'/Lab/admin/getInventory/'+${labDTO.getId}">
+            <button style="text-align: center;" class="form-control btn-success text-primary text-uppercase m-4"> Get </button>
+        </a>-->
+        <div class="main-card mb-3 card">
+            <div class="card-body">
+                <table style="width: 100%;" id="example" class="table table-hover table-striped table-bordered">
+                    <thead>
+                    <tr>
+                        <th>STT</th>
+                        <th>Tên Trang bị</th>
+                        <th>Đơn vị tính</th>
+                        <th>Seri/Mã</th>
+                        <th>Phân cấp</th>
+                        <th>Năm sử dụng</th>
+                        <th>Thực lực 0 giờ <br> <span th:text="'01/01/' + ${year - 1}"></span></th>
+                        <th>Thực lực 0 giờ <br> <span th:text="'01/01/' + ${year}"></span></th>
+                        <th>Tăng</th>
+                        <th>Giảm</th>
+                        <th>Lý do</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="equipmentLab, iter : ${inventoryResult.equipmentLabDTOs}">
+                        <td th:text="${iter.index + 1}"></td>
+                        <td th:text="${equipmentLab.getEquipment.getName}"></td>
+                        <td th:text="${equipmentLab.equipment.getUnit}"></td>
+                        <td>
+                            <th:block th:each="seri : ${equipmentLab.equipmentSerieList}">
+                                <p th:text="${seri}"></p>
+                            </th:block>
+                        </td>
+                        <td>
+                            <th:block th:each="level : ${equipmentLab.levels}">
+                                <p th:text="${level}"></p>
+                            </th:block>
+                        </td>
+                        <td>
+                            <th:block th:each="usingdate : ${equipmentLab.usingdates}">
+                                <p th:text="${usingdate}"></p>
+                            </th:block>
+                        </td>
+                        <td>
+                            <div th:if="${#lists.size(inventoryResult.inventoryCompares)!=0}" >
+                                <span th:text="${inventoryResult.inventoryCompares[iter.index].lastYear}"></span>
+                            </div>
+                        </td>
+                        <td>
+                            <div th:if="${#lists.size(inventoryResult.inventoryCompares)!=0}" >
+                                <span th:text="${inventoryResult.inventoryCompares[iter.index].thisYear}"></span>
+                            </div>
+                            <div th:unless="${#lists.size(inventoryResult.inventoryCompares)!=0}" >
+                                <span th:text="${#lists.size(equipmentLab.equipmentSerieList)}"></span>
+                            </div>
+                        </td>
+                        <td>
+                            <div th:if="${#lists.size(inventoryResult.inventoryCompares)!=0}" >
+                                <span th:class="${inventoryResult.inventoryCompares[iter.index].increase != 0} ? 'text-success font-weight-bold'"
+                                      th:text="${inventoryResult.inventoryCompares[iter.index].increase}"></span>
+                            </div>
+                        </td>
+                        <td class="">
+                            <div th:if="${#lists.size(inventoryResult.inventoryCompares)!=0}" >
+                                <span th:class="${inventoryResult.inventoryCompares[iter.index].reduce != 0} ? 'text-danger font-weight-bold'"
+                                      th:text="${inventoryResult.inventoryCompares[iter.index].reduce}"></span>
+                            </div>
+                        </td>
+                        <td>
+                            <textarea name="note" class="form-control" cols="10" rows="2" placeholder="Ghí chú lý do"></textarea>
+                        </td>
+                    </tr>
+                    </tbody>
+                    <tfoot>
+                    <tr>
+                        <th>STT</th>
+                        <th>Tên Trang bị</th>
+                        <th>Đơn vị tính</th>
+                        <th>Seri/Mã</th>
+                        <th>Phân cấp</th>
+                        <th>Năm sử dụng</th>
+                        <th>Thực lực 0 giờ <br> <span th:text="'01/01/' + ${year - 1}"></span></th>
+                        <th>Thực lực 0 giờ <br> <span th:text="'01/01/' + ${year}"></span></th>
+                        <th>Tăng</th>
+                        <th>Giảm</th>
+                        <th>Lý do</th>
+                    </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+
+        <!-- Link to Bootstrap JS and jQuery -->
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+        <script th:src="@{/js/equipment-edit-form.js}"></script>
+        <script>
+            /*var inputElements = document.querySelectorAll('input, textarea, select');
+            for (var i = 0; i < inputElements.length; i++) {
+                if (inputElements[i].type !== 'checkbox') {
+                    inputElements[i].disabled = true;
+                }
+            }*/
+        </script>
+    </th:block>
+</inventory-AllLab-readOnly>
+
+</body>
+</html>

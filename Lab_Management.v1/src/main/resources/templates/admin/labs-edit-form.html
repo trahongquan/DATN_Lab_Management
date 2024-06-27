@@ -45,9 +45,12 @@
                 </div>
                 <div class="form-group ">
                     <label for="managingUnit">Chủ quản:</label>
-                    <input type="text" class="form-control font-weight-bold" id="managingUnit" name="managingUnit" required
-                           th:field="*{managingUnit}"
-                           th:placeholder="'Bộ môn Công nghệ phần mềm'">
+                    <select name="managingUnit" id="managingUnit" class="form-control" >
+                        <option th:each="managingUnitEach : ${managingUnits}"
+                                th:value="${managingUnitEach.departmentName}"
+                                th:text="${managingUnitEach.departmentName}"
+                        th:selected="${managingUnitEach.departmentName == labDTO.managingUnit}"></option>
+                    </select>
                 </div>
                 <div class="main-card mb-3 card" id="chosseSeries">
                     <div class="card-body">

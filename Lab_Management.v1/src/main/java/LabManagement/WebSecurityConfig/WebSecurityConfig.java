@@ -42,6 +42,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                 /** Tất cả các request tới web đều phải authorize - kiểm tra quyền*/
                 .antMatchers("/Lab/admin/Role").access("hasRole('ROLE_ADMIN')")
+                .antMatchers("/Lab/admin/ManagingUnit").access("hasRole('ROLE_ADMIN')")
                 .antMatchers("/Lab/admin/Equipment").access("hasRole('ROLE_ADMIN')")
                 .antMatchers("/Lab/admin/Manager/**").access("hasRole('ROLE_ADMIN')")
                 .antMatchers("/Lab/admin/UserWait**").access("hasRole('ROLE_ADMIN')")

@@ -921,7 +921,13 @@
                             <li>
                                 <a th:href="'/Lab/admin/Room?username='+${#authentication.name}">
                                     <i class="metismenu-icon pe-7s-ball">
-                                    </i>Danh mục phòng
+                                    </i>DM phòng thí nghiệm
+                                </a>
+                            </li>
+                            <li>
+                                <a th:href="'/Lab/admin/ManagingUnit?username='+${#authentication.name}">
+                                    <i class="metismenu-icon pe-7s-home">
+                                    </i>DM đơn vị chủ quản PTN
                                 </a>
                             </li>
                             <li>
@@ -998,12 +1004,12 @@
                                     <i class="metismenu-state-icon pe-7s-angle-down caret-left"></i>
                                 </a>
                                 <ul>
-                                    <li sec:authorize="hasRole('ROLE_ADMIN')">
+                                    <li>
                                         <a th:href="'/Lab/admin/Showinventory/Lab?username='+${#authentication.name}">
                                             KK theo phòng
                                         </a>
                                     </li>
-                                    <li sec:authorize="hasRole('ROLE_ADMIN')">
+                                    <li>
                                         <a th:href="'/Lab/admin/Showinventory/Equipment?username='+${#authentication.name}">
                                             KK theo Thiết bị
                                         </a>
@@ -1164,6 +1170,9 @@
                 <div th:if="${#request.requestURI == '/Lab/admin/Role'}" class="app-main__inner" style="display: flex; justify-content: center; align-content: center; flex-direction: column;">
                     <div th:replace="managers/roles.html :: role"></div>
                 </div>
+                <div th:if="${#request.requestURI == '/Lab/admin/ManagingUnit'}" class="app-main__inner" style="display: flex; justify-content: center; align-content: center; flex-direction: column;">
+                    <div th:replace="admin/managing-unit.html :: managingunit"></div>
+                </div>
                 <div th:if="${#strings.contains(#request.requestURI, '/Lab/admin/myAccount/')}" class="app-main__inner">
                     <div th:replace="managers/account-info :: account-info"></div>
                 </div>
@@ -1225,8 +1234,13 @@
                     <div th:replace="admin/inventory-manager.html :: inventory-manager"></div>
                 </div>
 
-                <div th:if="${#strings.contains(#request.requestURI, '/Lab/admin/room/showinventory/') || #strings.contains(#request.requestURI, 'Lab/admin/room/showinventoryForyear/')}" class="app-main__inner">
-                    <div th:replace="admin/inventory-equipment-readOnly.html :: inventory-equipment-readOnly"></div>
+                <div th:if="${#strings.contains(#request.requestURI, '/Lab/admin/room/showinventory/')
+                || #strings.contains(#request.requestURI, 'Lab/admin/room/showinventoryForyear/')}" class="app-main__inner">
+                    <div th:replace="admin/inventory-lab-readOnly.html :: inventory-lab-readOnly"></div>
+                </div>
+
+                <div th:if="${#strings.contains(#request.requestURI, 'Lab/admin/Showinventory/AllshowinventoryLab')}" class="app-main__inner">
+                    <div th:replace="admin/inventory-lab-readOnly.html :: inventory-AllLab-readOnly"></div>
                 </div>
 
 
