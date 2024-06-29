@@ -6,7 +6,6 @@ import LabManagement.entity.EquipmentLab;
 import LabManagement.entity.Lab;
 import LabManagement.entity.People;
 
-import java.sql.Date;
 import java.util.List;
 
 public class LabDTO {
@@ -31,7 +30,7 @@ public class LabDTO {
         this.capacity = lab.getCapacity();
         this.location = lab.getLocation();
         this.managingUnit = lab.getManagingUnit();
-        this.lab_managemet_id = lab.getLab_managemet_id();
+        this.lab_managemet_id = lab.getLabManagemetId();
         this.isDeleted = lab.getIsDelete();
         this.lab_managemet = lab_managemet;
     }
@@ -42,7 +41,7 @@ public class LabDTO {
         this.capacity = lab.getCapacity();
         this.location = lab.getLocation();
         this.managingUnit = lab.getManagingUnit();
-        this.lab_managemet_id = lab.getLab_managemet_id();
+        this.lab_managemet_id = lab.getLabManagemetId();
         this.isDeleted = lab.getIsDelete();
         this.lab_managemet = lab_managemet;
         this.equipmentLabs = equipmentLabs;
@@ -54,7 +53,7 @@ public class LabDTO {
         this.capacity = lab.getCapacity();
         this.location = lab.getLocation();
         this.managingUnit = lab.getManagingUnit();
-        this.lab_managemet_id = lab.getLab_managemet_id();
+        this.lab_managemet_id = lab.getLabManagemetId();
         this.isDeleted = lab.getIsDelete();
         this.lab_managemet = lab_managemet;
         this.dateAndStatusLab = dateAndStatusLab;

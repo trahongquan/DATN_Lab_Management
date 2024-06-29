@@ -25,7 +25,7 @@ public class Lab implements Serializable {
     private String managingUnit;
 
     @Column(name = "lab_managemet_id", nullable = false)
-    private int lab_managemet_id;
+    private int labManagemetId;
 
     @Column(name = "is_delete", nullable = false)
     private int isDelete;
@@ -33,12 +33,12 @@ public class Lab implements Serializable {
     public Lab() {
     }
 
-    public Lab(String labName, int capacity, String location, String managingUnit, int lab_managemet_id, int isDelete) {
+    public Lab(String labName, int capacity, String location, String managingUnit, int labManagemetId, int isDelete) {
         this.labName = labName;
         this.capacity = capacity;
         this.location = location;
         this.managingUnit = managingUnit;
-        this.lab_managemet_id = lab_managemet_id;
+        this.labManagemetId = labManagemetId;
         this.isDelete = isDelete;
     }
 
@@ -50,7 +50,7 @@ public class Lab implements Serializable {
                 ", capacity=" + capacity +
                 ", location='" + location + '\'' +
                 ", managingUnit='" + managingUnit + '\'' +
-                ", lab_managemet_id=" + lab_managemet_id +
+                ", lab_managemet_id=" + labManagemetId +
                 ", isDeleted=" + isDelete +
                 '}';
     }
@@ -87,12 +87,12 @@ public class Lab implements Serializable {
         this.location = location;
     }
 
-    public int getLab_managemet_id() {
-        return lab_managemet_id;
+    public int getLabManagemetId() {
+        return labManagemetId;
     }
 
-    public void setLab_managemet_id(int lab_managemet_id) {
-        this.lab_managemet_id = lab_managemet_id;
+    public void setLabManagemetId(int lab_managemet_id) {
+        this.labManagemetId = lab_managemet_id;
     }
 
     public int getIsDelete() {

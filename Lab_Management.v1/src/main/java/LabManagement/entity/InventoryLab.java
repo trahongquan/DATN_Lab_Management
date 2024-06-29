@@ -3,8 +3,8 @@ package LabManagement.entity;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "equipmentlabdto")
-public class EquipmentLabDtoInventory {
+@Table(name = "inventory_lab")
+public class InventoryLab {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -19,18 +19,18 @@ public class EquipmentLabDtoInventory {
     @Column(name = "equipment_lab_data", columnDefinition = "TEXT")
     private String equipmentLabData;
 
-    public EquipmentLabDtoInventory(int labId, Integer year, String equipmentLabData) {
+    public InventoryLab(int labId, Integer year, String equipmentLabData) {
         this.labId = labId;
         this.year = year;
         this.equipmentLabData = equipmentLabData;
     }
 
-    public EquipmentLabDtoInventory() {
+    public InventoryLab() {
     }
 
     @Override
     public String toString() {
-        return "EquipmentLabDtoInventory{" +
+        return "InventoryLab{" +
                 "id=" + id +
                 ", labId=" + labId +
                 ", year=" + year +

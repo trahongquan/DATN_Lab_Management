@@ -2,13 +2,13 @@ package LabManagement.ClassSuport;
 
 import LabManagement.dto.EquipmentLabDTO;
 import LabManagement.dto.LabDTO;
-import LabManagement.entity.EquipmentLabDtoInventory;
+import LabManagement.entity.InventoryLab;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class InventoryResult {
-    private List<EquipmentLabDtoInventory> equipmentLabDtosInventoryForYear;
+    private List<InventoryLab> equipmentLabDtosInventoryForYear;
     private List<EquipmentLabDTO> equipmentLabDTOs;
     private List<InventoryCompare> inventoryCompares;
     private LabDTO labDTO;
@@ -20,7 +20,7 @@ public class InventoryResult {
         this.labDTO = new LabDTO();
     }
 
-    public InventoryResult(List<EquipmentLabDtoInventory> equipmentLabDtosInventoryForYear,
+    public InventoryResult(List<InventoryLab> equipmentLabDtosInventoryForYear,
                            List<EquipmentLabDTO> equipmentLabDTOs,
                            List<InventoryCompare> inventoryCompares,
                            LabDTO labDTO) {
@@ -30,7 +30,7 @@ public class InventoryResult {
         this.labDTO = labDTO;
     }
 
-    public List<EquipmentLabDtoInventory> getEquipmentLabDtosInventoryForYear() {
+    public List<InventoryLab> getEquipmentLabDtosInventoryForYear() {
         return equipmentLabDtosInventoryForYear;
     }
 
@@ -50,7 +50,7 @@ public class InventoryResult {
         this.labDTO = labDTO;
     }
 
-    public void setEquipmentLabDtosInventoryForYear(List<EquipmentLabDtoInventory> equipmentLabDtosInventoryForYear) {
+    public void setEquipmentLabDtosInventoryForYear(List<InventoryLab> equipmentLabDtosInventoryForYear) {
         this.equipmentLabDtosInventoryForYear = equipmentLabDtosInventoryForYear;
     }
 
