@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"><head>
+    <meta charset="UTF-8">
+    <title>Add new Brand or Category</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Phone</title>
+    <!-- Link to Bootstrap CSS for styling -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body>
+<!--<div th:replace="admin/headerAdmin :: header-admin"></div>-->
+<lesson-management>
+    <style>label{font-weight: bold}</style>
+    <h1 style="text-align: center" class="text-uppercase font-weight-bold"> Danh mục bài thí nghiệm</h1>
+    <form th:action="'/Lab/admin/Lesson/add'" method="post" id="formLesson"
+              class="d-flex justify-content-center align-content-center flex-column">
+            <div class="row d-flex justify-content-center align-content-center">
+                <input type="hidden" name="username" th:value="${#authentication.name}">
+                <input type="hidden" name="id" id="id" th:value="0">
+                <div class="col-4">
+                    <div>
+                        <label for="noLesson" >Mã số bài TN:</label>
+                        <input type="text" class="form-control lesson" id="noLesson" name="noLesson" placeholder="VD: L000000955" required>
+                    </div>
+                    <div>
+                        <label for="name" >Tên bài TN:</label>
+                        <input type="text" class="form-control lesson" id="name" name="name" placeholder="VD: Bài thí nghiệm 2" required>
+                    </div>
+                </div>
+                <div class="col-4">
+                    <div>
+                        <label for="module" >Học phần môn học:</label>
+                        <input type="text" class="form-control lesson" id="module" name="module" placeholder="VD: Lôgic mờ và suy diễn xấp xỉ" required>
+                    </div>
+                    <div>
+                        <label for="labId" >Thuộc phòng thí nghiệm:</label>
+                        <select name="labId" id="labId"  class="form-control lesson">
+                            <option th:each="lab : ${labs}" th:value="${lab.id}"
+                                    th:text="${lab.labName}"></option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-4 row">
+                    <div class="col-6">
+                        <div>
+                            <label for="level"> Cấp học</label>
+                            <input type="text" class="form-control lesson" id="level" name="level" required>
+                        </div>
+                        <div>
+                            <label for="workTime"> Thời lượng (giờ)</label>
+                            <input type="number" class="form-control lesson" id="workTime" name="workTime" min="1" max="10" required>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div>
+                            <label for="type"> Loại</label>
+                            <input type="text" class="form-control lesson" id="type" name="type" placeholder="Bắt buộc hoặc minh họa..." required>
+                        </div>
+                        <div>
+                            <label for="note">Ghi chú</label>
+                            <input type="text" class="form-control lesson" id="note" name="note" placeholder="Nội dung ghi chú" min="1" max="10" required>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <button type="submit" id="btnSubmit" class="btn btn-primary mt-2"> Thêm mới</button>
+        </form>
+    <br>
+    <div class="main-card mb-3 card">
+        <div class="card-body">
+            <table style="width: 100%;" id="example" class="table table-hover table-striped table-bordered">
+                <thead>
+                <tr>
+                    <th>STT</th>
+                    <th>Mã số</th>
+                    <th>Tên bài thí nghiệm</th>
+                    <th>Học phần môn học</th>
+                    <th>Cấp học</th>
+                    <th>Thời lượng <br> (giờ)</th>
+                    <th>Loại bài</th>
+                    <th>Phòng thí nghiệm</th>
+                    <th>Ghi chú</th>
+                    <th>Thao tác</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="lesson, iter : ${lessonDTOs}">
+                    <td th:text="${iter.index + 1}"></td>
+                    <td th:text="${lesson.noLesson}"></td>
+                    <td th:text="${lesson.name}"></td>
+                    <td th:text="${lesson.module}"></td>
+                    <td th:text="${lesson.level}"></td>
+                    <td th:text="${lesson.workTime}"></td>
+                    <td th:text="${lesson.type}"></td>
+                    <td th:text="${lesson.lab.labName}"></td>
+                    <td th:text="${lesson.note}"></td>
+                    <td class="col-1">
+                        <button class="btn btn-primary edit" th:data="${lesson.id}">Sửa</button>
+                        <a class="btn btn-danger" onclick="return confirm('Bạn có thực sự muốn xóa?')"
+                           th:href="'/Lab/admin/Lesson/delete?lessonId='+${lesson.id}+'&username='+${#authentication.name}">Xóa</a>
+                    </td>
+                </tr>
+                </tbody>
+                <tfoot>
+                <tr>
+                    <th>STT</th>
+                    <th>Mã số</th>
+                    <th>Tên bài thí nghiệm</th>
+                    <th>Học phần môn học</th>
+                    <th>Cấp học</th>
+                    <th>Thời lượng</th>
+                    <th>Loại bài</th>
+                    <th>Phòng thí nghiệm</th>
+                    <th>Ghi chú</th>
+                    <th>Thao tác</th>
+                </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="/js/noticePopUp.js"></script>
+    <script th:inline="javascript">
+        var inputs = $('.lesson');
+        $(document).ready(function () {
+            var lessonDTOs = [[${lessonDTOs}]];
+            $('.edit').click(function() {
+                var lessonId = $(this).attr('data');
+                console.log('lessonId = ' + lessonId);
+                var lesson = $.grep(lessonDTOs, function(lessonDTO) {
+                    return lessonDTO.id == lessonId;
+                });
+                console.log(lesson[0]);
+
+
+                if($('#id').val()==lessonId){
+                    $('#id').val(0);
+                    $('#noLesson').val("");
+                    $('#name').val("");
+                    $('#module').val("");
+                    $('#level').val("");
+                    $('#workTime').val(5);
+                    $('#type').val("");
+                    $('#note').val("");
+                    $('#btnSubmit').text('Thêm mới')
+                    inputs.each(function() {
+                        $(this).removeClass('font-weight-bold')
+                    })
+                } else {
+                    // Populate the input and select fields with lesson information
+                    $('#id').val(lesson[0].id);
+                    $('#noLesson').val(lesson[0].noLesson);
+                    $('#name').val(lesson[0].name);
+                    $('#module').val(lesson[0].module);
+                    $('#labId').val(lesson[0].labId);
+                    $('#level').val(lesson[0].level);
+                    $('#workTime').val(lesson[0].workTime);
+                    $('#type').val(lesson[0].type);
+                    $('#note').val(lesson[0].note);
+                    $('#btnSubmit').text('Sửa')
+                    inputs.each(function() {
+                        $(this).addClass('font-weight-bold')
+                    })
+                }
+
+            })
+        })
+
+        $('#formLesson').submit(function(event) {
+            event.preventDefault(); // Prevent form submission
+
+            // Check if all fields have data
+            var isValid = true;
+            console.log(inputs)
+            inputs.each(function() {
+                if ($(this).val() === '') {
+                    isValid = false;
+                    var fieldName = $(this).attr('name');
+                    alert('Điền đầy đủ thông tin vào trường ' + fieldName);
+                    return false; // Exit the loop
+                }
+            });
+
+            if (isValid) {
+                // Confirm before submitting the form
+                if (confirm('Bạn có chắc chắn muốn thêm mới?')) {
+                    // Submit the form
+                    $(this).unbind('submit').submit();
+                }
+            }
+        });
+        $('#btnSubmit').click(function() {
+            $('#formLesson').submit(event);
+        });
+    </script>
+</lesson-management>
+</body>
+</html>

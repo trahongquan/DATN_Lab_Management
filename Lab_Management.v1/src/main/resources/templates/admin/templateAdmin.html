@@ -1257,6 +1257,16 @@
 
 
                                                 <!--/////////////////////////////////-->
+                                                            <!--  Lesson  -->
+                                                <!--/////////////////////////////////-->
+
+                <div th:if="${#strings.contains(#request.requestURI, 'Lab/admin/Lesson')}" class="app-main__inner">
+                    <div th:replace="admin/lesson-management.html :: lesson-management"></div>
+                </div>
+
+
+
+                                                <!--/////////////////////////////////-->
                                                             <!--  Eror  -->
                                                 <!--/////////////////////////////////-->
 

@@ -1,55 +1,40 @@
-package LabManagement.entity;
+package LabManagement.dto;
 
-import javax.persistence.*;
+import LabManagement.entity.Lab;
+import LabManagement.entity.Lesson;
 
-@Entity
-@Table(name = "lesson")
-public class Lesson {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+public class LessonDTO {
     private int id;
-
-    @Column(name = "labid")
     private int labId;
-
-    @Column(name = "nolesson")
     private String noLesson; /** Mã số bài thí nghiệm */
-
-    @Column(name = "name")
     private String name;
-
-    @Column(name = "module")
     private String module; /** Thuộc Học phần môn học nào*/
-
-    @Column(name = "level")
     private String level; /** Cấp học Đại học, Cao đẳng ...*/
-
-    @Column(name = "worktime")
     private Integer workTime;
-
-    @Column(name = "type")
     private String type; /** Loại bắt buộc, minh họa ...*/
-
-    @Column(name = "note")
     private String note; /** Đề xuất, Đang thực hiện, Đang xây dựng ...*/
 
-    public Lesson(int labId, String noLesson, String name, String module, String level, Integer workTime, String type, String note) {
-        this.labId = labId;
-        this.noLesson = noLesson;
-        this.name = name;
-        this.module = module;
-        this.level = level;
-        this.workTime = workTime;
-        this.type = type;
-        this.note = note;
+    private Lab lab;
+
+    public LessonDTO() {
     }
 
-    public Lesson() {
+    public LessonDTO(Lesson lesson, Lab lab) {
+        this.id = lesson.getId();
+        this.labId = lesson.getLabId();
+        this.noLesson = lesson.getNoLesson();
+        this.name = lesson.getName();
+        this.module = lesson.getModule();
+        this.level = lesson.getLevel();
+        this.workTime = lesson.getWorkTime();
+        this.type = lesson.getType();
+        this.note = lesson.getNote();
+        this.lab = lab;
     }
 
     @Override
     public String toString() {
-        return "Lesson{" +
+        return "LessonDTO{" +
                 "id=" + id +
                 ", labId=" + labId +
                 ", noLesson='" + noLesson + '\'' +
@@ -59,6 +44,7 @@ public class Lesson {
                 ", workTime=" + workTime +
                 ", type='" + type + '\'' +
                 ", note='" + note + '\'' +
+                ", lab=" + lab +
                 '}';
     }
 
@@ -132,5 +118,13 @@ public class Lesson {
 
     public void setNote(String note) {
         this.note = note;
+    }
+
+    public Lab getLab() {
+        return lab;
+    }
+
+    public void setLab(Lab lab) {
+        this.lab = lab;
     }
 }

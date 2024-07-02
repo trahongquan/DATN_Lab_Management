@@ -367,26 +367,6 @@
             }
         });
 
-        /*function ReadOnly(bookingId) {
-            var bookingStatus = [[${bookingDTO.confirm_Status}]];
-            console.log((window.location.pathname === '/Lab/myBookingDetail/'+bookingId && bookingStatus == 'Đã xác nhận'))
-            console.log(bookingStatus)
-            // Kiểm tra đường dẫn hiện tại
-            if (window.location.pathname === '/Lab/admin/ShowBookingApprove/'+bookingId
-            || window.location.pathname === '/Lab/admin/ShowBookingCancel/'+bookingId
-            || (window.location.pathname === '/Lab/myBookingDetail/'+bookingId && bookingStatus == 'Bị từ chối')
-            || (window.location.pathname === '/Lab/myBookingDetail/'+bookingId && bookingStatus == 'Đã xác nhận')) {
-
-
-
-                var inputs = document.querySelectorAll('input:not(#fileInput):not(.teacher-confirm), input[type:checkbox]:not(#checkbox), button:not(.teacher-confirm), select, textarea');
-                console.log("đã vô hiệu hóa");
-                // Vòng lặp để thêm thuộc tính disabled vào từng phần tử
-                for (var i = 0; i < inputs.length; i++) {
-                    inputs[i].disabled = true;
-                }
-            }
-        }*/
         function ReadOnly(bookingId) {
             var bookingStatus = [[${bookingDTO.confirm_Status}]];
             console.log((window.location.pathname === '/Lab/myBookingDetail/'+bookingId && bookingStatus == 'Đã xác nhận'));

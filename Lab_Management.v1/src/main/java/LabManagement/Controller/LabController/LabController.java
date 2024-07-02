@@ -2768,8 +2768,74 @@ public class LabController {
                                                 /** Quản lý bài thí nghiệm - Lesson */
                                         /*****************************************************/
 
-//    @GetMapping({"/admin/Lesson"})
-//    public String Equipment(Model model,
+    @GetMapping({"/admin/Lesson"})
+    public String Lesson(Model model,
+                         @RequestParam("username") String username,
+                         @RequestParam(value = "success", defaultValue = "false") boolean success,
+                         @RequestParam(value = "unsuccess", defaultValue = "false") boolean unsuccess){
+        People people = GetPeopleByUsername(username);
+        boolean isAdmin = CheckRole(people,RoleSystem.ROLE_ADMIN);
+        List<LessonDTO> lessonDTOs = new ArrayList<>();
+        List<Lab> labs = new ArrayList<>();
+        if(isAdmin){
+            labs = labService.getAllLabsOnLine();
+        }  else {
+            labs = labService.getAllLabsOnLine().stream().filter(lab -> lab.getLabManagemetId()==people.getId()).collect(Collectors.toList());
+        }
+
+        lessonService.getAllLessons().forEach(lesson -> {
+            Lab lab = labService.findByLabId(lesson.getLabId());
+            if(isAdmin){
+                lessonDTOs.add(new LessonDTO(lesson, lab));
+            } else {
+                if(lab.getLabManagemetId()==people.getId()){
+                    lessonDTOs.add(new LessonDTO(lesson, lab));
+                }
+            }
+        });
+
+        model.addAttribute("labs", labs);
+        model.addAttribute("lessonDTOs", lessonDTOs);
+        model.addAttribute("success", success);
+        model.addAttribute("unsuccess", unsuccess);
+        model.addAttribute("title", "Danh mục bài thí nghiệm");
+
+        return template;
+    }
+
+    @GetMapping("/admin/Lesson/delete")
+    public String DeleteLesson(Model model,
+                               @RequestParam("username") String username,
+                               @RequestParam("lessonId") int lessonId,
+                               @RequestParam(value = "success", defaultValue = "false") boolean success,
+                               @RequestParam(value = "unsuccess", defaultValue = "false") boolean unsuccess){
+        try {
+            lessonService.deleteLesson(lessonId);
+            return Redirect("admin/Lesson?username="+username, true);
+        } catch (Exception e){
+            e.printStackTrace();
+            return Redirect("admin/Lesson?username="+username, false);
+        }
+    }
+    @PostMapping("/admin/Lesson/add")
+    public String AddLesson(@ModelAttribute Lesson lesson,
+                            @RequestParam("username") String username,
+                            @RequestParam(value = "success", defaultValue = "false") boolean success,
+                            @RequestParam(value = "unsuccess", defaultValue = "false") boolean unsuccess){
+        try {
+            if(lesson.getId()!=0){
+                lessonService.updateLesson(lesson.getId(),lesson);
+                System.out.println("Đã update");
+            } else {
+                lessonService.createLesson(lesson);
+                System.out.println("Đã Thêm mới");
+            }
+            return Redirect("admin/Lesson?username="+username, true);
+        } catch (Exception e){
+            e.printStackTrace();
+            return Redirect("admin/Lesson?username="+username, false);
+        }
+    }
 
 
 

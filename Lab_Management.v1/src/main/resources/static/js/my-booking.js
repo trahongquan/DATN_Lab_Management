@@ -42,7 +42,7 @@ $(document).ready(function() {
             $('#table-booking').fadeOut(300, function() {
                 $('#card-booking').fadeIn(300);
             });
-            $('#switch-card-table').text('Chuyển sang xem dạng bảng')
+            $('#switch-card-table').text('Xem dạng bảng để tùy chỉnh tốt hơn')
         }
         toggleStatus = !toggleStatus;
     });
