@@ -8,6 +8,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
+import org.springframework.web.multipart.MultipartResolver;
+import org.springframework.web.multipart.commons.CommonsMultipartResolver;
 
 import javax.sql.DataSource;
 
@@ -33,7 +35,6 @@ public class DatasourceConfig {
     @Bean
     @ConfigurationProperties (prefix="security.datasource")
     public DataSource securityDataSource(){ return DataSourceBuilder.create().build(); }
-
 
 }
 

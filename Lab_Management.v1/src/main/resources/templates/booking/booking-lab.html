@@ -24,8 +24,8 @@
 <body class="scroll-container">
 <booking-lab>
     <div th:replace="headernew::header"></div>
-    <h1 style="margin-top: 50px; text-align: center;">CHI TIẾT ĐẶT PHÒNG THÍ NGHIỆM</h1><br>
-
+    <h1 style="margin-top: 50px; text-align: center" class="font-weight-bold text-uppercase">lên yêu cầu đặt <span class="text-danger" th:text="${labDTO.labName}"></span></h1>
+    <br>
     <div class="container" style="background-color: rgba(230,239,255,0.6); padding: 2em; border-radius: 3em">
         <form th:object="${labDTO}" th:action="@{'/Lab/LabDetail/' + ${labDTO.getId}+'?username='+${#authentication.name}}" method="post" enctype="multipart/form-data">
             <div class="row justify-content-around p-2">
@@ -73,6 +73,13 @@
                         <label for="amount_of_people">Số lượng người tham gia :</label>
                         <input type="number" class="form-control bg-danger-subtle" id="amount_of_people"
                                name="amount_of_people" min="1" th:max="${labDTO.getCapacity}" required >
+                    </div>
+                    <div class="form-group" id="lesson_div" >
+                        <label for="lesson">Chọn bài thí nghiệm có sẵn</label>
+                        <select class="form-control bg-danger-subtle" id="lesson" name="lesson" required th:if="${#lists.size(lessons)!=0}">
+                            <option th:each="lesson : ${lessons}" th:value="${lesson.getId}"
+                                    th:text="${lesson.name}"></option>
+                        </select>
                     </div>
                 </div>
             </div>
@@ -184,25 +191,30 @@
     <script src="https://cdn.jsdelivr.net/npm/metismenu"></script>
 
     <script th:inline="javascript">
+        var experimentGroups = [[${experimentGroups}]];
         var experimentTypes = [[${experimentTypes}]];
         var experimentReports = [[${experimentReports}]];
-        var tempGroupId
+        var tempGroupId;
         $(document).ready(function() {
-            checkuser([[${#authentication.name}]])
+            checkuser([[${#authentication.name}]]);
 
             $('#date').val([[${date}]]);
             $('#experiment_type').prop('disabled','true');
             $('#experiment_report').prop('disabled','true');
+            $('#lesson').prop('disabled','true');
+            $('#lesson_div').hide();
 
             $('#experiment_group').change(function () {
                 var groupId = $(this).val();
                 SetExperiment_Type(groupId);
                 tempGroupId = groupId;
                 $('#experiment_report').prop('disabled','true');
+                CheckLesson(ex_group, ex_tpye, ex_report);
             });
             $('#experiment_type').change(function () {
                 var typeId = $(this).val();
                 SetExperiment_Report(tempGroupId, typeId)
+                CheckLesson(ex_group, ex_tpye, ex_report);
             })
             $('#experiment_group').trigger('change');
             $('#experiment_type').trigger('change');
@@ -245,6 +257,59 @@
             });
             return trimmedArray;
         }
+
+        /*******************************/
+
+        var lessons = [[${lessons}]];
+        var ex_tpye = $('#experiment_type');
+        var ex_group = $('#experiment_group');
+        var ex_report = $('#experiment_report');
+        var lessonElement = $('#lesson');
+        var lessonDiv = $('#lesson_div');
+
+        function CheckLesson(ex_group, ex_tpye, ex_report) {
+            // if(ex_group.value())
+            var ex_groupId = ex_group.val();
+            var ex_reportId = ex_report.val();
+
+            var result_ex_group = $.grep(experimentGroups, function(group) {
+                return group.id == ex_groupId;
+            });
+            var result_ex_report = $.grep(experimentReports, function(report) {
+                return report.id == ex_reportId;
+            });
+
+            if(result_ex_group[0].groupName==="Đào tạo" && result_ex_report[0].reportType === "Giờ khai thác") {
+                console.log("Tìm thấy.");
+                lessonElement.removeAttr('disabled');
+                lessonDiv.show();
+            } else {
+                console.log("Không tìm thấy");
+                lessonDiv.hide();
+                lessonElement.prop('disabled', 'true');
+            }
+        }
+
+        lessonElement.change(function () {
+            SetLesson();
+        });
+
+        function SetLesson() {
+            var lessonId = lessonElement.val();
+            var result_lesson = $.grep(lessons, function(lesson) {
+                return lesson.id == lessonId;
+            });
+            console.log(result_lesson[0])
+            // $('#name').empty();
+            $('#name').val(result_lesson[0].name);
+            $('#work_time').val(result_lesson[0].workTime)
+        }
+
+
+        // if(result_lesson.length > 0){
+        // }
+
+
     </script>
 
     <!--Multiselect-->

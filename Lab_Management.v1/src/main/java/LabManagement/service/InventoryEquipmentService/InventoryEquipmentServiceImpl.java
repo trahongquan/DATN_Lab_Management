@@ -24,6 +24,18 @@ public class InventoryEquipmentServiceImpl implements InventoryEquipmentService 
     }
 
     @Override
+    public InventoryEquipment findByYear(int year){
+//        Optional<InventoryEquipment> optional = (Optional<InventoryEquipment>) inventoryEquipmentRepository.findByYear(year);
+        try {
+            return inventoryEquipmentRepository.findByYear(year);
+        } catch (Exception e) {
+            InventoryEquipment inventoryEquipment = new InventoryEquipment();
+            inventoryEquipment.setId(0);
+            return inventoryEquipment;
+        }
+    }
+
+    @Override
     public InventoryEquipment getInventoryEquipmentById(int id) {
         Optional<InventoryEquipment> optionalInventoryEquipment = inventoryEquipmentRepository.findById(id);
         return optionalInventoryEquipment.orElse(null);

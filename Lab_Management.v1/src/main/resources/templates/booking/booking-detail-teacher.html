@@ -25,28 +25,48 @@
 <div th:replace="headernew::header"></div>
 <booking-detail>
     <!--<div th:replace="headernew::header"></div>-->
-    <h1 style="margin-top: 50px; text-align: center;">CHI TIẾT ĐẶT PHÒNG THÍ NGHIỆM</h1>
-    <div th:if="${bookingDTO.confirm_Status=='Đã xác nhận'}" >
-        <div class="d-flex justify-content-center align-content-center flex-row p-2">
-            <form th:action="@{'/Lab/myBookingDetail/ComfirmUsed'}" method="get"
-                  th:if="${bookingDTO.comfirmUsed == 'Chưa sử dụng'}">
+    <h1 style="margin-top: 50px; text-align: center" class="font-weight-bold text-uppercase">CHI TIẾT ĐẶT <span class="text-danger" th:text="${bookingDTO.labDTO.labName}"></span></h1>
+    <div th:unless="${(bookingDTO.confirm_Status!='Đang chờ duyệt' && bookingDTO.comfirmUsed != 'Chưa sử dụng')
+                    || (bookingDTO.confirm_Status =='Đang chờ duyệt' && bookingDTO.comfirmUsed == 'Chưa sử dụng')}" >
+        <h3 style="margin-top: 30px; text-align: center" class="font-weight-bold text-uppercase text-danger bg-warning">Hãy chờ tới ngày sử dụng phòng để xác nhận nhé!</h3>
+    </div>
+    <div th:if="${bookingDTO.confirm_Status=='Đã xác nhận' && #dates.format(date, 'yyyy-MM-dd') == #dates.format(#dates.createNow(), 'yyyy-MM-dd')}" >
+        <div class="d-flex justify-content-center align-content-center flex-row p-2 row">
+            <form th:action="@{'/Lab/myBookingDetail/ComfirmUsed'}" method="post" id="myForm"
+                  class="col-4 row justify-content-end align-content-center flex-row"
+                  th:if="${bookingDTO.comfirmUsed == 'Chưa sử dụng'}"
+                  enctype="multipart/form-data">
+                <div class="form-group col-5 bg-success p-2" style="margin: unset; border-radius: 1em">
+                    <label for="fileInput" class="">Báo cáo sau thí nghiệm:</label>
+                    <input id="fileInput" class="form-control teacher-confirm" type="file" name="file" accept=".xlsx, .xls, .doc, .docx, .ppt, .pptx" onchange="enableImportButton()">
+                </div>
                 <input type="hidden" class="teacher-confirm" name="bookingId" th:value="${bookingDTO.getId}">
                 <input type="hidden" class="teacher-confirm" name="username" th:value="${#authentication.name}">
-                <button type="submit" class="btn btn-success mx-2 teacher-confirm" onclick="return confirm('Bạn có chắc chắn muốn SỬ DỤNG không?')">Xác nhận CÓ sử dụng phòng</button>
+                <button type="submit" disabled id="importButton" form="myForm"  class="btn btn-success mx-2 teacher-confirm col-6" onclick="return confirm('Bạn có chắc chắn muốn SỬ DỤNG không?')">Xác nhận CÓ sử dụng phòng</button>
             </form>
             <form th:action="@{'/Lab/myBookingDetail/ComfirmUsedCancel'}" method="get"
+                  class="col-2 row justify-content-center align-content-center flex-row"
                   th:if="${bookingDTO.comfirmUsed == 'Chưa sử dụng'}">
                 <input type="hidden" class="teacher-confirm" name="bookingId" th:value="${bookingDTO.getId}">
                 <input type="hidden" class="teacher-confirm" name="username" th:value="${#authentication.name}">
                 <button type="submit" class="btn btn-danger mx-2 teacher-confirm" onclick="return confirm('Bạn có chắc chắn muốn HỦY không?')">Xác nhận KHÔNG sử dụng phòng</button>
             </form>
-            <span class="text-success font-weight-bold font-size-xlg bg-warning" th:if="${bookingDTO.comfirmUsed == 'Đã sử dụng'}"> GV đã xác nhận sử dụng phòng</span>
+
         </div>
     <br>
     </div>
     <div th:if="${bookingDTO.confirm_Status=='Bị từ chối'}" >
         <div class="d-flex justify-content-center align-content-center flex-row p-2">
-            <span class="text-danger font-weight-bold font-size-xlg bg-warning" th:if="${bookingDTO.comfirmUsed == 'Đã hủy'}"> GV đã xác nhận hủy phòng</span>
+            <span class="btn text-danger font-weight-bold font-size-xlg bg-warning" th:if="${bookingDTO.comfirmUsed == 'Đã hủy'}"> GV đã xác nhận hủy phòng</span>
+        </div>
+        <br>
+    </div>
+    <div th:if="${bookingDTO.confirm_Status=='Đã xác nhận'}" >
+        <div class="d-flex justify-content-center align-content-center flex-row p-2">
+            <span class="text-success font-weight-bold font-size-xlg bg-warning btn" th:if="${bookingDTO.comfirmUsed == 'Đã sử dụng'}"> GV đã xác nhận sử dụng phòng</span>
+            <a style="margin-left: 30px" th:if="${bookingDTO.comfirmUsed == 'Đã sử dụng'}"
+               th:href="'/Lab/myBookingDetail/ComfirmUsed/download/'+${bookingDTO.getId}"
+               type="button" class="btn-success btn" id="download" ><span>Tải xuống báo cáo</span></a>
         </div>
         <br>
     </div>
@@ -106,6 +126,14 @@
                         <input type="number" class="form-control bg-danger-subtle" id="amount_of_people"
                                name="amount_of_people" min="1" th:max="${bookingDTO.labDTO.getCapacity}"
                                th:value="${bookingDTO.getContentDTO.amountOfPeople}" required >
+                    </div>
+                    <div class="form-group" id="lesson_div">
+                        <label for="lesson">Tên bài thí nghiệm</label>
+                        <select class="form-control bg-danger-subtle" id="lesson" name="lesson" required>
+                            <option th:each="lesson : ${lessons}" th:value="${lesson.getId}"
+                                    th:text="${lesson.name}"
+                                    th:selected="${lesson.name == bookingDTO.getContentDTO.lesson.name}"></option>
+                        </select>
                     </div>
                 </div>
             </div>
@@ -239,6 +267,7 @@
         if($('.container-xxxl')){
             $('.container-xxxl').removeClass('container')
         }
+        var experimentGroups = [[${experimentGroups}]];
         var experimentTypes = [[${experimentTypes}]];
         var experimentReports = [[${experimentReports}]];
         var bookingId = [[${bookingDTO.getId}]];
@@ -263,6 +292,8 @@
             $('#date').val([[${date}]]);
             $('#experiment_type').prop('disabled','true');
             $('#experiment_report').prop('disabled','true');
+            $('#lesson').prop('disabled','true');
+            $('#lesson_div').hide();
 
             if(bookingStatus === 'Đang chờ duyệt'){
                 $('#experiment_group').change(function () {
@@ -270,10 +301,13 @@
                     SetExperiment_Type(groupId);
                     tempGroupId = groupId;
                     $('#experiment_report').prop('disabled','true');
+                    console.log("trigger change")
+                    CheckLesson(ex_group, ex_tpye, ex_report);
                 });
                 $('#experiment_type').change(function () {
                     var typeId = $(this).val();
                     SetExperiment_Report(tempGroupId, typeId)
+                    CheckLesson(ex_group, ex_tpye, ex_report);
                 });
             }
 
@@ -285,6 +319,7 @@
             // },300)
 
             ReadOnly(bookingId);
+            if(lessons.length > 0 ) $('#lesson_div').show();
         });
 
         function SetExperiment_Type(groupId) {
@@ -332,8 +367,9 @@
             }
         });
 
-        function ReadOnly(bookingId) {
+        /*function ReadOnly(bookingId) {
             var bookingStatus = [[${bookingDTO.confirm_Status}]];
+            console.log((window.location.pathname === '/Lab/myBookingDetail/'+bookingId && bookingStatus == 'Đã xác nhận'))
             console.log(bookingStatus)
             // Kiểm tra đường dẫn hiện tại
             if (window.location.pathname === '/Lab/admin/ShowBookingApprove/'+bookingId
@@ -343,17 +379,122 @@
 
 
 
-                var inputs = document.querySelectorAll('input:not(.teacher-confirm), button:not(.teacher-confirm), select, textarea');
+                var inputs = document.querySelectorAll('input:not(#fileInput):not(.teacher-confirm), input[type:checkbox]:not(#checkbox), button:not(.teacher-confirm), select, textarea');
                 console.log("đã vô hiệu hóa");
                 // Vòng lặp để thêm thuộc tính disabled vào từng phần tử
                 for (var i = 0; i < inputs.length; i++) {
                     inputs[i].disabled = true;
                 }
             }
+        }*/
+        function ReadOnly(bookingId) {
+            var bookingStatus = [[${bookingDTO.confirm_Status}]];
+            console.log((window.location.pathname === '/Lab/myBookingDetail/'+bookingId && bookingStatus == 'Đã xác nhận'));
+            console.log(bookingStatus);
+
+            // Kiểm tra đường dẫn hiện tại
+            if (window.location.pathname === '/Lab/admin/ShowBookingApprove/'+bookingId
+                || window.location.pathname === '/Lab/admin/ShowBookingCancel/'+bookingId
+                || (window.location.pathname === '/Lab/myBookingDetail/'+bookingId && bookingStatus == 'Bị từ chối')
+                || (window.location.pathname === '/Lab/myBookingDetail/'+bookingId && bookingStatus == 'Đã xác nhận')) {
+
+                // Sử dụng jQuery để chọn các phần tử
+                // var inputs = $('input:not(.teacher-confirm)', 'input:not(#fileInput)', 'input[type:checkbox]:not(#checkbox)', 'button:not(.teacher-confirm)', 'select', 'textarea');
+                var inputs1 = $("input:not(.teacher-confirm)");
+                var inputs2 = $("button:not(.teacher-confirm)");
+                var inputs3 = $("select");
+                var inputs4 = $("textarea");
+                var inputs = $.merge(inputs1, inputs2, inputs3, inputs4);
+                DisableInputs(inputs1);
+                DisableInputs(inputs2);
+                DisableInputs(inputs3);
+                DisableInputs(inputs4);
+                $("#checkbox").removeAttr('disabled');
+                    // console.log(inputs.length);
+
+            }
         }
+    function DisableInputs(inputs) {
+        inputs.each(function() {
+            $(this).prop('disabled', true);
+        });
+    }
+
+        /*******************************/
+
+        var lessons = [[${lessons}]];
+        var ex_tpye = $('#experiment_type');
+        var ex_group = $('#experiment_group');
+        var ex_report = $('#experiment_report');
+        var lessonElement = $('#lesson');
+        var lessonDiv = $('#lesson_div');
+
+        function CheckLesson(ex_group, ex_tpye, ex_report) {
+            // if(ex_group.value())
+            var ex_groupId = ex_group.val();
+            var ex_reportId = ex_report.val();
+
+            var result_ex_group = $.grep(experimentGroups, function(group) {
+                return group.id == ex_groupId;
+            });
+            var result_ex_report = $.grep(experimentReports, function(report) {
+                return report.id == ex_reportId;
+            });
+
+            if(result_ex_group[0].groupName==="Đào tạo" && result_ex_report[0].reportType === "Giờ khai thác") {
+                console.log("Tìm thấy.");
+                lessonElement.removeAttr('disabled');
+                lessonDiv.show();
+            } else {
+                console.log("Không tìm thấy");
+                lessonDiv.hide();
+                lessonElement.prop('disabled', 'true');
+            }
+        }
+
+        lessonElement.change(function () {
+            SetLesson();
+        });
+
+        function SetLesson() {
+            var lessonId = lessonElement.val();
+            var result_lesson = $.grep(lessons, function(lesson) {
+                return lesson.id == lessonId;
+            });
+            console.log(result_lesson[0])
+            // $('#name').empty();
+            $('#name').val(result_lesson[0].name);
+            $('#work_time').val(result_lesson[0].workTime)
+        }
+
 
     </script>
     <script>
+        var downloadButton = document.getElementById('download');
+        var isDownloaded = false;
+        downloadButton.addEventListener('click', function(event) {
+            if (isDownloaded) {
+                // Ngăn chặn sự kiện click nếu đã tải xuống
+                event.preventDefault();
+                alert('Bạn đã tải xuống báo cáo rồi!');
+                return;
+            }
+            isDownloaded = true;
+            downloadButton.disabled = true;
+        });
+
+        function enableImportButton () {
+            var fileInput = document.getElementById('fileInput');
+            var importButton = document.getElementById('importButton');
+
+            // Kiểm tra xem có file được chọn hay không
+            if (fileInput.files.length > 0) {
+                importButton.disabled = false; // Kích hoạt nút import
+            } else {
+                importButton.disabled = true; // Vô hiệu hóa nút import
+                console.log(fileInput.files)
+            }
+        }
         function addEqui() {
             var seriesElement = $('#chosseSeries');
 

@@ -35,9 +35,25 @@ public class Content implements Serializable {
     @Column(name = "list_id_Participants", nullable = true)
     private String listIdParticipants;
 
+    @Column(name = "lesson", nullable = true)
+    private int lesson;
+
+    @Column(name = "fileName", nullable = true)
+    private String fileName;
+
     public Content() {
     }
 
+    public Content(String name, int reservationistId, int experimentType, int experimentReport, int lesson, String className, int amountOfPeople, String listIdParticipants) {
+        this.name = name;
+        this.reservationistId = reservationistId;
+        this.experimentType = experimentType;
+        this.experimentReport = experimentReport;
+        this.className = className;
+        this.amountOfPeople = amountOfPeople;
+        this.listIdParticipants = listIdParticipants;
+        this.lesson = lesson;
+    }
     public Content(String name, int reservationistId, int experimentType, int experimentReport, String className, int amountOfPeople, String listIdParticipants) {
         this.name = name;
         this.reservationistId = reservationistId;
@@ -48,6 +64,18 @@ public class Content implements Serializable {
         this.listIdParticipants = listIdParticipants;
     }
 
+    public Content(String name, int reservationistId, int experimentType, int experimentReport, String className, int amountOfPeople, String listIdParticipants, int lesson, String fileName) {
+        this.name = name;
+        this.reservationistId = reservationistId;
+        this.experimentType = experimentType;
+        this.experimentReport = experimentReport;
+        this.className = className;
+        this.amountOfPeople = amountOfPeople;
+        this.listIdParticipants = listIdParticipants;
+        this.lesson = lesson;
+        this.fileName = fileName;
+    }
+
     @Override
     public String toString() {
         return "Content{" +
@@ -56,6 +84,8 @@ public class Content implements Serializable {
                 ", reservationistId=" + reservationistId +
                 ", experimentType=" + experimentType +
                 ", experimentReport=" + experimentReport +
+                ", lesson=" + lesson +
+                ", fileName=" + fileName +
                 ", className='" + className + '\'' +
                 ", amountOfPeople=" + amountOfPeople +
                 ", listIdParticipants='" + listIdParticipants + '\'' +
@@ -124,5 +154,21 @@ public class Content implements Serializable {
 
     public void setListIdParticipants(String listIdParticipants) {
         this.listIdParticipants = listIdParticipants;
+    }
+
+    public int getLesson() {
+        return lesson;
+    }
+
+    public void setLesson(int lesson) {
+        this.lesson = lesson;
+    }
+
+    public String getFileName() {
+        return fileName;
+    }
+
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
     }
 }

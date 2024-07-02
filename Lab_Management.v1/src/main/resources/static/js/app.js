@@ -217,3 +217,15 @@ function switchTheme(e) {
 toggleSwitch.addEventListener('change', switchTheme, false);
 
 /********************************************* */
+
+function enableImportButton(fileInput) {
+    var form = fileInput.closest('form');
+    var importButton = form.querySelector('button[type="submit"]');
+
+    // Kiểm tra xem có file được chọn hay không
+    if (fileInput.files.length > 0) {
+        importButton.disabled = false; // Kích hoạt nút import
+    } else {
+        importButton.disabled = true; // Vô hiệu hóa nút import
+    }
+}

@@ -9,4 +9,5 @@ public interface InventoryEquipmentService {
     InventoryEquipment getInventoryEquipmentById(int id);
     void saveInventoryEquipment(InventoryEquipment inventoryEquipment);
     void deleteInventoryEquipmentById(int id);
+    InventoryEquipment findByYear(int year);
 }

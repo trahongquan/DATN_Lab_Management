@@ -208,6 +208,48 @@
             // }
         });
     });
+
+    $(document).ready(function() {
+        // Kiểm tra xem checkbox "Remember me" đã được chọn hay chưa
+        if ($('#brand1').is(':checked')) {
+            // Lấy giá trị tài khoản và mật khẩu từ input
+            var username = $('input[name="username"]').val();
+            var password = $('input[name="password"]').val();
+
+            // Lưu thông tin đăng nhập vào localStorage
+            localStorage.setItem('username', username);
+            localStorage.setItem('password', password);
+        }
+
+        // Xử lý sự kiện khi form đăng nhập được submit
+        $('form').submit(function() {
+            // Kiểm tra xem checkbox "Remember me" đã được chọn hay chưa
+            if ($('#brand1').is(':checked')) {
+                // Lấy giá trị tài khoản và mật khẩu từ input
+                var username = $('input[name="username"]').val();
+                var password = $('input[name="password"]').val();
+
+                // Lưu thông tin đăng nhập vào localStorage
+                localStorage.setItem('username', username);
+                localStorage.setItem('password', password);
+            } else {
+                // Nếu checkbox không được chọn, xóa thông tin đăng nhập từ localStorage
+                localStorage.removeItem('username');
+                localStorage.removeItem('password');
+            }
+        });
+
+        // Kiểm tra xem đã có thông tin đăng nhập được lưu trong localStorage hay không
+        var savedUsername = localStorage.getItem('username');
+        var savedPassword = localStorage.getItem('password');
+
+        // Nếu có thông tin đăng nhập đã lưu, điền vào input tương ứng
+        if (savedUsername && savedPassword) {
+            $('input[name="username"]').val(savedUsername);
+            $('input[name="password"]').val(savedPassword);
+            $('#brand1').prop('checked', true);
+        }
+    });
 </script>
 
 </body>

@@ -108,6 +108,14 @@
                                name="amount_of_people" min="1" th:max="${bookingDTO.labDTO.getCapacity}"
                                th:value="${bookingDTO.getContentDTO.amountOfPeople}" required >
                     </div>
+                    <div class="form-group" id="lesson_div">
+                        <label for="lesson">Chọn bài thí nghiệm có sẵn</label>
+                        <select class="form-control bg-danger-subtle" id="lesson" name="lesson" required>
+                            <option th:each="allLesson : ${lessons}" th:value="${allLesson.getId}"
+                                    th:text="${allLesson.name}"
+                                    th:selected="${allLesson.name == bookingDTO.getContentDTO.lesson.name}"></option>
+                        </select>
+                    </div>
                 </div>
             </div>
             <div class="row justify-content-around p-2">
@@ -235,6 +243,7 @@
         if($('.container-xxxl')){
             $('.container-xxxl').removeClass('container')
         }
+        var experimentGroups = [[${experimentGroups}]];
         var experimentTypes = [[${experimentTypes}]];
         var experimentReports = [[${experimentReports}]];
         var bookingId = [[${bookingDTO.getId}]];
@@ -257,6 +266,8 @@
             $('#date').val([[${date}]]);
             $('#experiment_type').prop('disabled','true');
             $('#experiment_report').prop('disabled','true');
+            $('#lesson').prop('disabled','true');
+            $('#lesson_div').hide();
 
             if(window.location.pathname === '/Lab/admin/ShowBookingPendding/'+bookingId){
                 $('#experiment_group').change(function () {
@@ -264,10 +275,12 @@
                     SetExperiment_Type(groupId);
                     tempGroupId = groupId;
                     $('#experiment_report').prop('disabled','true');
+                    CheckLesson(ex_group, ex_tpye, ex_report);
                 });
                 $('#experiment_type').change(function () {
                     var typeId = $(this).val();
                     SetExperiment_Report(tempGroupId, typeId)
+                    CheckLesson(ex_group, ex_tpye, ex_report);
                 });
             }
 
@@ -350,6 +363,53 @@
                 }
             }
         }
+        /*******************************/
+
+        var lessons = [[${lessons}]];
+        var ex_tpye = $('#experiment_type');
+        var ex_group = $('#experiment_group');
+        var ex_report = $('#experiment_report');
+        var lessonElement = $('#lesson');
+        var lessonDiv = $('#lesson_div');
+
+        function CheckLesson(ex_group, ex_tpye, ex_report) {
+            // if(ex_group.value())
+            var ex_groupId = ex_group.val();
+            var ex_reportId = ex_report.val();
+
+            var result_ex_group = $.grep(experimentGroups, function(group) {
+                return group.id == ex_groupId;
+            });
+            var result_ex_report = $.grep(experimentReports, function(report) {
+                return report.id == ex_reportId;
+            });
+
+            if(result_ex_group[0].groupName==="Đào tạo" && result_ex_report[0].reportType === "Giờ khai thác") {
+                console.log("Tìm thấy.");
+                lessonElement.removeAttr('disabled');
+                lessonDiv.show();
+            } else {
+                console.log("Không tìm thấy");
+                lessonDiv.hide();
+                lessonElement.prop('disabled', 'true');
+            }
+        }
+
+        lessonElement.change(function () {
+            SetLesson();
+        });
+
+        function SetLesson() {
+            var lessonId = lessonElement.val();
+            var result_lesson = $.grep(lessons, function(lesson) {
+                return lesson.id == lessonId;
+            });
+            console.log(result_lesson[0])
+            // $('#name').empty();
+            $('#name').val(result_lesson[0].name);
+            $('#work_time').val(result_lesson[0].workTime)
+        }
+
 
     </script>
 

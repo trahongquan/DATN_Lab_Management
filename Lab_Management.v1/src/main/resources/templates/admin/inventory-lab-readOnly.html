@@ -24,7 +24,7 @@
         <div class="row justify-content-center">
             <input type="hidden" name="username" th:value="${#authentication.name}">
             <select name="inventoryLab" class="form-control m-4 col-2" required>
-                <option th:each="equipInventory : ${equipmentLabDtosInventoryForYear}"
+                <option th:each="equipInventory : ${inventoryLab_DataForYear}"
                         th:value="${equipInventory.id}"
                         th:text="'Danh sách kiểm kê ngày 01/01/'+${equipInventory.year}"
                         th:selected="${equipInventory.year==year}"></option>

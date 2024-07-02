@@ -10,8 +10,10 @@ public class ContentDTO {
     private int experimentReportId;
     private String className;
     private int amountOfPeople;
+    private int lessonId;
     private String listIdParticipants;
 
+    private Lesson lesson;
     private ExperimentGroup experimentGroup;
     private ExperimentType experimentType;
     private ExperimentReport experimentReport;
@@ -20,7 +22,7 @@ public class ContentDTO {
     public ContentDTO() {
     }
 
-    public ContentDTO(Content content, People reservationist, ExperimentGroup experimentGroup, ExperimentType experimentType, ExperimentReport experimentReport) {
+    public ContentDTO(Content content, People reservationist, ExperimentGroup experimentGroup, ExperimentType experimentType, ExperimentReport experimentReport, Lesson lesson) {
         this.id = content.getId();
         this.name = content.getName();
         this.reservationistId = content.getReservationistId();
@@ -33,6 +35,8 @@ public class ContentDTO {
         this.experimentGroup = experimentGroup;
         this.experimentType = experimentType;
         this.experimentReport = experimentReport;
+        this.lessonId = content.getLesson();
+        this.lesson = lesson;
     }
 
     @Override
@@ -147,5 +151,21 @@ public class ContentDTO {
 
     public void setReservationist(People reservationist) {
         this.reservationist = reservationist;
+    }
+
+    public int getLessonId() {
+        return lessonId;
+    }
+
+    public void setLessonId(int lessonId) {
+        this.lessonId = lessonId;
+    }
+
+    public Lesson getLesson() {
+        return lesson;
+    }
+
+    public void setLesson(Lesson lesson) {
+        this.lesson = lesson;
     }
 }

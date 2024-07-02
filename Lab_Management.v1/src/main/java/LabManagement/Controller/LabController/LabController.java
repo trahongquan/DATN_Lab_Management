@@ -10,6 +10,7 @@ import LabManagement.service.BookingService.BookingService;
 import LabManagement.service.InventoryEquipmentService.InventoryEquipmentService;
 import LabManagement.service.InventoryLabService.InventoryLabService;
 import LabManagement.service.EquipmentService.EquipmentService;
+import LabManagement.service.LessonService.LessonService;
 import LabManagement.service.ManagingUnitService.ManagingUnitService;
 import LabManagement.service.PeopleService.PeopleService;
 import LabManagement.service.RoleService.RoleService;
@@ -28,11 +29,19 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.Type;
 import java.security.Principal;
 import java.sql.Date;
@@ -90,9 +99,10 @@ public class LabController {
     private InventoryLabService inventoryLabService;
     private InventoryEquipmentService inventoryEquipmentService;
     private ManagingUnitService managingUnitService;
+    private LessonService lessonService;
 
     @Autowired
-    public LabController(UserService userService, AuthorityService authorityService, BookingService bookingService, BookingRepository bookingRepository, ContentService contentService, EquipmentService equipmentService, EquipmentLabService equipmentLabService, Booking_equiService booking_equiService, PeopleService peopleService, RoleService roleService, LabService labService, PasswordEncoder passwordEncoder, ExperimentGroupService experimentGroupService, ExperimentTypeService experimentTypeService, ExperimentReportService experimentReportService, ScoreService scoreService, UnitService unitService, InventoryLabService inventoryLabService, InventoryEquipmentService inventoryEquipmentService, ManagingUnitService managingUnitService) {
+    public LabController(UserService userService, AuthorityService authorityService, BookingService bookingService, BookingRepository bookingRepository, ContentService contentService, EquipmentService equipmentService, EquipmentLabService equipmentLabService, Booking_equiService booking_equiService, PeopleService peopleService, RoleService roleService, LabService labService, PasswordEncoder passwordEncoder, ExperimentGroupService experimentGroupService, ExperimentTypeService experimentTypeService, ExperimentReportService experimentReportService, ScoreService scoreService, UnitService unitService, InventoryLabService inventoryLabService, InventoryEquipmentService inventoryEquipmentService, ManagingUnitService managingUnitService, LessonService lessonService) {
         this.userService = userService;
         this.authorityService = authorityService;
         this.bookingService = bookingService;
@@ -113,6 +123,7 @@ public class LabController {
         this.inventoryLabService = inventoryLabService;
         this.inventoryEquipmentService = inventoryEquipmentService;
         this.managingUnitService = managingUnitService;
+        this.lessonService = lessonService;
     }
 
     /******************************************************************************************************/
@@ -191,7 +202,9 @@ public class LabController {
     }
 
     @GetMapping({"/",""})
-    public String getLabs(Model model, Principal principal, @RequestParam(value = "RedirectLabAdmin", defaultValue = "true") boolean RedirectLabAdmin) {
+    public String getLabs(Model model, Principal principal,
+                          @RequestParam(value = "managingUnitId", defaultValue = "0") int managingUnitId,
+                          @RequestParam(value = "RedirectLabAdmin", defaultValue = "true") boolean RedirectLabAdmin) {
         ApprovePassCurrentDateBookings(); /** Check xem các đơn đã cồn pendding mà đã đến ngày đặt thì tự động approve */
         String username = principal.getName();
         if((GetAuthorityByUsername(username).equals(RoleSystem.ROLE_ADMIN)
@@ -199,12 +212,22 @@ public class LabController {
                 && RedirectLabAdmin){
             return Redirect("admin/Dashboard?username="+username,"");
         } else {
-            List<Lab> labs = labService.getAllLabs().stream()
-                    .filter(lab -> (lab.getIsDelete()!=1))
-                    .collect(Collectors.toList());
+            List<Lab> labs = new ArrayList<>();
+            if(managingUnitId==0){
+                labs = labService.getAllLabsOnLine();
+            } else {
+                String managingUnitName = managingUnitService.getManagingUnitById(managingUnitId).getDepartmentName();
+                labs = labService.getAllLabsOnLine().stream().filter(lab -> lab.getManagingUnit().equals(managingUnitName)).collect(Collectors.toList());
+                model.addAttribute("managingUnitName", managingUnitName);
+            }
             List<LabDTO> labDTOS = Labs2LabDTOsAndDateAndStatus(labs);
             List<List<DateAndStatusLab>> dateAndStatusLabsList = new ArrayList<>();
             labDTOS.forEach(labDTO -> dateAndStatusLabsList.add(labDTO.getDateAndStatusLab()));
+
+            List<ManagingUnit> managingUnits = managingUnitService.getAllManagingUnits();
+            managingUnits.add(0, new ManagingUnit(0));
+
+            model.addAttribute("managingUnits", managingUnits);
             model.addAttribute("dateAndStatusLabsList", dateAndStatusLabsList);
             model.addAttribute("labDTOS", labDTOS);
             model.addAttribute("currentDate", LocalDate.now());
@@ -225,7 +248,7 @@ public class LabController {
         List<ExperimentType> experimentTypes = experimentTypeService.getAllExperimentTypes();
         List<ExperimentReport> experimentReports = experimentReportService.getAllExperimentReports();
         List<People> reservationists = new ArrayList<>();
-        People peoplex = FindPeopleByUsername(username);
+        People peoplex = GetPeopleByUsername(username);
         reservationists.add(peoplex);
         if(GetAuthorityByUsername(username).equals(RoleSystem.ROLE_ADMIN)
         || GetAuthorityByUsername(username).equals(RoleSystem.ROLE_MANAGER)){
@@ -241,6 +264,10 @@ public class LabController {
             }
             reservationists.remove(peoplex);
         }
+
+        List<Lesson> lessons = lessonService.findAllByLabId(id);
+
+        model.addAttribute("lessons", lessons);
         model.addAttribute("labDTO", labDTO);
         model.addAttribute("equipmentLabDTOs", equipmentLabDTOs);
         model.addAttribute("bookingEquiDTOs", bookingEquiDTOs);
@@ -266,11 +293,12 @@ public class LabController {
                                 @RequestParam("amount_of_people") int amount_of_people,
                                 @RequestParam(value = "series", defaultValue = "") List<String> series,
                                 @RequestParam("work_time") int work_time,
+                                @RequestParam(value = "lesson", defaultValue = "0") int lesson,
                                 @RequestParam("note") String note) {
         Lab lab = labService.findByLabId(id); LabDTO labDTO = Lab2LabDTO(lab);
         List<EquipmentLab> equipmentLabs = equipmentLabService.findAllByLabId(id);
         List<EquipmentLab> equipmentLabsCoppy = new ArrayList<>(equipmentLabs);
-        Content content = contentService.saveContent(new Content(name, reservationistId, experiment_typeId, experiment_reportId, class_name, amount_of_people, "[]"));
+        Content content = contentService.saveContent(new Content(name, reservationistId, experiment_typeId, experiment_reportId, lesson, class_name, amount_of_people, "[]"));
         Booking booking = bookingService.createBooking(new Booking(id,content.getId(),date, new ConfirmStatus().PENDDING, work_time, note,0, AutoComfirmStatusBooking.NULL, ConfirmUsed.UNUSED));
 
         List<Booking_equi> booking_equis = new ArrayList<>();
@@ -294,12 +322,6 @@ public class LabController {
         List<ExperimentGroup> experimentGroups = experimentGroupService.getAllExperimentGroups();
         List<People> reservationists = new ArrayList<>();
         reservationists.add(peopleService.findByPeopleId(userService.findByUsername(username).getPeopleid()));
-        /*List<People> reservationists = peopleService.getAllPeople().stream()
-                .filter(people ->
-                        people.getIsDelete()!=1 &&
-                                (CheckRole(people, "ROLE_RESERVATIONIST")
-                                        || CheckRole(people, "ROLE_TEACHER"))
-                ).collect(Collectors.toList());*/
         List<EquipmentLabDTO> equipmentLabDTOs = EquiLabs2EquiLabDTOs(equipmentLabsCoppy);
 
         model.addAttribute("equipmentLabDTOs", equipmentLabDTOs);
@@ -338,7 +360,7 @@ public class LabController {
         });
         return equipmentLabs;
     }
-    private People FindPeopleByUsername(String username){
+    private People GetPeopleByUsername(String username){
         return peopleService.findByPeopleId(userService.findByUsername(username).getPeopleid());
     }
     @GetMapping("/mybooking")
@@ -349,7 +371,7 @@ public class LabController {
                             @RequestParam(value = "datetimepicker", defaultValue = "1970-01-01") Date datetimepicker,
                             @RequestParam(value = "success", defaultValue = "false") boolean success,
                             @RequestParam(value = "unsuccess", defaultValue = "false") boolean unsuccess){
-        People teacher = FindPeopleByUsername(username);
+        People teacher = GetPeopleByUsername(username);
         List<Content> contents = contentService.findAllByReservationistId(teacher.getId());
         List<BookingDTO> bookingDTOs = new ArrayList<>();
         contents.forEach(content -> {
@@ -428,8 +450,8 @@ public class LabController {
         ShowBookingPendding(model, id, false);
         List<People> reservationists = new ArrayList<>();
         GetPeoPleByRole("ROLE_RESERVATIONIST").forEach(people -> reservationists.add(people));
-        if(FindPeopleByUsername(username) != null){
-            reservationists.add(FindPeopleByUsername(username));
+        if(GetPeopleByUsername(username) != null){
+            reservationists.add(GetPeopleByUsername(username));
         }
         model.addAttribute("reservationists", reservationists);
         model.addAttribute("success", success);
@@ -449,8 +471,9 @@ public class LabController {
                                       @RequestParam("amount_of_people") int amount_of_people,
                                       @RequestParam(value = "series", defaultValue = "") List<String> series,
                                       @RequestParam("work_time") int work_time,
+                                      @RequestParam(value = "lesson", defaultValue = "0") int lesson,
                                       @RequestParam("note") String note) {
-        PostBookingPendding(model, id, name, experiment_groupId, experiment_typeId, experiment_reportId, reservationistId, class_name, amount_of_people, series, work_time, note);
+        PostBookingPendding(model, id, name, experiment_groupId, experiment_typeId, experiment_reportId, reservationistId, class_name, amount_of_people, series, work_time, lesson, note);
         return Redirect("myBookingDetail/"+id+"?username="+username,true);
     }
 
@@ -463,13 +486,19 @@ public class LabController {
         return Redirect("mybooking?username=" + username, true);
     }
 
-    @GetMapping({"/myBookingDetail/ComfirmUsed"})
+    @PostMapping({"/myBookingDetail/ComfirmUsed"})
     public String myBookingDetailComfirmUsed(Model model,
-                              @RequestParam("bookingId") int bookingId,
-                              @RequestParam("username") String username,
-                              @RequestParam(value = "success", defaultValue = "false") boolean success){
-        ComfirmUsed(model, bookingId, username, success);
+                                              @RequestParam("bookingId") int bookingId,
+                                              @RequestParam("username") String username,
+                                              @RequestParam("file") MultipartFile file,
+                                              @RequestParam(value = "success", defaultValue = "false") boolean success){
+        ComfirmUsed(model, bookingId, username, file, success);
         return Redirect("mybooking?username=" + username, true);
+    }
+
+    @GetMapping({"/myBookingDetail/ComfirmUsed/download/{id}"})
+    public ResponseEntity<Resource> myBookingDetailDownloadReport(@PathVariable("id") int bookingId){
+        return downloadReport(bookingId);
     }
 
     @GetMapping({"/myBookingDetail/ComfirmUsedCancel"})
@@ -1535,11 +1564,12 @@ public class LabController {
         return template;
     }
     private ContentDTO Content2ContentDTO(Content content) {
+        Lesson lesson = lessonService.getLessonById(content.getLesson());
         ExperimentType experimentType = experimentTypeService.getExperimentTypeById(content.getExperimentType());
         ExperimentGroup experimentGroup = experimentGroupService.getExperimentGroupById(experimentType.getExperimentGroupId());
         ExperimentReport experimentReport = experimentReportService.getExperimentReportById(content.getExperimentReport());
         People reservationist = peopleService.findByPeopleId(content.getReservationistId());
-        return new ContentDTO(content, reservationist, experimentGroup, experimentType, experimentReport);
+        return new ContentDTO(content, reservationist, experimentGroup, experimentType, experimentReport, lesson);
     }
 
     @GetMapping({"/admin/ShowBookingPendding/{id}"})
@@ -1592,6 +1622,9 @@ public class LabController {
             }
         }
         List<EquipmentLabDTO> equipmentLabDTOs = EquiLabs2EquiLabDTOs(equipmentLabs);
+        List<Lesson> lessons = lessonService.findAllByLabId(labDTO.getId());
+
+        model.addAttribute("lessons", lessons);
         model.addAttribute("equipmentLabDTOs", equipmentLabDTOs); /** Đã trừ những Equi đã được đặt*/
         model.addAttribute("success", success);
         model.addAttribute("title", "Chi tiết đơn chờ duyệt");
@@ -1616,6 +1649,7 @@ public class LabController {
                                       @RequestParam("amount_of_people") int amount_of_people,
                                       @RequestParam(value = "series", defaultValue = "") List<String> series,
                                       @RequestParam("work_time") int work_time,
+                                      @RequestParam(value = "lesson", defaultValue = "0") int lesson,
                                       @RequestParam("note") String note) {
         Booking booking = bookingService.findByBookingId(id);
 //        booking.setLabid(selectlabid);
@@ -1630,6 +1664,7 @@ public class LabController {
         content.setExperimentType(experiment_typeId);
         content.setExperimentReport(experiment_reportId);
         content.setAmountOfPeople(amount_of_people);
+        content.setLesson(lesson);
         contentService.saveContent(content);
 
         return Redirect("admin/ShowBookingPendding/"+id,true);
@@ -1681,17 +1716,45 @@ public class LabController {
         return template;
     }
 
-    @GetMapping({"/admin/LabBookingManagement/ComfirmUsed"})
+    @PostMapping({"/admin/LabBookingManagement/ComfirmUsed"})
     public String ComfirmUsed(Model model,
                               @RequestParam("bookingId") int bookingId,
                               @RequestParam("username") String username,
+                              @RequestParam("file") MultipartFile file,
                               @RequestParam(value = "success", defaultValue = "false") boolean success){
         Booking booking = bookingService.findByBookingId(bookingId);
         booking.setConfirmUsed(ConfirmUsed.USED);
         bookingService.updateBooking(booking);
+        Content content = contentService.getContentById(booking.getContentid());
         model.addAttribute("success", success);
         model.addAttribute("title", "QL YC chờ giáo viên xác nhận sử dụng phòng");
-        return Redirect("admin/LabBookingManagement/WaitComfirmUsed?username="+username,true);
+        if (!file.isEmpty()) {
+            try {
+                // Lưu ảnh vào thư mục static/images
+                String fileName = file.getOriginalFilename();
+                String filePath = "file/" + fileName;
+                file.transferTo(new File(filePath));
+                content.setFileName(filePath);
+                contentService.saveContent(content);
+                return Redirect("admin/LabBookingManagement/WaitComfirmUsed?username="+username,true);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return Redirect("admin/LabBookingManagement/WaitComfirmUsed?username="+username,false);
+    }
+
+    @GetMapping("/admin/LabBookingManagement/ComfirmUsed/download/{id}")
+    public ResponseEntity<Resource> downloadReport(@PathVariable("id") int bookingId) {
+        String fileName = contentService.getContentById(
+                            bookingService.findByBookingId(bookingId).getContentid()
+                        ).getFileName();
+        Resource resource = new ClassPathResource("static/"+fileName);
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename="+fileName.split("/")[1])
+                .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                .body(resource);
     }
 
     @GetMapping({"/admin/LabBookingManagement/ComfirmUsedCancel"})
@@ -2198,13 +2261,40 @@ public class LabController {
     return template;
     }
 
-    private List<EquipmentLabDTO> GetListEquipmentLabDTOFromEquipmentLabDto(InventoryLab equipmentLabDto){
+    private List<EquipmentLabDTO> GetListEquipmentLabDTO_FromInventoryLab(InventoryLab inventoryLab){
         List<EquipmentLabDTO> equipmentLabDTOS = new ArrayList<>();
         Gson gson = new Gson();
         // Chuyển đổi chuỗi JSON thành danh sách đối tượng
         Type type = new TypeToken<List<EquipmentLabDTO>>() {}.getType();
-        equipmentLabDTOS = gson.fromJson(equipmentLabDto.getEquipmentLabData(), type);
+        equipmentLabDTOS = gson.fromJson(inventoryLab.getEquipmentLabData(), type);
         return equipmentLabDTOS;
+    }
+    private List<EquipmentLabDTO> GetListEquipmentLabDTO_FromInventoryEquip(InventoryEquipment inventoryEquip, String username){
+        List<EquipmentLabDTO> equipmentLabDTOS = new ArrayList<>();
+        Gson gson = new Gson();
+        Type type = new TypeToken<List<EquipmentLabDTO>>() {}.getType();
+        if(CheckRole(
+                peopleService.findByPeopleId(userService.findByUsername(username).getPeopleid()),
+                RoleSystem.ROLE_ADMIN
+        )) {
+            equipmentLabDTOS = gson.fromJson(inventoryEquip.getEquipmentData(), type);
+            return equipmentLabDTOS;
+        } else {
+            List<Integer> listEquipIdFromUsername = new ArrayList<>();
+            List<EquipmentLab> equipmentLabs = new ArrayList<>();
+            int managerLabId = userService.findByUsername(username).getPeopleid();
+            List<Lab> labs = labService.findAllByLabManagemetId(managerLabId).stream().filter(lab -> lab.getIsDelete()==0).collect(Collectors.toList());
+            for (Lab lab : labs) {
+                equipmentLabService.findAllByLabId(lab.getId()).forEach(e -> equipmentLabs.add(e));
+            }
+            equipmentLabs.forEach(e -> listEquipIdFromUsername.add(e.getEquipmentId()));
+            Set<Integer> listEquipIdUniqueFromUsername = new HashSet<>(listEquipIdFromUsername);
+            List<EquipmentLabDTO> equipmentLabDTOSFromJson = gson.fromJson(inventoryEquip.getEquipmentData(), type);
+            equipmentLabDTOS  = equipmentLabDTOSFromJson.stream()
+                                .filter(e -> listEquipIdUniqueFromUsername.contains(e.getEquipmentId())).collect(Collectors.toList());
+            return equipmentLabDTOS;
+        }
+
     }
     private List<EquipmentLabDTO> GetListEquipmentLabDTO_FromLabId(int LabId){
         List<EquipmentLabDTO> equipmentLabDTOs = new ArrayList<>();
@@ -2238,7 +2328,7 @@ public class LabController {
 
         List<ManagingUnit> managingUnits = managingUnitService.getAllManagingUnits();
 
-        model.addAttribute("equipmentLabDtosInventoryForYear", inventoryResult.getEquipmentLabDtosInventoryForYear());
+        model.addAttribute("inventoryLab_DataForYear", inventoryResult.getInventoryLab_DataForYear());
         model.addAttribute("equipmentLabDTOs", inventoryResult.getEquipmentLabDTOs());
         model.addAttribute("inventoryCompares", inventoryResult.getInventoryCompares());
         model.addAttribute("labDTO", inventoryResult.getLabDTO());
@@ -2252,7 +2342,7 @@ public class LabController {
     private InventoryResult ShowInventoryForLabId(int LabId, int year){
         InventoryResult inventoryResult = new InventoryResult();
         inventoryResult.setLabDTO(Lab2LabDTO(labService.findByLabId(LabId)));
-        inventoryResult.setEquipmentLabDtosInventoryForYear(
+        inventoryResult.setInventoryLab_DataForYear(
                 inventoryLabService.getAllEquipmentLabs()
                 .stream().filter(e -> e.getLabId()==LabId)
                 .collect(Collectors.toList())
@@ -2261,9 +2351,9 @@ public class LabController {
         List<EquipmentLabDTO> equipmentLabDTOs_1 = new ArrayList<>();
 
         boolean found = false;
-        for (InventoryLab e : inventoryResult.getEquipmentLabDtosInventoryForYear()) {
+        for (InventoryLab e : inventoryResult.getInventoryLab_DataForYear()) {
             if(e.getYear()==year){
-                equipmentLabDTOs_1 = GetListEquipmentLabDTOFromEquipmentLabDto(e);
+                equipmentLabDTOs_1 = GetListEquipmentLabDTO_FromInventoryLab(e);
                 found = true;
                 break;
             }
@@ -2271,7 +2361,7 @@ public class LabController {
 
         /*Lấy ra list years của các năm (kể cả nhưng năm mà phòng ko có danh sách)*/
         List<Integer> years = new ArrayList<>();
-        inventoryResult.getEquipmentLabDtosInventoryForYear().forEach(e -> years.add(e.getYear()));
+        inventoryResult.getInventoryLab_DataForYear().forEach(e -> years.add(e.getYear()));
         Set<Integer> uniqueYears = new HashSet<>(years);
         List<Integer> sortedUniqueYears = new ArrayList<>(uniqueYears);
         Collections.sort(sortedUniqueYears);
@@ -2301,7 +2391,7 @@ public class LabController {
         InventoryLab equipmentLabDto2 = inventoryLabService.findByLabIdAndAndYear(LabId, year-1);
 
         if(equipmentLabDto2.getId()!=0) {
-            equipmentLabDTOs_2 = GetListEquipmentLabDTOFromEquipmentLabDto(equipmentLabDto2);
+            equipmentLabDTOs_2 = GetListEquipmentLabDTO_FromInventoryLab(equipmentLabDto2);
             inventoryResult.setEquipmentLabDTOs(
                     CompareInventory(equipmentLabDTOs_1, equipmentLabDTOs_2, inventoryResult.getInventoryCompares())
             );
@@ -2309,7 +2399,7 @@ public class LabController {
             inventoryResult.setEquipmentLabDTOs(equipmentLabDTOs_1);
         }
         /* Lấy lại lần nữa để cập nhật năm danh sách kiểm kê*/
-        inventoryResult.setEquipmentLabDtosInventoryForYear(
+        inventoryResult.setInventoryLab_DataForYear(
                 inventoryLabService.getAllEquipmentLabs()
                 .stream().filter(e -> e.getLabId()==LabId)
                 .collect(Collectors.toList())
@@ -2328,7 +2418,7 @@ public class LabController {
         InventoryResult inventoryResult = ShowInventoryForLabId(labid, equipmentLabDto.getYear());
         List<ManagingUnit> managingUnits = managingUnitService.getAllManagingUnits();
 
-        model.addAttribute("equipmentLabDtosInventoryForYear", inventoryResult.getEquipmentLabDtosInventoryForYear());
+        model.addAttribute("inventoryLab_DataForYear", inventoryResult.getInventoryLab_DataForYear());
         model.addAttribute("labDTO", inventoryResult.getLabDTO());
         model.addAttribute("year", equipmentLabDto.getYear());
         model.addAttribute("equipmentLabDTOs", inventoryResult.getEquipmentLabDTOs());
@@ -2340,21 +2430,22 @@ public class LabController {
         return template;
     }
 
-    private List<EquipmentLabDTO> CompareInventory(List<EquipmentLabDTO> equipmentLabDTOS1,
-                                                   List<EquipmentLabDTO> equipmentLabDTOS2,
+    private List<EquipmentLabDTO> CompareInventory(List<EquipmentLabDTO> equipmentLabDTOS_Year,
+                                                   List<EquipmentLabDTO> equipmentLabDTOS_MinusYear,
                                                    List<InventoryCompare> inventoryChanges) {
         List<EquipmentLabDTO> equipmentLabDTOS = new ArrayList<>();
         Map<Integer, EquipmentLabDTO> dtoMap1 = new HashMap<>();
         Map<Integer, EquipmentLabDTO> dtoMap2 = new HashMap<>();
 
-        for (EquipmentLabDTO dto2 : equipmentLabDTOS2) {
+        for (EquipmentLabDTO dto2 : equipmentLabDTOS_MinusYear) {
             dtoMap2.put(dto2.getEquipmentId(), dto2);
         }
-        for (EquipmentLabDTO dto1 : equipmentLabDTOS1) {
+        for (EquipmentLabDTO dto1 : equipmentLabDTOS_Year) {
             dtoMap1.put(dto1.getEquipmentId(), dto1);
         }
 
-        for (EquipmentLabDTO dto1 : equipmentLabDTOS1) {
+        /** Sau for sẽ add các phần tử có trong List 1*/
+        for (EquipmentLabDTO dto1 : equipmentLabDTOS_Year) {
             EquipmentLabDTO matchingDTO2 = dtoMap2.get(dto1.getEquipmentId());
             if (matchingDTO2 == null) {
                 equipmentLabDTOS.add(dto1);
@@ -2370,15 +2461,16 @@ public class LabController {
                 equipmentLabDTOS.add(dto1);
 
                 InventoryCompare inventoryCompare = new InventoryCompare();
-                inventoryCompare.setLastYear(matchingDTO2.getEquipmentSerieList().size());
                 inventoryCompare.setThisYear(dto1.getEquipmentSerieList().size());
+                inventoryCompare.setLastYear(matchingDTO2.getEquipmentSerieList().size());
                 int increase = inventoryCompare.getThisYear() - inventoryCompare.getLastYear();
                 inventoryCompare.setIncrease(Math.max(increase,0));
                 inventoryCompare.setReduce(Math.max(-increase,0));
                 inventoryChanges.add(inventoryCompare);
             }
         }
-        for (EquipmentLabDTO dto2 : equipmentLabDTOS2) {
+        /** Sau for sẽ add nốt những phần tử có trong List 2 không có trong List 1*/
+        for (EquipmentLabDTO dto2 : equipmentLabDTOS_MinusYear) {
             EquipmentLabDTO matchingDTO1 = dtoMap1.get(dto2.getEquipmentId());
             if (matchingDTO1 == null) {
                 equipmentLabDTOS.add(dto2);
@@ -2415,7 +2507,7 @@ public class LabController {
         if(yearSelected!=0) year = yearSelected;
 
         /*Lấy ra list years của các năm (kể cả nhưng năm mà phòng ko có danh sách)*/
-        List<Integer> sortedUniqueYears = GetSortedUniqueYears();
+        List<Integer> sortedUniqueYears = GetSortedUniqueYears_InventoryLab();
 
         List<Lab> labs = new ArrayList<>();
 //        List<InventoryResult> inventoryResults = new ArrayList<>();
@@ -2512,9 +2604,17 @@ public class LabController {
         return inventoryResults;
     }
 
-    private List<Integer> GetSortedUniqueYears() {
+    private List<Integer> GetSortedUniqueYears_InventoryLab() {
         List<Integer> years = new ArrayList<>();
         inventoryLabService.getAllEquipmentLabs().forEach(e -> years.add(e.getYear()));
+        Set<Integer> uniqueYears = new HashSet<>(years);
+        List<Integer> sortedUniqueYears = new ArrayList<>(uniqueYears);
+        Collections.sort(sortedUniqueYears);
+        return sortedUniqueYears;
+    }
+    private List<Integer> GetSortedUniqueYears_InventoryEquipment() {
+        List<Integer> years = new ArrayList<>();
+        inventoryEquipmentService.getAllInventoryEquipment().forEach(e -> years.add(e.getYear()));
         Set<Integer> uniqueYears = new HashSet<>(years);
         List<Integer> sortedUniqueYears = new ArrayList<>(uniqueYears);
         Collections.sort(sortedUniqueYears);
@@ -2555,7 +2655,7 @@ public class LabController {
 
         /** Giống phần kiểm kê all lab */
         /*Lấy ra list years của các năm (kể cả nhưng năm mà phòng ko có danh sách)*/
-        List<Integer> sortedUniqueYears = GetSortedUniqueYears();
+        List<Integer> sortedUniqueYears = GetSortedUniqueYears_InventoryEquipment();
         model.addAttribute("sortedUniqueYears", sortedUniqueYears);
 
         int year = LocalDate.now().getYear();
@@ -2569,36 +2669,78 @@ public class LabController {
 
         /** Phần khác của kiểm kê all equip */
 
-        ArrayList<InventoryResult> inventoryResults = new ArrayList<>();
-        ShowinventoryAllshowinventoryLab(managingUnitsCheck, yearSelected, managingUnitId, username, success, inventoryResults);
+        /** Nếu xem theo bộ môn (không check ô xem tất cả) */
+        if(managingUnitId!=0 && !managingUnitsCheck){
+            ArrayList<InventoryResult> inventoryResults_Year = new ArrayList<>();
+            ShowinventoryAllshowinventoryLab(managingUnitsCheck, year, managingUnitId, username, success, inventoryResults_Year);
+            List<EquipmentLabDTO> equipmentLabDTOsUnique_Year = GetEquipmentLabDTOsUnique_Year(inventoryResults_Year);
 
+            ArrayList<InventoryResult> inventoryResults_MinusYear = new ArrayList<>();
+            ShowinventoryAllshowinventoryLab(managingUnitsCheck, year-1, managingUnitId, username, success, inventoryResults_MinusYear);
+            List<EquipmentLabDTO> equipmentLabDTOsUnique_MinusYear = GetEquipmentLabDTOsUnique_Year(inventoryResults_MinusYear);
 
+            InventoryResult inventoryResultInventoryCompares = new InventoryResult();
+            List<EquipmentLabDTO> equipmentLabDTOsUnique = CompareInventory(equipmentLabDTOsUnique_Year, equipmentLabDTOsUnique_MinusYear, inventoryResultInventoryCompares.getInventoryCompares());
+            InventoryResult inventoryResult = new InventoryResult(new ArrayList<>(), equipmentLabDTOsUnique, inventoryResultInventoryCompares.getInventoryCompares());
+
+            model.addAttribute("inventoryResult", inventoryResult);
+            model.addAttribute("managingUnitName", managingUnitService.getManagingUnitById(managingUnitId).getDepartmentName());
+        }
+
+        /** Nếu xem tất cả) */
+        if(managingUnitsCheck || (managingUnitId==0 && !managingUnitsCheck)){
+            InventoryEquipment inventoryEquipment_Year =  inventoryEquipmentService.findByYear(year);
+            List<EquipmentLabDTO> equipmentLabDTOsUnique_Year;
+            if(inventoryEquipment_Year==null && !sortedUniqueYears.contains(LocalDate.now().getYear())){
+                ArrayList<InventoryResult> inventoryResults_Year = new ArrayList<>();
+                if(!CheckRole(peopleService.findByPeopleId(userService.findByUsername(username).getPeopleid()),RoleSystem.ROLE_ADMIN)){
+                    ShowinventoryAllshowinventoryLab(managingUnitsCheck, year, managingUnitId, "admin", success, inventoryResults_Year);
+                    equipmentLabDTOsUnique_Year = GetEquipmentLabDTOsUnique_Year(inventoryResults_Year);
+                    SaveEquipmentLabDTOsToDataBase(0, LocalDate.now().getYear(), equipmentLabDTOsUnique_Year);
+                }
+                ShowinventoryAllshowinventoryLab(managingUnitsCheck, year, managingUnitId, username, success, inventoryResults_Year);
+                equipmentLabDTOsUnique_Year = GetEquipmentLabDTOsUnique_Year(inventoryResults_Year);
+            } else {
+                equipmentLabDTOsUnique_Year = GetListEquipmentLabDTO_FromInventoryEquip(inventoryEquipment_Year, username);
+            }
+            InventoryEquipment inventoryEquipment_MinusYear =  inventoryEquipmentService.findByYear(year-1);
+            List<EquipmentLabDTO> equipmentLabDTOsUnique_MinusYear;
+            if(inventoryEquipment_MinusYear!=null){
+                equipmentLabDTOsUnique_MinusYear = GetListEquipmentLabDTO_FromInventoryEquip(inventoryEquipment_MinusYear, username);
+            } else {
+                equipmentLabDTOsUnique_MinusYear = new ArrayList<>();
+            }
+            InventoryResult inventoryResultCompare = new InventoryResult();
+            List<EquipmentLabDTO> equipmentLabDTOS = CompareInventory(equipmentLabDTOsUnique_Year, equipmentLabDTOsUnique_MinusYear, inventoryResultCompare.getInventoryCompares());
+
+            InventoryResult inventoryResult = new InventoryResult();
+            inventoryResult.setEquipmentLabDTOs(equipmentLabDTOS);
+            inventoryResult.setInventoryCompares(inventoryResultCompare.getInventoryCompares());
+            model.addAttribute("inventoryResult", inventoryResult);
+        }
+
+        model.addAttribute("title", "Kiểm kê trang thiết bị năm " + year);
+        return template;
+    }
+
+    private List<EquipmentLabDTO> GetEquipmentLabDTOsUnique_Year(List<InventoryResult> inventoryResults_Year){
         /** Test lấy ds Equip */
-
         List<EquipmentLabDTO> allEquipmentLabDTOs = new ArrayList<>();
-        List<EquipmentLabDTO> equipmentLabDTOsUnique = new ArrayList<>();
-        inventoryResults.forEach(i -> {
+        List<EquipmentLabDTO> equipmentLabDTOsUnique_Year = new ArrayList<>();
+        inventoryResults_Year.forEach(i -> {
             i.getEquipmentLabDTOs().forEach(e -> {
                 allEquipmentLabDTOs.add(e);
             });
         });
 
-//        List<Integer> listEquipId = new ArrayList<>();
-//        allEquipmentLabDTOs.forEach(ae -> listEquipId.add(ae.getEquipmentId()));
-//        Set<Integer> setListEquipIdUnique = new HashSet<>(listEquipId);
-//        List<Integer> listEquipIdUnique = new ArrayList<>(setListEquipIdUnique);
-//        Collections.sort(listEquipIdUnique);
-//        listEquipIdUnique.forEach(x -> System.out.print(x+" - "));
-//        System.out.println("\n");
-
-        List<Integer> listEquipIdUniqueCoppy = new ArrayList<>();
+        List<Integer> listEquipIdUnique = new ArrayList<>();
         for (EquipmentLabDTO equipLabDTO_all : allEquipmentLabDTOs) {
-            if(!listEquipIdUniqueCoppy.contains(equipLabDTO_all.getEquipmentId())){
+            if(!listEquipIdUnique.contains(equipLabDTO_all.getEquipmentId())){
                 /** Nếu listEquipIdUniqueCoppy chưa có EquipmentId này */
-                equipmentLabDTOsUnique.add(equipLabDTO_all);
-                listEquipIdUniqueCoppy.add(equipLabDTO_all.getEquipmentId());
+                equipmentLabDTOsUnique_Year.add(equipLabDTO_all);
+                listEquipIdUnique.add(equipLabDTO_all.getEquipmentId());
             } else {
-                for (EquipmentLabDTO equipmentLabDTO_Unique : equipmentLabDTOsUnique) {
+                for (EquipmentLabDTO equipmentLabDTO_Unique : equipmentLabDTOsUnique_Year) {
                     if(equipmentLabDTO_Unique.getEquipmentId()==equipLabDTO_all.getEquipmentId()){
                         /** Tìm equipmentLabDTO_Unique chứa Equipment trong equipmentLabDTOsUnique để thêm các thông số */
                         List<String> series_Unique = equipmentLabDTO_Unique.getEquipmentSerieList();
@@ -2617,20 +2759,18 @@ public class LabController {
                 }
             }
         }
-        model.addAttribute("equipmentLabDTOs", equipmentLabDTOsUnique);
+        return equipmentLabDTOsUnique_Year;
         /** Kết thúc test */
-
-//        SaveEquipmentLabDTOsToDataBase(0, LocalDate.now().getYear(), equipmentLabDTOsUnique);
-
-
-        //        CompareInventory
-
-
-        model.addAttribute("inventoryResults", inventoryResults);
-
-        model.addAttribute("title", "Kiểm kê trang thiết bị");
-        return template;
     }
+
+
+                                        /******************************************************/
+                                                /** Quản lý bài thí nghiệm - Lesson */
+                                        /*****************************************************/
+
+//    @GetMapping({"/admin/Lesson"})
+//    public String Equipment(Model model,
+
 
 
 }

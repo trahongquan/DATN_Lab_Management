@@ -16,86 +16,83 @@
 <body>
 <div th:replace="headernew::header"></div>
 <main>
-    <div>
-        <!--Không sử dụng container cho không gian rộng hơn-->
-    <!--<div class="container">-->
-        <div class="row">
-            <div class="col-12">
-                <form action="#" >
-                    <div class="form-group choose-datetime">
-                        <!--<div class="form-control div-icon div-icon-pre" id="div-icon-pre" style="margin: auto; cursor: pointer">
-                            <i class="fa fa-angle-double-left"></i>
-                        </div>-->
-                        <div class="form-control" id="div-icon-home" style="margin: auto;cursor: pointer">
-                            <i class="fa fa-calendar"></i>
-                        </div>
-                        <label for="date" style="color: black; padding: 10px; font-weight: bold;font-size: 2em;">Chọn ngày:</label>
-                        <input type="date" id="date" class="form-control" style="max-width: 20em">
-                        <div class="form-control div-icon div-icon-next" style="margin: auto; cursor: pointer">
-                            <i class="fa fa-angle-double-right "></i>
+    <form th:action="'/Lab'" method="get"
+          class="d-flex flex-row justify-content-center align-content-center row">
+        <select name="managingUnitId" class="bg-white m-4 col-3 font-weight-bold" required>
+            <option th:each="managingUnit : ${managingUnits}"
+                    th:value="${managingUnit.id}"
+                    th:text="${managingUnit.departmentName}"
+                    th:selected="${managingUnit.departmentName == managingUnitName}"></option>
+        </select>
+        <button type="submit" class="btn btn-primary m-4 col-2">Xem</button>
+    </form>
+    <form action="#" class="row col-12">
+        <div class="form-group choose-datetime">
+            <div class="form-control" id="div-icon-home" style="margin: auto;cursor: pointer">
+                <i class="fa fa-calendar"></i>
+            </div>
+            <label for="date" style="color: black; padding: 10px; font-weight: bold;font-size: 2em;">Chọn ngày:</label>
+            <input type="date" id="date" class="form-control" style="max-width: 20em">
+            <div class="form-control div-icon div-icon-next" style="margin: auto; cursor: pointer">
+                <i class="fa fa-angle-double-right "></i>
+            </div>
+        </div>
+        <div class="alert bg-danger-subtle" id="next-day">
+            <div style="margin: auto" class="alert bg-danger-subtle">
+                <span class="text-status text-danger-emphasis" >Mời chọn từ ngày tiếp theo</span>
+            </div>
+        </div>
+        <div class="choose-room d-flex justify-content-around align-content-center">
+            <div class="col-2 room" th:each="lab : ${labDTOS}" style="border-radius:1em 1em 65px 65px">
+                <div class="card lab-card" style="border-radius:50px" >
+                    <div class="header-item">
+                        <div class="card-header justify-content-center" th:text="${lab.getLabName}"></div>
+                        <div>
+                            <button th:data="${lab.getId}" type="button" class="btn btn-success btn-booking" style="border: black thin;">Đặt phòng</button>
                         </div>
                     </div>
-                    <div class="alert bg-danger-subtle" id="next-day">
-                        <div style="margin: auto" class="alert bg-danger-subtle">
-                            <span class="text-status text-danger-emphasis" >Mời chọn từ ngày tiếp theo</span>
+                    <div class="card-body">
+                        <div>
+                            <span class="lab-info " th:text="${lab.managingUnit}"> </span>
                         </div>
-                    </div>
-                    <!--<button type="submit" class="btn btn-primary">Đặt lịch</button>-->
-                    <div class="choose-room d-flex justify-content-around align-content-center">
-                        <div class="col-2 room" th:each="lab : ${labDTOS}" style="border-radius:1em 1em 65px 65px">
-                            <div class="card lab-card" style="border-radius:50px" >
-                                <div class="header-item">
-                                    <div class="card-header justify-content-center" th:text="${lab.getLabName}"></div>
-                                    <div>
-                                        <button th:data="${lab.getId}" type="button" class="btn btn-success btn-booking" style="border: black thin;">Đặt phòng</button>
-                                    </div>
-                                </div>
-                                <div class="card-body">
-                                    <div>
-                                        <span class="lab-info " th:text="${lab.managingUnit}"> </span>
-                                    </div>
-                                    <div>
-                                        <span class="lab-info text-primary"> Người phụ trách: </span>
-                                    </div>
-                                    <div>
-                                        <span class="lab-info" th:text="${lab.getLab_managemet.getRank + ' ' + lab.getLab_managemet.getName}"></span>
-                                    </div>
-                                    <br>
-                                    <div>
-                                        <span class="lab-info text-primary">Liên hệ:</span>
-                                        <span class="lab-info" th:text="${lab.getLab_managemet.getContact}"></span>
-                                    </div>
-                                    <br>
-                                    <div>
-                                        <style>
-                                            .alert{color: black; font-weight: bold; display: none; cursor: pointer} .text-status{color: white}
-                                        </style>
-                                        <div class="alert bg-yellow" th:value="${lab.getId}" role="alert">
-                                            <span>🕓</span>
-                                            <span class="text-status">Đang chờ duyệt</span>
-                                        </div>
-                                        <div class="alert bg-green" th:value="${lab.getId}" role="alert">
-                                            <span class="lnr-checkmark-circle"></span>
-                                            <span class="text-status">Đã được đặt</span>
-                                        </div>
-                                        <div class="alert bg-danger" th:value="${lab.getId}" role="alert">
-                                            <span class="fa">❌</span>
-                                            <span class="text-status">Bị từ chối</span>
-                                        </div>
-                                        <div class="alert bg-primary" th:value="${lab.getId}" role="alert">
-                                            <span class="fa fa-plus-circle"></span>
-                                            <span class="text-status">Chọn ngay</span>
-                                        </div>
-                                    </div>
-                                </div>
+                        <div>
+                            <span class="lab-info text-primary"> Người phụ trách: </span>
+                        </div>
+                        <div>
+                            <span class="lab-info" th:text="${lab.getLab_managemet.getRank + ' ' + lab.getLab_managemet.getName}"></span>
+                        </div>
+                        <br>
+                        <div>
+                            <span class="lab-info text-primary">Liên hệ:</span>
+                            <span class="lab-info" th:text="${lab.getLab_managemet.getContact}"></span>
+                        </div>
+                        <br>
+                        <div>
+                            <style>
+                                .alert{color: black; font-weight: bold; display: none; cursor: pointer} .text-status{color: white}
+                            </style>
+                            <div class="alert bg-yellow" th:value="${lab.getId}" role="alert">
+                                <span>🕓</span>
+                                <span class="text-status">Đang chờ duyệt</span>
+                            </div>
+                            <div class="alert bg-green" th:value="${lab.getId}" role="alert">
+                                <span class="lnr-checkmark-circle"></span>
+                                <span class="text-status">Đã được đặt</span>
+                            </div>
+                            <div class="alert bg-danger" th:value="${lab.getId}" role="alert">
+                                <span class="fa">❌</span>
+                                <span class="text-status">Bị từ chối</span>
+                            </div>
+                            <div class="alert bg-primary" th:value="${lab.getId}" role="alert">
+                                <span class="fa fa-plus-circle"></span>
+                                <span class="text-status">Chọn ngay</span>
                             </div>
                         </div>
                     </div>
-                </form>
+                </div>
             </div>
         </div>
-    </div>
-
+    </form>
 </main>
 <br>
 <br>
