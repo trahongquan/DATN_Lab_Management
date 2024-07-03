@@ -464,6 +464,13 @@
         });
 
         function enableImportButton () {
+            /** Do dùng disabled cho button submit nên bị disabled thẻ input tự sinh ra có tên _csrf
+             * vì vậy cần bỏ disabled thì mới post được về server
+             * */
+            var _csrf = $('input[name="_csrf"][disabled]');
+            _csrf.each(function () {
+                $(this).removeAttr('disabled');
+            })
             var fileInput = document.getElementById('fileInput');
             var importButton = document.getElementById('importButton');
 

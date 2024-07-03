@@ -42,18 +42,32 @@
         </div>
     </div>
     <br>
-    <div class="row">
-        <div class="col-12 d-flex justify-content-center mb-5">
-            <a href="/Lab?RedirectLabAdmin=false" target="_blank">
-                <button type="button" class="btn btn-primary font-bold font-size-xlg">Đặt phòng</button>
-            </a>
+    <div class="d-flex flex-column justify-content-center align-content-center">
+        <div class="row justify-content-center">
+            <a href="/Lab?RedirectLabAdmin=false" target="_blank" class="text-center btn btn-primary font-bold font-size-xlg col-2">Đặt phòng</a>
         </div>
-        <!--<br>-->
-        <!--<div class="col-12 d-flex justify-content-center mb-5">
-            <a href="/Lab/admin/ExportLabs">
-                <button type="button" class="btn btn-primary font-bold font-size-xlg">Tài về danh sách</button>
-            </a>
-        </div>-->
+        <br>
+        <div style="margin: auto">
+            <a class="title-h1 pending" th:if="${#request.requestURI == '/Lab/admin/LabBookingManagement/Pendding'}"
+               th:href="'/Lab/admin/Export/LabBookingPendding?username='+${#authentication.name}"
+               th:text="'Tải xuống Danh sách' "></a>
+        </div>
+        <div style="margin: auto">
+            <a class="title-h1 approve" th:if="${#request.requestURI == '/Lab/admin/LabBookingManagement/Approve'}"
+               th:href="'/Lab/admin/Export/LabBookingApprove?username='+${#authentication.name}"
+               th:text="'Tải xuống Danh sách' "></a>
+        </div>
+        <div style="margin: auto">
+            <a class="title-h1 wait" th:if="${#request.requestURI == '/Lab/admin/LabBookingManagement/WaitComfirmUsed'}"
+               th:href="'/Lab/admin/Export/LabBookingWaitComfirmUsed?username='+${#authentication.name}"
+               th:text="'Tải xuống Danh sách' "></a>
+        </div>
+        <div style="margin: auto">
+            <a class="title-h1 cancel" th:if="${#request.requestURI == '/Lab/admin/LabBookingManagement/Cancel'}"
+               th:href="'/Lab/admin/Export/LabBookingCancel?username='+${#authentication.name}"
+               th:text="'Tải xuống Danh sách' "></a>
+        </div>
+        <br>
     </div>
 
     <div class="main-card mb-3 card">

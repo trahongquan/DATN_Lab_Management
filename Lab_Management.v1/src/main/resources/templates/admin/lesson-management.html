@@ -66,6 +66,7 @@
                 </div>
             </div>
             <button type="submit" id="btnSubmit" class="btn btn-primary mt-2"> Thêm mới</button>
+            <p class="text-warning mt-2 btn" id="warning">Chú ý: Click lại nút sửa một lần nữa để hủy chế độ sửa</p>
         </form>
     <br>
     <div class="main-card mb-3 card">
@@ -128,6 +129,7 @@
         var inputs = $('.lesson');
         $(document).ready(function () {
             var lessonDTOs = [[${lessonDTOs}]];
+            $('#warning').hide();
             $('.edit').click(function() {
                 var lessonId = $(this).attr('data');
                 console.log('lessonId = ' + lessonId);
@@ -150,6 +152,7 @@
                     inputs.each(function() {
                         $(this).removeClass('font-weight-bold')
                     })
+                    $('#warning').hide()
                 } else {
                     // Populate the input and select fields with lesson information
                     $('#id').val(lesson[0].id);
@@ -165,6 +168,7 @@
                     inputs.each(function() {
                         $(this).addClass('font-weight-bold')
                     })
+                    $('#warning').show();
                 }
 
             })

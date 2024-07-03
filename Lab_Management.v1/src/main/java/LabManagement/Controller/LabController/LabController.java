@@ -5,6 +5,8 @@ import LabManagement.ClassSuport.Comparator;
 import LabManagement.ClassSuport.EquidLevel.EquidAndLevel;
 import LabManagement.dao.*;
 import LabManagement.dto.*;
+import LabManagement.dtoExport.BookingDtoExport;
+import LabManagement.dtoExport.LabDtoExport;
 import LabManagement.entity.*;
 import LabManagement.service.BookingService.BookingService;
 import LabManagement.service.InventoryEquipmentService.InventoryEquipmentService;
@@ -27,11 +29,20 @@ import LabManagement.service.unitService.UnitService;
 import LabManagement.service.users.UserService;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+//import com.sun.rowset.internal.Row;
+import org.apache.commons.io.output.ByteArrayOutputStream;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -40,8 +51,10 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.security.Principal;
 import java.sql.Date;
@@ -384,11 +397,6 @@ public class LabController {
                             && lab.getLabName().toLowerCase().contains(inputdatasearch.toLowerCase())) {
                         bookingDTOs.add(new BookingDTO(booking,content,lab,experimentReport));}
                 } else {
-                    /*System.out.println("BookingDate= " + booking.getBookingDate().toLocalDate() + " và datetimepicker= " + datetimepicker.toLocalDate());
-                    System.out.println("LabName= " + lab.getLabName().toLowerCase() + " và inputSearch= " + inputSearch.toLowerCase());
-                    System.out.println(booking.getBookingDate().toLocalDate().isEqual(datetimepicker.toLocalDate()) + " và " +
-                            lab.getLabName().toLowerCase().contains(inputSearch.toLowerCase()));
-                    System.out.println("====================");*/
                     if (booking.getBookingDate().toLocalDate().isEqual(datetimepicker.toLocalDate())
                             || lab.getLabName().toLowerCase().contains(inputdatasearch.toLowerCase())) {
                         bookingDTOs.add(new BookingDTO(booking,content,lab,experimentReport));}
@@ -591,11 +599,11 @@ public class LabController {
         model.addAttribute("Labs",labService.getAllLabsOnLine());
 
         /** Dashboard Lab - Score*/
-        model.addAttribute("labsOnLineAndScores", LabsOnLineAndScore(365).subList(0,3));
+        model.addAttribute("labsOnLineAndScores", LabsOnLineAndScore(365, 0, 0).subList(0,3));
         model.addAttribute("title", "Tổng quan");
         return template;
     }
-    private List<LabsOnLineAndScore> LabsOnLineAndScore(int day) {
+    private List<LabsOnLineAndScore> LabsOnLineAndScore(int day, int experiment_type, int experiment_report) {
         LocalDate defaultDate1, defaultDate2;
         switch (day) {
             case 7:
@@ -619,14 +627,14 @@ public class LabController {
                 defaultDate1 = previousAugust;
                 defaultDate2 = LocalDate.now();
         }
-        return LabsOnLineAndScore(defaultDate1, defaultDate2);
+        return LabsOnLineAndScore(defaultDate1, defaultDate2, experiment_type, experiment_report);
     }
-    private List<LabsOnLineAndScore> LabsOnLineAndScore(LocalDate date1, LocalDate date2){
+    private List<LabsOnLineAndScore> LabsOnLineAndScore(LocalDate date1, LocalDate date2, int experiment_type, int experiment_report){
         List<Score> scores = scoreService.getAllScore();
         List<LabsOnLineAndScore> labsOnLineAndScores = new ArrayList<>();
         List<Lab> labsOnLine = labService.getAllLabsOnLine();
         /** Lặp qua từng lab */
-        labsOnLine.forEach(lab -> {
+        for (Lab lab : labsOnLine) {
             LabsOnLineAndScore labsOnLineAndScore = new LabsOnLineAndScore();
             /** set lab */
             labsOnLineAndScore.setLab(lab);
@@ -640,9 +648,14 @@ public class LabController {
                     })
                     .collect(Collectors.toList());
             /** Lặp qua các đơn đặt */
-            bookings.forEach(booking -> {
+            for (Booking booking : bookings) {
                 /** Tìm content tương ứng với booking */
                 Content content = contentService.getContentById(booking.getContentid());
+                /** Kiểm tra xem người dùng muốn xem tất cả hay xem theo một loại */
+                if(experiment_type != 0 && experiment_report != 0)
+                /** Nếu lọc kết quả theo experiment_report experiment_type, nếu không thỏa mãn thì bỏ qua*/
+                    if(content.getExperimentType()!=experiment_type || content.getExperimentReport()!=experiment_report)
+                        continue;
                 /** Lặp trong ds bảng điểm*/
                 scores.forEach(score -> {
                     /** Kiểm tra thuộc dòng nào trong bảng điểm*/
@@ -665,7 +678,7 @@ public class LabController {
                                     /** Nếu có thì set true và tăng số lượng và break */
                                     found = true;
                                     labsOnLineAndScore.increaseQuantityAtIndex(i);
-                                    break;
+                                    continue;
                                 }
                             }
                             /** Nếu không tìm thấy trong list typename thì thêm mới */
@@ -682,9 +695,9 @@ public class LabController {
                         }
                     }
                 });
-            });
+            };
             labsOnLineAndScores.add(labsOnLineAndScore);
-        });
+        };
         Collections.sort(labsOnLineAndScores, new LabsOnLineAndScoreComparator());
         return labsOnLineAndScores;
     }
@@ -865,7 +878,14 @@ public class LabController {
 
     @GetMapping("/admin/room/showFormForUpdate/{id}")
     public String RoomDetail(Model model, @PathVariable(value = "id") int id,
-                            @RequestParam(value = "success", defaultValue = "false") boolean success) {
+                             @RequestParam(value = "experiment_group", defaultValue = "0") int experiment_group,
+                             @RequestParam(value = "experiment_type", defaultValue = "0") int experiment_type,
+                             @RequestParam(value = "experiment_report", defaultValue = "0") int experiment_report,
+                             @RequestParam(value = "experiment_YesNo", defaultValue = "false") boolean experiment_YesNo,
+                             @RequestParam(value = "start_date", defaultValue = "") String startDate,
+                             @RequestParam(value = "end_date", defaultValue = "") String endDate,
+                             @RequestParam(value = "unsuccess", defaultValue = "false") boolean unsuccess,
+                             @RequestParam(value = "success", defaultValue = "false") boolean success) {
         Lab lab = labService.findByLabId(id);
         LabDTO labDTO = Lab2LabDTO(lab);
         List<People> Managers = peopleService.getAllPeople().stream().filter(people -> CheckRole(people,RoleSystem.ROLE_MANAGER)/*||CheckRole(people,"ROLE_ADMIN")*/).collect(Collectors.toList());
@@ -881,6 +901,17 @@ public class LabController {
         model.addAttribute("equipmentDTOS", equipmentDTOS);
         model.addAttribute("success", success);
         model.addAttribute("title", "Chi tiết phòng thí nghiệm");
+
+
+        List<LabsOnLineAndScore> labsOnLineAndScoresX = new ArrayList<>();
+        List<LabsOnLineAndScore> labsOnLineAndScores = GetLabsOnLineAndScore(labsOnLineAndScoresX, model, experiment_group, experiment_type, experiment_report,
+                                experiment_YesNo, startDate.split("T")[0], endDate.split("T")[0], success, unsuccess);
+        for (LabsOnLineAndScore labsOnLineAndScore : labsOnLineAndScores) {
+            if(labsOnLineAndScore.getLab().getId()==id){
+                model.addAttribute("labsOnLineAndScore", labsOnLineAndScore);
+                System.out.println(labsOnLineAndScore);
+            }
+        }
         return template;
     }
 
@@ -1408,7 +1439,6 @@ public class LabController {
                        @RequestParam(value = "success", defaultValue = "false") boolean success){
         List<Roles> roles = roleService.getAllRoles();
         List<Roles> rolesNotRoleSystem = roleService.getAllRolesNotRoleSystem();
-        System.out.println(rolesNotRoleSystem);
         model.addAttribute("rolesNotRoleSystem", rolesNotRoleSystem);
         model.addAttribute("roles", roles);
         model.addAttribute("success", success);
@@ -1546,13 +1576,6 @@ public class LabController {
         model.addAttribute("bookingDTOs", bookingDTOs);
         return bookingDTOs;
     }
-
-    /*private List<BookingDTO> GetBookingByStatus(Model model, String status, String comfirmUsed, String username){
-        List<BookingDTO> bookingDTOS = GetBookingByStatus(model, status, username)
-                                        .stream().filter(bookingDTO ->
-                                            bookingDTO.getComfirmUsed().equals(ConfirmUsed.));
-
-    }*/
 
     @GetMapping({"/admin/LabBookingManagement/Pendding"})
     public String PeddingBooking(Model model,
@@ -2197,34 +2220,36 @@ public class LabController {
         return Redirect("admin/ExperimentManagement/Score", true);
     }
 
-/*    @GetMapping({"/admin/LabRankings"})
-    public String LabRankings(Model model,
-                              @RequestParam(value = "success", defaultValue = "false") boolean success,
-                              @RequestParam(value = "unsuccess", defaultValue = "false") boolean unsuccess){
-        List<LabsOnLineAndScore> labsOnLineAndScores = LabsOnLineAndScore(1);
-        model.addAttribute("labsOnLineAndScores",labsOnLineAndScores);
-        model.addAttribute("title","BXH chấm điểm PTN");
-        return template;
-    }*/
     @GetMapping({"/admin/LabRankings"})
     public String LabRankingsFromDate(Model model,
+                              @RequestParam(value = "experiment_group", defaultValue = "0") int experiment_group,
+                              @RequestParam(value = "experiment_type", defaultValue = "0") int experiment_type,
+                              @RequestParam(value = "experiment_report", defaultValue = "0") int experiment_report,
+                              @RequestParam(value = "experiment_YesNo", defaultValue = "false") boolean experiment_YesNo,
                               @RequestParam(value = "startDate", defaultValue = "") String startDate,
                               @RequestParam(value = "endDate", defaultValue = "") String endDate,
                               @RequestParam(value = "success", defaultValue = "false") boolean success,
                               @RequestParam(value = "unsuccess", defaultValue = "false") boolean unsuccess){
+        List<LabsOnLineAndScore> labsOnLineAndScores = new ArrayList<>();
+        GetLabsOnLineAndScore(labsOnLineAndScores, model, experiment_group, experiment_type, experiment_report,
+                experiment_YesNo, startDate.split("T")[0], endDate.split("T")[0], success, unsuccess);
+        return template;
+    }
+
+    private List<LabsOnLineAndScore> GetLabsOnLineAndScore(List<LabsOnLineAndScore> labsOnLineAndScores, Model model,
+                                                           int experiment_group, int experiment_type, int experiment_report,
+                                                           boolean experiment_YesNo, String startDate, String endDate,
+                                                           boolean success, boolean unsuccess){
         if(!startDate.equals("") && !endDate.equals("")){
             LocalDateTime x1 = LocalDateTime.parse(startDate+"T12:00:00");
             LocalDateTime x2 = LocalDateTime.parse(endDate+"T12:00:00");
             model.addAttribute("start_date",x1);
             model.addAttribute("end_date",x2);
         }
-        if(!startDate.equals("")) System.out.println(LocalDateTime.parse(startDate+"T12:00:00"));
-        if(!endDate.equals("")) System.out.println(LocalDateTime.parse(endDate+"T12:00:00"));
-        List<LabsOnLineAndScore> labsOnLineAndScores = new ArrayList<>();
         if(!startDate.equals("") || !endDate.equals("")){
-            labsOnLineAndScores = LabsOnLineAndScore(LocalDate.parse(startDate), LocalDate.parse(endDate));
+            labsOnLineAndScores = LabsOnLineAndScore(LocalDate.parse(startDate), LocalDate.parse(endDate), experiment_type, experiment_report);
         }else{
-            labsOnLineAndScores = LabsOnLineAndScore(1);
+            labsOnLineAndScores = LabsOnLineAndScore(1, experiment_type, experiment_report);
             LocalDate previousAugust = LocalDate.of(LocalDate.now().getYear() - 1, 8, 1);
             LocalDateTime defaultDate1 = LocalDateTime.parse(previousAugust.toString()+"T12:00:00");
             LocalDateTime defaultDate2 = LocalDateTime.now();
@@ -2233,16 +2258,32 @@ public class LabController {
         }
         model.addAttribute("labsOnLineAndScores",labsOnLineAndScores);
         model.addAttribute("title","BXH chấm điểm PTN");
-        return template;
+
+        List<ExperimentGroup> experimentGroups = experimentGroupService.getAllExperimentGroups();
+        List<ExperimentReport> experimentReports = experimentReportService.getAllExperimentReports();
+        List<ExperimentType> experimentTypes = experimentTypeService.getAllExperimentTypes();
+        model.addAttribute("experimentTypes", experimentTypes);
+        model.addAttribute("experimentReports", experimentReports);
+        model.addAttribute("experimentGroups", experimentGroups);
+        model.addAttribute("experimentGroupId", experiment_group);
+        model.addAttribute("experimentTypeId", experiment_type);
+        model.addAttribute("experimentReportId", experiment_report);
+        model.addAttribute("experiment_YesNo", experiment_YesNo);
+        return labsOnLineAndScores;
     }
 
     @PostMapping({"/admin/LabRankings"})
     public String LabRankingsFromDatePost(Model model,
-                                      @RequestParam(value = "start_date", defaultValue = "") String startDate,
-                                      @RequestParam(value = "end_date", defaultValue = "") String endDate,
-                                      @RequestParam(value = "success", defaultValue = "false") boolean success,
-                                      @RequestParam(value = "unsuccess", defaultValue = "false") boolean unsuccess){
-        LabRankingsFromDate(model, startDate.split("T")[0], endDate.split("T")[0], success, unsuccess);
+                                          @RequestParam(value = "experiment_group", defaultValue = "0") int experiment_group,
+                                          @RequestParam(value = "experiment_type", defaultValue = "0") int experiment_type,
+                                          @RequestParam(value = "experiment_report", defaultValue = "0") int experiment_report,
+                                          @RequestParam(value = "experiment_YesNo", defaultValue = "false") boolean experiment_YesNo,
+                                          @RequestParam(value = "start_date", defaultValue = "") String startDate,
+                                          @RequestParam(value = "end_date", defaultValue = "") String endDate,
+                                          @RequestParam(value = "success", defaultValue = "false") boolean success,
+                                          @RequestParam(value = "unsuccess", defaultValue = "false") boolean unsuccess){
+        LabRankingsFromDate(model, experiment_group, experiment_type, experiment_report, experiment_YesNo,
+                            startDate.split("T")[0], endDate.split("T")[0], success, unsuccess);
         return template;
     }
 
@@ -2825,10 +2866,8 @@ public class LabController {
         try {
             if(lesson.getId()!=0){
                 lessonService.updateLesson(lesson.getId(),lesson);
-                System.out.println("Đã update");
             } else {
                 lessonService.createLesson(lesson);
-                System.out.println("Đã Thêm mới");
             }
             return Redirect("admin/Lesson?username="+username, true);
         } catch (Exception e){
@@ -2837,6 +2876,143 @@ public class LabController {
         }
     }
 
+                                /******************************************************/
+                                            /** Quản lý Export Report Excel */
+                                /*****************************************************/
+    private List<BookingDtoExport> GetBookingDtoExportByStatus(String status, String username){
+        People people = GetPeopleByUsername(username);
+        boolean isAdmin = CheckRole(people, RoleSystem.ROLE_ADMIN);
+        List<Booking> bookings = bookingService.getAllBookings().stream().filter(booking -> booking.getConfirmStatus().equals(status)).collect(Collectors.toList());
+        List<BookingDtoExport> bookingDtoExports = new ArrayList<>();
+        bookings.forEach(booking -> {
+            Content content = contentService.getContentById(booking.getContentid());
+            People reservationist = peopleService.findByPeopleId(content.getReservationistId());
+            ExperimentType experimentType = experimentTypeService.getExperimentTypeById(content.getExperimentType());
+            ExperimentReport experimentReport = experimentReportService.getExperimentReportById(content.getExperimentReport());
+            Lab lab = labService.findByLabId(booking.getLabid());
+            if(isAdmin){
+                bookingDtoExports.add(new BookingDtoExport(booking,lab.getLabName(), content, experimentType.getTypeName(), experimentReport.getReportType(),reservationist.getRank() + " " + reservationist.getName()));
+            } else {
+                if(lab.getLabManagemetId()==people.getId()){
+                    bookingDtoExports.add(new BookingDtoExport(booking,lab.getLabName(), content, experimentType.getTypeName(), experimentReport.getReportType(),reservationist.getRank() + " " + reservationist.getName()));
+                }
+            }
+        });
+        return bookingDtoExports;
+    }
+    private <T> ResponseEntity<Resource> exportData(List<T> dataList, String[] headers, String sheetName) {
+        try (Workbook workbook = new XSSFWorkbook()) {
+            // Tạo một Sheet
+            Sheet sheet = workbook.createSheet(sheetName);
+            // Thêm header vào dòng đầu tiên
+            Row headerRow = sheet.createRow(0);
+            fillDataToSheet(sheet, headers, dataList, 0);
+            String status = "Trống";
+            if (!dataList.isEmpty()) {
+                Object firstData = dataList.get(0);
+                if (firstData instanceof BookingDtoExport) {
+                    status = ((BookingDtoExport) firstData).getComfirmUsed();
+                } else if (firstData instanceof LabDtoExport) {
+                    status = "Phòng thí nghiệm";
+                }
+            }
+            return ResponseExel(workbook, "Danh sách " + status);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+    }
+    private ResponseEntity<Resource> ResponseExel(Workbook workbook, String ExelName){
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        try {
+            workbook.write(bos);
+        }catch (IOException e) {
+            e.printStackTrace();
+        }
+        InputStreamResource resource = new InputStreamResource(new ByteArrayInputStream(bos.toByteArray()));
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename="+ExelName+".xlsx")
+                .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                .body(resource);
+    }
+    private void fillDataToSheet(Sheet sheet, String[] headers, List<?> dataList, int startCellIndex) {
+        Row headerRow = (Row) sheet.createRow(0);
+        for (int i = 0; i < headers.length; i++) {
+            Cell cell = headerRow.createCell(i + startCellIndex);
+            cell.setCellValue(headers[i]);
+        }
 
+        int rowIndex = 1;
+        for (Object data : dataList) {
+            Row row = (Row) sheet.createRow(rowIndex++);
+            Field[] fields = data.getClass().getDeclaredFields();
+            int cellIndex = startCellIndex;
+            for (Field field : fields) {
+                field.setAccessible(true);
+                try {
+                    Cell cell = row.createCell(cellIndex++);
+                    Object value = field.get(data);
+                    if (value != null) {
+                        cell.setCellValue(value.toString());
+                    }
+                } catch (IllegalAccessException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
 
+    @GetMapping("/admin/Export/LabBookingPendding")
+    public ResponseEntity<Resource> ExportLabBookingPendding(@RequestParam("username") String username) {
+        List<BookingDtoExport> bookingDtoExports = GetBookingDtoExportByStatus(ConfirmStatus.PENDDING, username);
+        String[] headers = {"ID", "Tên PTN", "Tên bài", "Tên lớp", "Người đặt", "Số giờ", "Số người", "Ngày đặt", "Ghi chú", "Loại hình TN", "Loại BC", "Trạng thái quản lý", "Trạng thái người dùng", "Thao tác"};
+        return exportData(bookingDtoExports,headers, "Danh sách đơn chờ duyệt");
+    }
+    @GetMapping("/admin/Export/LabBookingApprove")
+    public ResponseEntity<Resource> ExportLabBookingApprove(@RequestParam("username") String username) {
+        List<BookingDtoExport> bookingDtoExports = GetBookingDtoExportByStatus(ConfirmStatus.APPROVE, username);
+        String[] headers = {"ID", "Tên PTN", "Tên bài", "Tên lớp", "Người đặt", "Số giờ", "Số người", "Ngày đặt", "Ghi chú", "Loại hình TN", "Loại BC", "Trạng thái quản lý", "Trạng thái người dùng", "Thao tác"};
+        return exportData(bookingDtoExports,headers, "Danh sách đơn đã chấp nhận");
+    }
+    @GetMapping("/admin/Export/LabBookingWaitComfirmUsed")
+    public ResponseEntity<Resource> ExportLabBookingWaitComfirmUsed(@RequestParam("username") String username) {
+        List<BookingDtoExport> bookingDtoExports = GetBookingDtoExportByStatus(ConfirmStatus.APPROVE, username)
+                                                    .stream().filter(b -> b.getComfirmUsed().equals(ConfirmUsed.USED))
+                                                    .collect(Collectors.toList());
+        String[] headers = {"ID", "Tên PTN", "Tên bài", "Tên lớp", "Người đặt", "Số giờ", "Số người", "Ngày đặt", "Ghi chú", "Loại hình TN", "Loại BC", "Trạng thái quản lý", "Trạng thái người dùng", "Thao tác"};
+        return exportData(bookingDtoExports,headers, "Danh sách đơn chờ người dùng xác nhận");
+    }
+    @GetMapping("/admin/Export/LabBookingCancel")
+    public ResponseEntity<Resource> ExportLabBookingCancel(@RequestParam("username") String username) {
+        List<BookingDtoExport> bookingDtoExports = GetBookingDtoExportByStatus(ConfirmStatus.CANCEL, username);
+        String[] headers = {"ID", "Tên PTN", "Tên bài", "Tên lớp", "Người đặt", "Số giờ", "Số người", "Ngày đặt", "Ghi chú", "Loại hình TN", "Loại BC", "Trạng thái quản lý", "Trạng thái người dùng", "Thao tác"};
+        return exportData(bookingDtoExports,headers, "Danh sách đơn đã hủy");
+    }
+
+            /*********************************/
+                    /** Export Lab */
+            /********************************/
+
+    private List<LabDtoExport> GetLabDtoExport(String username){
+        List<LabDtoExport> labDtoExports = new ArrayList<>();
+            People people = GetPeopleByUsername(username);
+            boolean isAdmin = CheckRole(people, RoleSystem.ROLE_ADMIN);
+            labService.getAllLabsOnLine().forEach(lab -> {
+                People labManager = peopleService.findByPeopleId(lab.getLabManagemetId());
+                if(isAdmin){
+                    labDtoExports.add(new LabDtoExport(lab, labManager.getRank()+ " " +labManager.getName()));
+                }else {
+                    if (lab.getLabManagemetId()==people.getId()){
+                        labDtoExports.add(new LabDtoExport(lab, people.getRank()+ " " +people.getName()));
+                    }
+                }
+            });
+        return labDtoExports;
+    }
+    @GetMapping("/admin/Export/Labs")
+    public ResponseEntity<Resource> ExportLabs(@RequestParam("username") String username) {
+        List<LabDtoExport> labDtoExports = GetLabDtoExport(username);
+        String[] headers = {"ID", "Tên PTN", "Người quản lý", "Đơn vị chủ quản", "Sức chứa (người)", "Vị trí"};
+        return exportData(labDtoExports,headers, "Danh sách phòng thí nghiệm");
+    }
 }

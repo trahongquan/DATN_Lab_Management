@@ -12,7 +12,8 @@
 <body class="scroll-container">
 <form-edit-phone>
 <!--<div th:replace="admin/headerAdmin :: header-admin"></div>-->
-<h1 style="margin-top: 50px; text-align: center;">Cập nhật thông tin phòng thí nghiệm</h1><br>
+<h1 style="margin-top: 50px; text-align: center;" class="text-uppercase font-weight-bold">Cập nhật thông tin phòng thí nghiệm</h1>
+    <h2 class="text-center font-weight-bold text-uppercase text-primary" th:text="${labDTO.labName}"></h2><br>
 
 <div class="container">
     <form th:object="${labDTO}" th:action="@{'/Lab/admin/room/showFormForUpdate/' + ${labDTO.getId}}" method="post" enctype="multipart/form-data">
@@ -116,13 +117,147 @@
             </div>
         </div>
     </div>
+    <div class="d-flex flex-column justify-content-center align-content-center">
+        <br>
+        <h1 class="text-center">============================================</h1>
+        <br>
+        <h2 class="text-center font-weight-bold text-uppercase">Chi tiết chấm điểm khai thác ptn</h2>
+        <h2 class="text-center font-weight-bold text-uppercase text-primary" th:text="${labDTO.labName}"></h2>
+        <!--<h4 class="text-center font-weight-bold text-danger" th:text="'(Từ ngày ' + ${start_date} + ' đến ngày ' + ${end_date} + ' Tổng: '+${#numbers.formatDecimal(labsOnLineAndScore.score, 1, 1, 'POINT')}+' điểm)'"></h4>-->
+        <h4 class="text-center font-weight-bold text-danger" th:text="'(Từ ngày ' + ${#strings.substring(start_date, 0, 10)}
+                                                                                + ' đến ngày ' + ${#strings.substring(end_date, 0, 10)}
+                                                                                + ' Tổng: '+${#numbers.formatDecimal(labsOnLineAndScore.score, 1, 1, 'POINT')}+' điểm)'"></h4>
+        <h5 class="text-warning text-center m-3"><strong><span>Chú ý: </span></strong> Điểm được tính đến trước ngày đã chọn</h5>
+    </div>
 </div>
+    <div>
+        <form th:action="@{'/Lab/admin/room/showFormForUpdate/'+${labDTO.id}}" method="get">
+            <div class="row d-flex justify-content-around align-content-center">
+                <div class="row justify-content-around align-content-center border p-2 col-8 font-weight-bold">
+                    <div class="form-group col-6">
+                        <div class="row justify-content-between align-content-center">
+                            <div class="col-6">
+                                <label for="experiment_group">Chọn nhóm loại hình thí nghiệm:</label>
+                                <select class="form-control bg-danger-subtle" id="experiment_group" name="experiment_group" required>
+                                    <option th:each="experimentGroup : ${experimentGroups}" th:value="${experimentGroup.getId}"
+                                            th:text="${experimentGroup.getGroupName}"></option>
+                                </select>
+                            </div>
+                            <div class="col-4 row justify-content-end align-content-center">
+                                <span>Lọc theo Loại thí nghiệm</span>
+                                <input type="checkbox" class="form-control" name="experiment_YesNo" id="experiment_YesNo" th:checked="${experiment_YesNo}">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="experiment_type">Chọn loại hình thí nghiệm:</label>
+                            <select class="form-control bg-danger-subtle" id="experiment_type" name="experiment_type" required>
+                                <option th:each="experimentType : ${experimentTypes}" th:value="${experimentType.getId}"
+                                        th:text="${experimentType.getTypeName}"></option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="experiment_report">Chọn loại báo cáo:</label>
+                            <select class="form-control bg-danger-subtle" id="experiment_report" name="experiment_report" required>
+                                <option th:each="experimentReport : ${experimentReports}" th:value="${experimentReport.getId}"
+                                        th:text="${experimentReport.getReportType}"></option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-center align-content-center flex-column col-3">
+                        <div>
+                            <label for="start_date">Ngày bắt đầu:</label><br>
+                            <input type="datetime-local" class="form-control" id="start_date" name="start_date"
+                                   th:value="${start_date}" required><br><br>
+                        </div>
+                        <div>
+                            <label for="end_date">Ngày kết thúc:</label><br>
+                            <input type="datetime-local" class="form-control" id="end_date" name="end_date"
+                                   th:value="${end_date}" required><br><br>
+                        </div>
+                        <div class="d-flex justify-content-around align-content-center row">
+                            <button type="submit" class="btn btn-success mb-4 col-3">Xem</button>
+                        </div>
+                    </div>
+                </div>
+                <div id="qickchoosetime" class="d-flex flex-column justify-content-around align-content-center col-3 border">
+                    <div class="row justify-content-around align-content-center">
+                        <button id="btn-yesterday" class="btn btn-primary col-5 m-2">Hôm qua</button>
+                        <button id="btn-1-day" class="btn btn-primary col-5 m-2">Hôm nay</button>
+                    </div>
+                    <div class="row justify-content-around align-content-center">
+                        <button id="btn-1-week" class="btn btn-primary col-3 m-2">1 Tuần</button>
+                        <button id="btn-1-month" class="btn btn-primary col-3 m-2">1 Tháng</button>
+                        <button id="btn-3-months" class="btn btn-primary col-3 m-2">3 Tháng</button>
+                    </div>
+                    <div class="row justify-content-around align-content-center">
+                        <button id="btn-6-months" class="btn btn-primary col-5 m-2">6 Tháng</button>
+                        <button id="btn-1-year" class="btn btn-primary col-5 m-2">1 Năm</button>
+                    </div>
+                    <div class="row justify-content-around align-content-center">
+                        <button id="btn-1-year-2" class="btn btn-primary col-5 m-2">Năm học</button>
+                        <button id="btn-kk" class="btn btn-primary col-5 m-2">Tổng KK</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="main-card mb-3 card">
+        <div class="card-body">
+            <table style="width: 100%;" id="popup-example" class="table table-hover table-striped table-bordered">
+                <thead>
+                <tr>
+                    <th>STT</th>
+                    <th>Phân loại</th>
+                    <th>Số lượng</th>
+                    <th>Điểm số</th>
+                    <th>Tổng điểm</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="typeName, iter : ${labsOnLineAndScore.getTypeName}">
+                    <td th:text="${iter.index+1}"></td>
+                    <td class="text-primary" th:text="${typeName}"></td>
+                    <td>
+                        <span th:text="${labsOnLineAndScore.quantity[iter.index]}"></span>
+                        <span th:if="${#strings.contains(typeName, 'Giờ khai thác')}" th:text="'bài TN (Tổng: ' + ${labsOnLineAndScore.hour} +' giờ)'"></span>
+                        <button type="button" class="form-control btn btn-primary btn-detail"
+                        th:data="${labsOnLineAndScore.lab.id}">Chi tiết</button>
+                    </td>
+                    <td class="text-danger">
+                        <strong>
+                            <span th:text="${#numbers.formatDecimal(labsOnLineAndScore.scores[iter.index], 1, 1, 'POINT')}" />
+                        </strong>
+                    </td>
+                    <td class="text-danger">
+                        <strong>
+                            <span th:text="${#numbers.formatDecimal(labsOnLineAndScore.scores[iter.index], 1, 1, 'POINT')}*${labsOnLineAndScore.quantity[iter.index]}"
+                                  th:unless="${#strings.contains(typeName, 'Giờ khai thác')}"/>
+                            <span th:if="${#strings.contains(typeName, 'Giờ khai thác')}"
+                                  th:text="${#numbers.formatDecimal(labsOnLineAndScore.scores[iter.index]*labsOnLineAndScore.hour, 1, 1, 'POINT')}" />
+                        </strong>
+                    </td>
+                </tr>
+                </tbody>
+                <tfoot>
+                <tr>
+                    <th>STT</th>
+                    <th>Phân loại</th>
+                    <th>Số lượng</th>
+                    <th>Điểm số</th>
+                    <th>Tổng điểm</th>
+                </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
 
 <!-- Link to Bootstrap JS and jQuery -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> <!--Phải load jquery trước khi load bootstrap js-->
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="/js/lab-rankings-score.js"></script>
+    <script src="/js/booking-lab.js"></script>
     <script>
         function addEqui() {
             var seriesElement = $('#chosseSeries');
@@ -145,14 +280,25 @@
         }
     </script>
     <script th:inline="javascript">
+        var labId = [[${labDTO.id}]];
+        var experimentGroups = [[${experimentGroups}]];
+        var experimentTypes = [[${experimentTypes}]];
+        var experimentReports = [[${experimentReports}]];
+        var tempGroupId;
+        var username = [[${#authentication.name}]];
+        var date = [[${date}]];
+        var lessons = [[${lessons}]];
+        var experiment_group = [[${experimentGroupId}]];
+        var experiment_type = [[${experimentTypeId}]];
+        var experiment_report = [[${experimentReportId}]];
         var authorities = [[${#authentication.principal.authorities}]];
+
         var role = authorities[0].authority;
             console.log(role)
         $(document).ready(function () {
             if(role === 'ROLE_MANAGER'){
                 $('#Manager').attr('disabled', true);
             }
-            console.log("helo")
         })
     </script>
 </form-edit-phone>

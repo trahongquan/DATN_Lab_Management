@@ -15,18 +15,18 @@
     <h1 style="margin-top: 50px; text-align: center;text-transform: uppercase;" th:text="'Danh sách phòng thí nghiệm' "></h1>
     <h1 style=" text-align: center; font-size: 2em" th:text="'Số lượng: ' + ${#lists.size(labDTOS)}"></h1>
     <br>
-    <div class="row">
-        <div class="col-12 d-flex justify-content-center mb-5" sec:authorize="hasRole('ROLE_ADMIN')">
+    <div class="row justify-content-center align-content-center">
+        <div class="col-6 d-flex justify-content-center mb-5" sec:authorize="hasRole('ROLE_ADMIN')">
             <a href="/Lab/admin/Room/add">
                 <button type="button" class="btn btn-primary font-bold font-size-xlg">Thêm phòng</button>
             </a>
         </div>
         <br>
-        <!--<div class="col-6 d-flex justify-content-center mb-5">
-            <a href="/Lab/admin/ExportLabs">
+        <div class="col-6 d-flex justify-content-center mb-5">
+            <a th:href="'/Lab/admin/Export/Labs?username='+${#authentication.name}">
                 <button type="button" class="btn btn-primary font-bold font-size-xlg">Tài về danh sách</button>
             </a>
-        </div>-->
+        </div>
     </div>
     <div class="main-card mb-3 card">
         <div class="card-body">

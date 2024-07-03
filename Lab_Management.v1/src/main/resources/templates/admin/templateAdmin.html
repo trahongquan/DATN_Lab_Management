@@ -924,7 +924,7 @@
                                     </i>DM phòng thí nghiệm
                                 </a>
                             </li>
-                            <li>
+                            <li sec:authorize="hasRole('ROLE_ADMIN')">
                                 <a th:href="'/Lab/admin/ManagingUnit?username='+${#authentication.name}">
                                     <i class="metismenu-icon pe-7s-home">
                                     </i>DM đơn vị chủ quản PTN

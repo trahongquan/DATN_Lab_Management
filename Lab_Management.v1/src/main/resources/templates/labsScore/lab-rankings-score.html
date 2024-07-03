@@ -13,39 +13,81 @@
 <!--<div th:replace="admin/headerAdmin :: header-admin"></div>-->
 <lab-rankings-score>
     <h1 style="text-align: center" class="text-uppercase"> Bảng xếp hạng chấm điểm Phòng thí nghiệm </h1>
-    <h5 style="text-align: center" class="text-warning">(Theo năm học: Tháng 8 năm trước đến hiện tại)</h5>
+    <!--<h5 style="text-align: center" class="text-uppercase">Từ ngày [[${start_date}]] đến ngày [[${end_date}]]</h5>-->
+    <h5 class="text-center font-weight-bold text-uppercase" th:text="'(Từ ngày ' + ${#strings.substring(start_date, 0, 10)} + ' đến ngày ' + ${#strings.substring(end_date, 0, 10)} + ')'"></h5>
     <br>
     <div>
         <form th:action="@{'/Lab/admin/LabRankings'}" method="post">
-            <div class="col-lg-6;" style=" display:flex; flex-direction: row; justify-content: space-around">
-                <div class="col-lg-2;">
-                    <label for="start_date">Ngày bắt đầu:</label><br>
-                    <input type="datetime-local" class="form-control" id="start_date" name="start_date"
-                           th:value="${start_date}" required><br><br>
+            <div class="row d-flex justify-content-around align-content-center">
+                <div class="row justify-content-around align-content-center border p-2 col-8 font-weight-bold">
+                    <div class="form-group col-6">
+                        <div class="row justify-content-between align-content-center">
+                            <div class="col-6">
+                                <label for="experiment_group">Chọn nhóm loại hình thí nghiệm:</label>
+                                <select class="form-control bg-danger-subtle" id="experiment_group" name="experiment_group" required>
+                                    <option th:each="experimentGroup : ${experimentGroups}" th:value="${experimentGroup.getId}"
+                                            th:text="${experimentGroup.getGroupName}"></option>
+                                </select>
+                            </div>
+                            <div class="col-4 row justify-content-end align-content-center">
+                                <span>Lọc theo Loại thí nghiệm</span>
+                                <input type="checkbox" class="form-control" name="experiment_YesNo" id="experiment_YesNo" th:checked="${experiment_YesNo}">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="experiment_type">Chọn loại hình thí nghiệm:</label>
+                            <select class="form-control bg-danger-subtle" id="experiment_type" name="experiment_type" required>
+                                <option th:each="experimentType : ${experimentTypes}" th:value="${experimentType.getId}"
+                                        th:text="${experimentType.getTypeName}"></option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="experiment_report">Chọn loại báo cáo:</label>
+                            <select class="form-control bg-danger-subtle" id="experiment_report" name="experiment_report" required>
+                                <option th:each="experimentReport : ${experimentReports}" th:value="${experimentReport.getId}"
+                                        th:text="${experimentReport.getReportType}"></option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-center align-content-center flex-column col-3">
+                        <div>
+                            <label for="start_date">Ngày bắt đầu:</label><br>
+                            <input type="datetime-local" class="form-control" id="start_date" name="start_date"
+                                   th:value="${start_date}" required><br><br>
+                        </div>
+                        <div>
+                            <label for="end_date">Ngày kết thúc:</label><br>
+                            <input type="datetime-local" class="form-control" id="end_date" name="end_date"
+                                   th:value="${end_date}" required><br><br>
+                        </div>
+                        <div class="d-flex justify-content-around align-content-center row">
+                            <button type="submit" class="btn btn-success mb-4 col-3">Xem</button>
+                        </div>
+                    </div>
                 </div>
-                <div class="col-lg-2;">
-                    <label for="end_date">Ngày kết thúc:</label><br>
-                    <input type="datetime-local" class="form-control" id="end_date" name="end_date"
-                           th:value="${end_date}" required><br><br>
+                <div id="qickchoosetime" class="d-flex flex-column justify-content-around align-content-center col-3 border">
+                    <div class="row justify-content-around align-content-center">
+                        <button id="btn-yesterday" class="btn btn-primary col-5 m-2">Hôm qua</button>
+                        <button id="btn-1-day" class="btn btn-primary col-5 m-2">Hôm nay</button>
+                    </div>
+                    <div class="row justify-content-around align-content-center">
+                        <button id="btn-1-week" class="btn btn-primary col-3 m-2">1 Tuần</button>
+                        <button id="btn-1-month" class="btn btn-primary col-3 m-2">1 Tháng</button>
+                        <button id="btn-3-months" class="btn btn-primary col-3 m-2">3 Tháng</button>
+                    </div>
+                    <div class="row justify-content-around align-content-center">
+                        <button id="btn-6-months" class="btn btn-primary col-5 m-2">6 Tháng</button>
+                        <button id="btn-1-year" class="btn btn-primary col-5 m-2">1 Năm</button>
+                    </div>
+                    <div class="row justify-content-around align-content-center">
+                        <button id="btn-1-year-2" class="btn btn-primary col-5 m-2">Năm học</button>
+                        <button id="btn-kk" class="btn btn-primary col-5 m-2">Tổng KK</button>
+                    </div>
                 </div>
-            </div>
-            <div style=" display:flex; flex-direction: row; justify-content: space-around">
-                <button type="submit" class="btn btn-success mb-4">Xem theo khoảng thời gian đã chọn</button>
             </div>
         </form>
     </div>
-
-    <div id="qickchoosetime" class="d-flex justify-content-between align-content-center mb-4">
-        <button id="btn-yesterday" class="btn btn-primary margin-h-center">Hôm qua</button>
-        <button id="btn-1-day" class="btn btn-primary margin-h-center">Hôm nay</button>
-        <button id="btn-1-week" class="btn btn-primary margin-h-center">1 Tuần</button>
-        <button id="btn-1-month" class="btn btn-primary margin-h-center">1 Tháng</button>
-        <button id="btn-3-months" class="btn btn-primary margin-h-center">3 Tháng</button>
-        <button id="btn-6-months" class="btn btn-primary margin-h-center">6 Tháng</button>
-        <button id="btn-1-year" class="btn btn-primary margin-h-center">1 Năm</button>
-        <button id="btn-1-year-2" class="btn btn-primary margin-h-center">Năm học</button>
-        <button id="btn-kk" class="btn btn-primary margin-h-center">Tổng KK</button>
-    </div>
+    <br>
     <div class="main-card mb-3 card">
         <div class="card-body">
             <table style="width: 100%;" id="example" class="table table-hover table-striped table-bordered">
@@ -96,7 +138,7 @@
     <div id="popup" class="popup">
         <div class="popup-content" style="max-width: 200rem; top: 25%; left: 17%">
             <h2>CHI TIẾT CHẤM ĐIỂM</h2>
-            <h5 class="text-warning"><strong><span>Chú ý: </span></strong> Điểm chỉ được chấm đến thời điểm hiện tại, chưa tính các đơn được chấp nhận sau hôm nay</h5>
+            <h5 class="text-warning"><strong><span>Chú ý: </span></strong> Điểm được tính đến trước ngày đã chọn</h5>
             <div class="main-card mb-3 card">
                 <div class="card-body">
                     <table style="width: 100%;" id="popup-example" class="table table-hover table-striped table-bordered">
@@ -128,19 +170,33 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script th:inline="javascript">
         var labsOnLineAndScores = [[${labsOnLineAndScores}]];
+        var experiment_YesNo = [[${experiment_YesNo}]];
         $(document).ready(function() {
             $(".btn-detail").click(function() {
                 var labid = parseInt($(this).attr('data'));
                 $(".popup").slideDown(300);
                 clickDetail(labsOnLineAndScores, labid);
             });
+
         });
+        var labId = 0;
+        var experimentGroups = [[${experimentGroups}]];
+        var experimentTypes = [[${experimentTypes}]];
+        var experimentReports = [[${experimentReports}]];
+        var tempGroupId;
+        var username = [[${#authentication.name}]];
+        var date = [[${date}]];
+        var lessons = [[${lessons}]];
+        var experiment_group = [[${experimentGroupId}]];
+        var experiment_type = [[${experimentTypeId}]];
+        var experiment_report = [[${experimentReportId}]];
     </script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script src="/js/noticePopUp.js"></script>
     <script src="/js/lab-rankings-score.js"></script>
+    <script src="/js/booking-lab.js"></script>
 </lab-rankings-score>
 </body>
 </html>
