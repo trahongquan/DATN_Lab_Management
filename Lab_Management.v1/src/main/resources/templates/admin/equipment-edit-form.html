@@ -15,7 +15,11 @@
 <body class="scroll-container">
 <equipment-edit-form>
     <!--<div th:replace="admin/headerAdmin :: header-admin"></div>-->
-    <h1 style="margin-top: 50px; text-align: center;text-transform: uppercase;">Thông tin Thiết bị</h1><br>
+    <h1 style="margin-top: 50px; text-align: center;text-transform: uppercase;">Thông tin Thiết bị
+        <a th:href="'/Lab/admin/Export/Equipment?username='+${#authentication.name} + '&equipmentId='+${equipment.getId}" >
+            <img src="/images/download.png" alt="Tải xuống" style="max-width: 2%" >
+        </a>
+    </h1><br>
     <div class="container">
         <form th:object="${equipment}" th:action="@{'/Lab/admin/Equipment/showFormForUpdate/'+ ${equipment.getId}}" method="post" enctype="multipart/form-data">
             <div class="form-group">

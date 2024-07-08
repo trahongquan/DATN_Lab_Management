@@ -10,7 +10,7 @@ import java.util.List;
 
 public class InventoryResult {
     private List<InventoryLab> inventoryLab_DataForYear;
-    private List<InventoryEquipment> inventoryEquipment_DataForYear;
+    private List<InventoryEquipment> inventoryEquipment_DataForYear; /** Không dùng đến */
     private List<EquipmentLabDTO> equipmentLabDTOs;
     private List<InventoryCompare> inventoryCompares;
     private LabDTO labDTO;
@@ -78,5 +78,16 @@ public class InventoryResult {
 
     public void setInventoryEquipment_DataForYear(List<InventoryEquipment> inventoryEquipment_DataForYear) {
         this.inventoryEquipment_DataForYear = inventoryEquipment_DataForYear;
+    }
+
+    @Override
+    public String toString() {
+        return "InventoryResult{" +
+                "inventoryLab_DataForYear=" + inventoryLab_DataForYear +
+                ", inventoryEquipment_DataForYear=" + inventoryEquipment_DataForYear +
+                ", equipmentLabDTOs=" + equipmentLabDTOs +
+                ", inventoryCompares=" + inventoryCompares +
+                ", labDTO=" + labDTO +
+                '}';
     }
 }

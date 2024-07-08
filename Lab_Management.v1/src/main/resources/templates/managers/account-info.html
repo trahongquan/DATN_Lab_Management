@@ -15,17 +15,11 @@
 <body >
 <div th:replace="headernew :: header"></div>
 <account-info>
-    <!--<style>
-        .passCustomer:focus{border:1px solid black;}.container{max-width:960px;margin:0 auto;}.row{display:flex;flex-wrap:wrap;margin:0 -15px;}.col-md-6{flex:0 0 50%;padding:0 15px;}.table{width:100%;border-collapse:collapse;}.th,.td{padding:8px;border:1px solid #ccc;}.th{background-color:#eee;}.table-account-info th:first-child{width:20%;}.table-account-info td:first-child{font-weight:bold;}.body{font-family:sans-serif;font-size:1rem;}.table-container{display:flex;justify-content:center;}.table{width:90%;}.td,.th{white-space:nowrap;text-align:center;vertical-align:middle;}.wrap{white-space:unset;}.h1{margin-top:50px;text-align:center;}.tbody,.td{background:white;}
-        @import url("https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css");
-    </style>-->
     <div class="container" style="margin-top: 100px">
         <div style="display: flex; justify-content: center">
-            <h1>Thông tin tài khoản</h1>
-<!--            <a th:href="'/Lab/admin/myAccount'+${peopleDTO.getId}">
-                <img src="/images/edit.png" alt="edit profile" style="width: 48px; height: 48px; margin: fill">
-            </a>-->
+            <h1 class="font-weight-bold text-uppercase">Thông tin tài khoản</h1>
         </div>
+        <br>
         <div class="row">
             <div class="col-md-6">
                 <h2>Thông tin cá nhân</h2>
@@ -103,6 +97,44 @@
                     </thead>
                 </table>
             </div>
+        </div>
+    </div>
+
+    <br>
+    <br>
+    <br>
+    <h2 class="text-center font-weight-bold text-uppercase"
+        th:if="${#strings.contains(#request.requestURI, '/Lab/admin/myAccount/')}"
+        >Danh sách các phòng thí nghiệm cho tài khoản này quản lý</h2>
+    <br>
+    <div class="main-card mb-3 card" th:if="${#strings.contains(#request.requestURI, '/Lab/admin/myAccount/')}">
+        <div class="card-body">
+            <table style="width: 100%;" id="popup-example" class="table table-hover table-striped table-bordered">
+                <thead>
+                <tr>
+                    <th>STT</th>
+                    <th>Tên PTN</th>
+                    <th>Vị trí</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="lab, iter : ${labs}">
+                    <td th:text="${iter.index+1}"></td>
+                    <td>
+                        <a th:href="'/Lab/admin/room/showFormForUpdate/'+${lab.id}">
+                            <span class="text-primary font-weight-bold" th:text="${lab.labName}"></span>
+                        </a>
+                    </td>
+                    <td th:text="${lab.location}"></td>
+                </tbody>
+                <tfoot>
+                <tr>
+                    <th>STT</th>
+                    <th>Tên PTN</th>
+                    <th>Vị trí</th>
+                </tr>
+                </tfoot>
+            </table>
         </div>
     </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>

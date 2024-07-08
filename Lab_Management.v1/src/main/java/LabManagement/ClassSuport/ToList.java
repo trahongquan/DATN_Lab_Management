@@ -1,5 +1,6 @@
 package LabManagement.ClassSuport;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /** Hỗ trợ chuyển chuỗi thành list int, string */
@@ -39,7 +40,40 @@ public class ToList {
         }
         return result;
     }
-    public /*static*/ List<String> StringLevelsToList(String input) {
+    /*public *//*static*//* List<String> StringLevelsToList(String input) {
+        List<String> result = new ArrayList<>();
+
+        // Xóa ký tự "[" và "]" từ chuỗi
+        String cleanedInput = input.replace("[", "").replace("]", "");
+
+        // Tách các số bằng dấu phẩy
+        String[] seris = cleanedInput.split(",\\s*");
+
+        // Chuyển các số từ kiểu String sang kiểu Integer và thêm vào danh sách
+        for (String seri : seris) {
+            seri = seri.trim();
+            if(containsSpace(seri) && !seri.equals("")){
+                result.add(seri);
+            }
+        }
+        return result;
+    }*/
+    public List<String> StringLevelsToList(String input) {
+        List<String> result = new ArrayList<>();
+
+        // Xóa khoảng trắng thừa và ký tự "[" và "]" từ chuỗi
+        String cleanedInput = input.replace("[", "").replace("]", "").trim();
+
+        // Tách chuỗi thành các phần tử bằng dấu phẩy
+        if (!cleanedInput.isEmpty()) {
+            String[] strings = cleanedInput.split(",\\s*");
+            result = new ArrayList<>(Arrays.asList(strings));
+        }
+
+        return result;
+    }
+
+    public /*static*/ List<String> StringUsingToList(String input) {
         List<String> result = new ArrayList<>();
 
         // Xóa ký tự "[" và "]" từ chuỗi

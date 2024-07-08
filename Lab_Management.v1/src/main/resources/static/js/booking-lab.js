@@ -20,11 +20,11 @@ $(document).ready(function() {
         CheckLesson(ex_group, ex_tpye, ex_report);
     })
 
-    if(experiment_group != 0) $('#experiment_group').val(experiment_group);
+    if(experiment_group != 0 && experiment_group != null) $('#experiment_group').val(experiment_group);
     $('#experiment_group').trigger('change');
-    if(experiment_type != 0) $('#experiment_type').val(experiment_type);
+    if(experiment_type != 0 && experiment_type != null) $('#experiment_type').val(experiment_type);
     $('#experiment_type').trigger('change');
-    if(experiment_report != 0) $('#experiment_report').val(experiment_report)
+    if(experiment_report != 0 && experiment_report != null) $('#experiment_report').val(experiment_report)
     $('#experiment_report').trigger('change');
 })
 function SetExperiment_Type(groupId) {

@@ -27,6 +27,13 @@ public class LabDtoExport {
         this.managingUnit = lab.getManagingUnit();
         this.labMmanagemetName = labMmanagemetName;
     }
+    public LabDtoExport(Lab lab, boolean labManager) {
+        this.id = lab.getId();
+        this.labName = lab.getLabName();
+        this.capacity = lab.getCapacity();
+        this.location = lab.getLocation();
+        this.managingUnit = lab.getManagingUnit();
+    }
 
     @Override
     public String toString() {

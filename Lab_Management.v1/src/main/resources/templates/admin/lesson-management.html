@@ -13,7 +13,11 @@
 <!--<div th:replace="admin/headerAdmin :: header-admin"></div>-->
 <lesson-management>
     <style>label{font-weight: bold}</style>
-    <h1 style="text-align: center" class="text-uppercase font-weight-bold"> Danh mục bài thí nghiệm</h1>
+    <h1 style="text-align: center" class="text-uppercase font-weight-bold"> Danh mục bài thí nghiệm
+        <a th:href="'/Lab/admin/Export/Lesson?username='+${#authentication.name}" >
+            <img src="/images/download.png" alt="Tải xuống" style="max-width: 2%" >
+        </a>
+    </h1>
     <form th:action="'/Lab/admin/Lesson/add'" method="post" id="formLesson"
               class="d-flex justify-content-center align-content-center flex-column">
             <div class="row d-flex justify-content-center align-content-center">

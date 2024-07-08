@@ -66,6 +66,26 @@ function clickDetail(labsOnLineAndScores, id) {
         }
     }
 }
+function clickDetailLesson(labsOnLineAndScore) {
+    // console.log(labsOnLineAndScores)
+    var tbody = $('#tbody');
+    tbody.html('');
+    var score = labsOnLineAndScore;
+    console.log(labsOnLineAndScore);
+    for (var j = 0; j < score.lessonName.length; j++) {
+        var row = $('<tr></tr>');
+        // STT
+        var sttCell = $('<td></td>').text(j + 1);
+        row.append(sttCell);
+
+        // Phân loại
+        var lessonNameCell = $('<td></td>').text(score.lessonName[j]);
+        row.append(lessonNameCell);
+
+        /** append vào body table*/
+        tbody.append(row);
+    }
+}
 
 $(".close-btn").click(function() {
     $(".popup").slideUp(300);
@@ -114,7 +134,7 @@ $(window).click(function(event) {
             var startDate = new Date();
             startDate.setDate(startDate.getDate() - 2);
             endDate.setDate(startDate.getDate() + 1);
-            redirectToProfitReport(0, startDate, endDate, experiment_YesNo);
+            redirectToProfitReport(labId, startDate, endDate, experiment_YesNo);
             $('#start_date').val(formatDateTime(startDate));
             $('#end_date').val(formatDateTime(endDate));
         });
@@ -123,7 +143,7 @@ $(window).click(function(event) {
             var endDate = new Date();
             var startDate = new Date();
             startDate.setDate(startDate.getDate() - 1);
-            redirectToProfitReport(0, startDate, endDate, experiment_YesNo);
+            redirectToProfitReport(labId, startDate, endDate, experiment_YesNo);
             $('#start_date').val(formatDateTime(startDate));
             $('#end_date').val(formatDateTime(endDate));
         });
@@ -132,7 +152,7 @@ $(window).click(function(event) {
             var endDate = new Date();
             var startDate = new Date();
             startDate.setDate(startDate.getDate() - 7);
-            redirectToProfitReport(0, startDate, endDate, experiment_YesNo);
+            redirectToProfitReport(labId, startDate, endDate, experiment_YesNo);
             $('#start_date').val(formatDateTime(startDate));
             $('#end_date').val(formatDateTime(endDate));
             console.log(startDate)
@@ -145,7 +165,7 @@ $(window).click(function(event) {
             startDate.setMonth(startDate.getMonth() - 1);
             $('#start_date').val(formatDateTime(startDate));
             $('#end_date').val(formatDateTime(endDate));
-            redirectToProfitReport(0, startDate, endDate, experiment_YesNo);
+            redirectToProfitReport(labId, startDate, endDate, experiment_YesNo);
         });
 
         $('#btn-3-months').click(function () {
@@ -154,7 +174,7 @@ $(window).click(function(event) {
             startDate.setMonth(startDate.getMonth() - 3);
             $('#start_date').val(formatDateTime(startDate));
             $('#end_date').val(formatDateTime(endDate));
-            redirectToProfitReport(0, startDate, endDate, experiment_YesNo);
+            redirectToProfitReport(labId, startDate, endDate, experiment_YesNo);
         });
 
         $('#btn-6-months').click(function () {
@@ -163,7 +183,7 @@ $(window).click(function(event) {
             startDate.setMonth(startDate.getMonth() - 6);
             $('#start_date').val(formatDateTime(startDate));
             $('#end_date').val(formatDateTime(endDate));
-            redirectToProfitReport(0, startDate, endDate, experiment_YesNo);
+            redirectToProfitReport(labId, startDate, endDate, experiment_YesNo);
         });
 
         $('#btn-1-year').click(function () {
@@ -172,11 +192,11 @@ $(window).click(function(event) {
             startDate.setFullYear(startDate.getFullYear() - 1);
             $('#start_date').val(formatDateTime(startDate));
             $('#end_date').val(formatDateTime(endDate));
-            redirectToProfitReport(0, startDate, endDate, experiment_YesNo);
+            redirectToProfitReport(labId, startDate, endDate, experiment_YesNo);
         });
 
         $('#btn-1-year-2').click(function () {
-            redirectToProfitReport(0, "","", experiment_YesNo);
+            redirectToProfitReport(labId, "","", experiment_YesNo);
         });
 
         $('#btn-kk').click(function () {
@@ -186,7 +206,7 @@ $(window).click(function(event) {
             startDate.setDate(1);
             $('#start_date').val(formatDateTime(startDate));
             $('#end_date').val(formatDateTime(endDate));
-            redirectToProfitReport(0, startDate, endDate, experiment_YesNo);
+            redirectToProfitReport(labId, startDate, endDate, experiment_YesNo);
         });
 
         function redirectToProfitReport(labId, startDate, endDate, experiment_YesNo) {
@@ -198,7 +218,7 @@ $(window).click(function(event) {
             }
             var formattedStartDate = formatDateTimeX(startDate);
             var formattedEndDate = formatDateTimeX(endDate);
-            url += '?startDate=' + formattedStartDate + '&endDate=' + formattedEndDate + '&experiment_YesNo=' + experiment_YesNo;
+            url += '?start_date=' + formattedStartDate + '&end_date=' + formattedEndDate + '&experiment_YesNo=' + experiment_YesNo;
             window.location.href = url;
         }
 
@@ -221,4 +241,26 @@ $(window).click(function(event) {
             return year + '-' + month + '-' + day + 'T' + hours + ':' + minutes;
         }
     });
+}
+
+/***************************************/
+
+function addEqui() {
+    var seriesElement = $('#chosseSeries');
+
+    // Thêm thuộc tính CSS để phóng to phần tử
+    seriesElement.css({
+        'transform': 'scale(1.2)',
+        'transition': 'transform 0.3s ease-in-out', // Thêm transition
+    });
+
+    // Xóa thuộc tính CSS sau 2 giây sử dụng setTimeout
+    setTimeout(function() {
+        seriesElement.css({
+            'transform': 'none',
+        });
+    }, 1000);
+
+    // Gọi sự kiện focus để mở danh sách các lựa chọn
+    seriesElement.focus();
 }

@@ -12,7 +12,23 @@
 <body>
 <!--<div th:replace="admin/headerAdmin :: header-admin"></div>-->
 <lab-rankings-score>
-    <h1 style="text-align: center" class="text-uppercase"> Bảng xếp hạng chấm điểm Phòng thí nghiệm </h1>
+    <h1 style="text-align: center" class="text-uppercase"> Bảng xếp hạng chấm điểm Phòng thí nghiệm
+        <a href="#"
+           class="col-3" onclick="event.preventDefault(); document.getElementById('download-form').submit();">
+            <img src="/images/download.png" alt="Tải xuống" style="max-width: 2%">
+        </a>
+    </h1>
+    <form id="download-form" th:action="'/Lab/admin/Export/LabRankings/'" method="get" style="display: none;">
+        <input type="hidden" name="username" th:value="${#authentication.name}" />
+        <input type="hidden" name="experiment_group" th:value="${experiment_group != null ? experiment_group : 0}" />
+        <input type="hidden" name="experiment_type" th:value="${experiment_type != null ? experiment_type : 0}" />
+        <input type="hidden" name="experiment_report" th:value="${experiment_report != null ? experiment_report : 0}" />
+        <input type="hidden" name="experiment_YesNo" th:value="${experiment_YesNo != null ? experiment_YesNo : false}" />
+        <input type="hidden" name="start_date" th:value="${start_date}" />
+        <input type="hidden" name="end_date" th:value="${end_date}" />
+        <input type="hidden" name="unsuccess" th:value="${unsuccess != null ? unsuccess : false}" />
+        <input type="hidden" name="success" th:value="${success != null ? success : false}" />
+    </form>
     <!--<h5 style="text-align: center" class="text-uppercase">Từ ngày [[${start_date}]] đến ngày [[${end_date}]]</h5>-->
     <h5 class="text-center font-weight-bold text-uppercase" th:text="'(Từ ngày ' + ${#strings.substring(start_date, 0, 10)} + ' đến ngày ' + ${#strings.substring(end_date, 0, 10)} + ')'"></h5>
     <br>

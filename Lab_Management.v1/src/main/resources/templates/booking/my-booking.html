@@ -37,10 +37,16 @@
                                        placeholder="Tìm kiếm theo tên phòng">
                             </div>
                             <div class="d-flex flex-column justify-content-center align-content-center">
-                                <button type="submit" style="margin: auto; border-radius: 2em"
-                                        value="Search" class="electio-ajax-search-btn-stl-one search-button">
-                                    <img src="/images/search-icon-1.png" style="max-width: 20em" alt="">
-                                </button>
+                                <div class="d-flex flex-row justify-content-center align-content-center bg-transparent"
+                                     style="border: unset; margin: unset; padding: unset; box-shadow: unset">
+                                    <button type="submit" style="margin: auto; border-radius: 2em"
+                                            value="Search" class="electio-ajax-search-btn-stl-one search-button">
+                                        <img src="/images/search-icon-1.png" style="max-width: 20em" alt="">
+                                    </button>
+                                    <a href="'#" class="col-3" onclick="event.preventDefault(); document.getElementById('download-form').submit();">
+                                        <img src="/images/download.png" alt="Tải xuống" class="img-fluid">
+                                    </a>
+                                </div>
                                 <div class="checkboxThree">
                                     <input type="checkbox" th:checked="${AndOr}" id="checkboxThreeInput" name="AndOr" />
                                     <label for="checkboxThreeInput"></label>
@@ -128,6 +134,15 @@
             </div>
         </div>
     </div>
+    <form id="download-form" th:action="'/Lab/Export/Teachers/myBooking'" method="get" style="display: none;">
+        <input type="hidden" name="username" th:value="${#authentication.name}" />
+        <input type="hidden" name="search" th:value="${search}" />
+        <input type="hidden" name="AndOr" th:value="${AndOr}" />
+        <input type="hidden" name="inputdatasearch" th:value="${inputdatasearch != null ? inputdatasearch : ''}" />
+        <input type="hidden" name="datetimepicker" th:value="${datetimepicker != null ? datetimepicker : '1970-01-01'}" />
+        <input type="hidden" name="unsuccess" th:value="${unsuccess != null ? unsuccess : false}" />
+        <input type="hidden" name="success" th:value="${success != null ? success : false}" />
+    </form>
     <div class="main-card m-3 card p-5" id="table-booking" style="display: none">
         <div class="card-body">
             <table style="width: 100%;" id="example" class="table table-hover table-striped table-bordered">

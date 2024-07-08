@@ -11,108 +11,7 @@
 </head>
 <body class="scroll-container">
 
-<!--<inventory-equi>&lt;!&ndash;<div th:replace="admin/templateAdmin.html :: header-admin"></div>&ndash;&gt;
-    <h1 style="margin-top: 50px; text-align: center;text-transform: uppercase;" th:text="'Danh sách thiết bị '"><span th:if="${#request.requestURI == '/Lab/admin/Equipment'}">Chưa được sử dụng</span> </h1>
-    <h1 style=" text-align: center; font-size: 2em" th:text="'Số lượng: ' + ${#lists.size(allEquipment)}"></h1>
-    <br>
-    <div class="row">
-        <div class="col-12 d-flex justify-content-center mb-5" sec:authorize="hasRole('ROLE_ADMIN')">
-            <a href="/Lab/admin/Equipment/add">
-                <button type="button" class="btn btn-primary font-bold font-size-xlg">Thêm Thiết bị</button>
-            </a>
-        </div>
-        <br>
-        &lt;!&ndash;<div class="col-6 d-flex justify-content-center mb-5">
-            <a href="/Lab/admin/ExportEquipments">
-                <button type="button" class="btn btn-primary font-bold font-size-xlg">Tài về danh sách</button>
-            </a>
-        </div>&ndash;&gt;
-    </div>
-
-
-    <div class="main-card mb-3 card">
-        <div class="card-body">
-            <table style="width: 100%;" id="example" class="table table-hover table-striped table-bordered">
-                <thead>
-                    <tr>
-                        <th>Tên máy</th>
-                        <th>Số lượng</th>
-                        <th>Máy qua sửa chữa</th>
-                        <th>Mô tả</th>
-                        <th>Thao tác</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr th:each="equi, iter : ${allEquipment}">
-                        <td th:text="${equi.getName}"></td>
-                        <td th:text="${#lists.size(equi.getEquipmentSerieList)}"></td>
-                        <td th:if="${#lists.size(equi.getEquipmentSerieFixedList) == 0}" class="d-flex justify-content-center align-content-center">
-                            <i class="fa fa-times text-danger"></i></td>
-                        <td th:unless="${#lists.size(equi.getEquipmentSerieFixedList) == 0}" class="d-flex justify-content-center align-content-center">
-                            <i class="fa fa-check text-success"></i></td>
-                        <td th:text="${equi.description}"></td>
-                        <td>
-                            <div class="d-flex" style="display: flex; justify-content: center; align-items: center;">
-                                <th:block th:if="${#request.requestURI == '/Lab/admin/Equipment'}">
-                                    <form th:action="@{'/Lab/admin/Equipment/showFormForUpdate/' + ${equi.getId}}" method="get">
-                                        <button type="submit" class="btn btn-info btn-sm mr-1">Chi tiết</button>
-                                    </form>
-                                    <form sec:authorize="hasRole('ROLE_ADMIN')"
-                                          th:action="@{'/Lab//admin/Equipment/delete/' + ${equi.getId}}" method="POST">
-                                        <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Bạn có chắc chắn muốn xóa?')">
-                                            Xóa
-                                        </button>
-                                    </form>
-                                </th:block>
-                                <th:block th:if="${#request.requestURI == '/Lab/admin/AllEquipment'}" sec:authorize="hasRole('ROLE_ADMIN')">
-                                    <form th:action="@{'/Lab/admin/AllEquipment/showAll/' + ${equi.getId}}" method="get">
-                                        <button type="submit" class="btn btn-info btn-sm mr-1">Chi tiết</button>
-                                    </form>
-                                </th:block>
-                                <th:block th:if="${#request.requestURI == '/Lab/admin/AllEquipment'}"  sec:authorize="hasRole('ROLE_MANAGER')">
-                                    <form th:action="@{'/Lab/admin/AllEquipment/showForManager/' + ${equi.getId}}" method="get">
-                                        <button type="submit" class="btn btn-info btn-sm mr-1">Chi tiết</button>
-                                    </form>
-                                </th:block>
-                            </div>
-                        </td>
-                    </tr>
-                </tbody>
-                <tfoot>
-                <tr>
-                    <th>Tên máy</th>
-                    <th>Số lượng</th>
-                    <th>Máy qua sửa chữa</th>
-                    <th>Mô tả</th>
-                    <th>Thao tác</th>
-                </tr>
-                </tfoot>
-            </table>
-        </div>
-    </div>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    &lt;!&ndash;Phải load jquery trước khi load bootstrap js&ndash;&gt;
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    <div style="margin: 20px">
-        &lt;!&ndash; Add a Logout button &ndash;&gt;
-        <form action="#" th:action="@{/logout}" method="POST">
-            <input type="submit" value="Logout" class="btn btn-outline-primary mt-2"/>
-        </form>
-        &lt;!&ndash;<div sec:authorize="isAuthenticated" style="color: red"> Authenticated as <span sec:authentication=""></span></div>&ndash;&gt;
-    </div>
-    &lt;!&ndash;CORE&ndash;&gt;
-    <script src="https://code.jquery.com/jquery-3.3.1.min.js"
-            integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.bundle.min.js"
-            crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/metismenu"></script>
-    <script th:src="@{/js/app.js}"></script>
-    <script th:src="@{/js/demo.js}"></script>
-</inventory-equi>-->
-
 <inventory-lab-readOnly>
-    <!--<div th:replace="admin/headerAdmin :: header-admin"></div>-->
     <style>p{margin: unset}</style>
     <h1 style="margin-top: 50px; text-align: center;text-transform: uppercase;">danh sách Kiểm kê</h1>
     <h1 style="text-align: center;text-transform: uppercase;">Phòng: <span class="font-weight-bold text-danger" th:text="${labDTO.getLabName}"></span></h1>
@@ -239,7 +138,18 @@
 
 <inventory-AllLab-readOnly>
     <h1 style="margin-top: 50px; text-align: center;" class="text-uppercase text-danger font-weight-bold">
-        Danh sách kiểm kê Trang bị năm [[${year}]]</h1>
+        Danh sách kiểm kê Trang bị năm [[${year}]]
+        <a href="#"
+           class="col-3" onclick="event.preventDefault(); document.getElementById('download-form').submit();">
+            <img src="/images/download.png" alt="Tải xuống" style="max-width: 2%">
+        </a>
+        <form id="download-form" th:action="'/Lab/admin/Export/AllshowinventoryEquipment/'" method="get" style="display: none;">
+            <input type="hidden" name="username" th:value="${#authentication.name}" />
+            <input type="hidden" name="managingUnitsCheck" th:value="${managingUnitsCheck != null ? managingUnitsCheck : false}" />
+            <input type="hidden" name="yearSelected" th:value="${year != null ? year : 0}" />
+            <input type="hidden" name="managingUnitId" th:value="${managingUnitId != null ? managingUnitId : 0}" />
+        </form>
+    </h1>
     <h2 style="text-align: center;" class="text-uppercase text-primary font-weight-bold"
         th:if="managingUnitsCheck">
         [[${managingUnitName}]]</h2>

@@ -11,6 +11,7 @@ public class LabsOnLineAndScore {
     private Lab lab;
     private Double score;
     private List<String> typeName;
+    private List<String> lessonName;
     private List<Integer> quantity;
     private Integer hour;
     private List<Double> scores;
@@ -20,21 +21,23 @@ public class LabsOnLineAndScore {
         this.score = score;
     }
 
-    public LabsOnLineAndScore(Lab lab, Double score, List<String> typeName, List<Integer> quantity, int hour, List<Double> scores) {
+    public LabsOnLineAndScore(Lab lab, Double score, List<String> typeName, List<Integer> quantity, int hour, List<Double> scores, List<String> lessonName) {
         this.lab = lab;
         this.score = score;
         this.typeName = typeName;
         this.quantity = quantity;
         this.hour = hour;
         this.scores = scores;
+        this.lessonName = lessonName;
     }
 
     public LabsOnLineAndScore() {
         this.score = new Double(0);
-        typeName = new ArrayList<>();
-        quantity = new ArrayList<>();
-        hour = new Integer(0);
-        scores = new ArrayList<>();
+        this.typeName = new ArrayList<>();
+        this.quantity = new ArrayList<>();
+        this.hour = new Integer(0);
+        this.scores = new ArrayList<>();
+        this.lessonName = new ArrayList<>();
     }
 
     @Override
@@ -46,6 +49,7 @@ public class LabsOnLineAndScore {
                 ", quantity=" + quantity +
                 ", hour=" + hour +
                 ", scores=" + scores +
+                ", lessonName=" + lessonName +
                 '}';
     }
 
@@ -107,4 +111,20 @@ public class LabsOnLineAndScore {
     public void setHour(Integer hour) {
         this.hour = hour;
     }
+
+    public List<String> getLessonName() {
+        return lessonName;
+    }
+
+    public void setLessonName(List<String> lessonName) {
+        this.lessonName = lessonName;
+    }
+
+    public void addLessonName(String lessonName) {
+        List<String> strings = this.getLessonName();
+        strings.add(lessonName);
+        this.setLessonName(strings);
+    }
+
+
 }

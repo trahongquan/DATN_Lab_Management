@@ -10,12 +10,18 @@
 <!--<div th:replace="admin/headerAdmin :: header-admin"></div>-->
 <div class="container">
     <manager>
-        <h1 style="margin-top: 50px; text-align: center;" th:text="'Danh sách cán bộ quản lý phòng thí nghiệm' "></h1>
+        <h1 class="text-center text-uppercase font-weight-bold mt-5">Danh sách cán bộ quản lý phòng thí nghiệm
+            <a href="/Lab/admin/Export/Managers" class="col-3">
+                <img src="/images/download.png" alt="Tải xuống" style="max-width: 2%">
+            </a>
+        </h1>
         <h1 style=" text-align: center; font-size: 2em" th:text="'Số lượng: ' + ${#lists.size(managerDTOS)}"></h1>
         <br>
-        <a href="/Lab/admin/Manager/add">
-            <button type="button" class="btn btn-primary font-bold font-size-xlg">Thêm người Quản lý</button>
-        </a>
+        <div class="d-flex justify-content-around align-content-center">
+            <a href="/Lab/admin/Manager/add">
+                <button type="button" class="btn btn-primary font-bold font-size-xlg">Thêm người Quản lý</button>
+            </a>
+        </div>
         <br>
         <div class="main-card mb-3 card">
             <div class="card-body">

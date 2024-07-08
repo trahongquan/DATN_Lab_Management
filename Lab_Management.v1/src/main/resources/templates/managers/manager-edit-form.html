@@ -19,7 +19,11 @@
 <!--<div th:replace="admin/headerAdmin :: header-admin"></div>-->
 <manager-edit-form>
     <div class="container">
-        <h2>Thông tin cán bộ quản lý </h2>
+        <h1 class="text-center font-weight-bold text-uppercase">Thông tin cán bộ quản lý
+            <a th:href="'/Lab/admin/Export/Managers/'+${manager.getId}" class="col-3">
+                <img src="/images/download.png" alt="Tải xuống" style="max-width: 2%">
+            </a>
+        </h1>
         <br>
         <br>
         <form th:object="${manager}" th:action="'/Lab/admin/Manager/showFormForUpdate/' + ${manager.getId}" method="POST">
@@ -32,14 +36,14 @@
                     <div class="form-group">
                         <label for="rank">Cấp bậc:</label>
                         <select class="form-control" id="rank" name="rank" required>
-                            <option value="Thiếu úy">Thiếu úy</option>
-                            <option value="Trung úy">Trung úy</option>
-                            <option value="Thượng úy">Thượng úy</option>
-                            <option value="Đại úy">Đại úy</option>
-                            <option value="Thiếu tá">Thiếu tá</option>
-                            <option value="Trung tá">Trung tá</option>
-                            <option value="Thượng tá">Thượng tá</option>
-                            <option value="Đại tá">Đại tá</option>
+                            <option value="Thiếu úy" th:selected="${manager.getRank == 'Thiếu úy'}">Thiếu úy</option>
+                            <option value="Trung úy" th:selected="${manager.getRank == 'Trung úy'}">Trung úy</option>
+                            <option value="Thượng úy" th:selected="${manager.getRank == 'Thượng úy'}">Thượng úy</option>
+                            <option value="Đại úy" th:selected="${manager.getRank == 'Đại úy'}">Đại úy</option>
+                            <option value="Thiếu tá" th:selected="${manager.getRank == 'Thiếu tá'}">Thiếu tá</option>
+                            <option value="Trung tá" th:selected="${manager.getRank == 'Trung tá'}">Trung tá</option>
+                            <option value="Thượng tá" th:selected="${manager.getRank == 'Thượng tá'}">Thượng tá</option>
+                            <option value="Đại tá" th:selected="${manager.getRank == 'Đại tá'}">Đại tá</option>
                         </select>
                     </div>
                     <div class="form-group">
@@ -70,35 +74,53 @@
                         <label for="authority">Quyền đăng nhập:</label>
                         <select class="form-control" id="authority" name="authority" required>
                             <th:block th:each="role : ${roles}">
-                                <option th:value="${role.role}">[[${role.role}]]</option>
+                                <option th:value="${role.role}" th:selected="${manager.getAuthority.getAuthority == role.role}">[[${role.role}]]</option>
                             </th:block>
                         </select>
                     </div>
 
                 </div>
             </div>
-            <button type="submit" class="btn btn-primary">Sửa Thông tin</button>
+            <div class="d-flex justify-content-center align-content-center">
+                <button type="submit" class="btn btn-primary">Sửa Thông tin</button>
+            </div>
         </form>
     </div>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> <!--Phải load jquery trước khi load bootstrap js-->
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    <script th:inline="javascript">
-        $(document).ready(function() {
-            var managerAuthority = [[${manager.getAuthority.getAuthority}]];
-            $('#authority option').each(function() {
-                if ($(this).val() === managerAuthority) {
-                    $(this).prop('selected', true);
-                }
-            });
-            var rank = [[${manager.getRank}]]
-            $('#rank option').each(function() {
-                if ($(this).val() === rank) {
-                    $(this).prop('selected', true);
-                }
-            });
-        });
-    </script>
+    <br>
+    <br>
+    <h2 class="text-center font-weight-bold text-uppercase" >Danh sách các phòng thí nghiệm cho tài khoản này quản lý</h2>
+    <br>
+    <div class="main-card mb-3 card">
+        <div class="card-body">
+            <table style="width: 100%;" id="popup-example" class="table table-hover table-striped table-bordered">
+                <thead>
+                <tr>
+                    <th>STT</th>
+                    <th>Tên PTN</th>
+                    <th>Vị trí</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="lab, iter : ${labs}">
+                    <td th:text="${iter.index+1}"></td>
+                    <td>
+                        <a th:href="'/Lab/admin/room/showFormForUpdate/'+${lab.id}">
+                            <span class="text-primary font-weight-bold" th:text="${lab.labName}"></span>
+                        </a>
+                    </td>
+                    <td th:text="${lab.location}"></td>
+                </tbody>
+                <tfoot>
+                <tr>
+                    <th>STT</th>
+                    <th>Tên PTN</th>
+                    <th>Vị trí</th>
+                </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+
 </manager-edit-form>
 </body>
 </html>

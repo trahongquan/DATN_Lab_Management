@@ -19,7 +19,11 @@
 <!--<div th:replace="admin/headerAdmin :: header-admin"></div>-->
 <teacher-edit-form>
     <div class="container">
-        <h2>Thông tin giáo viên</h2>
+        <h1 class="text-center text-uppercase font-weight-bold mt-5">Thông tin giáo viên
+            <a th:href="'/Lab/admin/Export/Teachers/'+ ${manager.getId}" class="col-3">
+                <img src="/images/download.png" alt="Tải xuống" style="max-width: 2%">
+            </a>
+        </h1>
         <br>
         <br>
         <form th:object="${manager}" th:action="'/Lab/admin/Teacher/showFormForUpdate/' + ${manager.getId}" method="POST">
@@ -79,6 +83,91 @@
             </div>
             <button type="submit" class="btn btn-primary">Sửa Thông tin</button>
         </form>
+
+        <br>
+        <br>
+        <h2 class="text-center font-weight-bold text-uppercase" >Danh sách các đơn đặt phòng</h2>
+        <br>
+        <div class="main-card m-3 card p-5" id="table-booking">
+            <div class="card-body">
+                <table style="width: 100%;" id="example" class="table table-hover table-striped table-bordered">
+                    <thead>
+                    <tr>
+                        <th>STT</th>
+                        <th>Tên phòng</th>
+                        <th>Loại sản phẩm</th>
+                        <th>Tên lớp</th>
+                        <th>Ngày đặt</th>
+                        <th>Trạng thái</th>
+                        <th>Thao tác</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="booking, iter : ${bookingDTOs}">
+                        <td th:text="${iter.index + 1}"></td>
+                        <td th:text="${booking.lab.labName}"></td>
+                        <td style="max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                            <span class="lab-info text-primary" th:text="${booking.experimentReport.reportType} +': '"> </span>
+                            <span class="lab-info" th:text="${booking.content.name}"></span>
+                        </td>
+                        <td>
+                            <span class="lab-info text-primary"> Tên lớp: </span>
+                            <span class="lab-info" th:text="${booking.content.className}"></span>
+                        </td>
+                        <td>
+                            <div class="date-info" th:value="${booking.confirm_Status}">
+                                <!--<span class="lab-info"> Ngày đặt: </span>-->
+                                <span class="lab-info strong" th:text="${booking.booking_Date}"></span>
+                            </div>
+                        </td>
+                        <td th:if="${#strings.contains(#request.requestURI, '/Lab/admin/LabBookingManagement/WaitComfirmUsed')}">
+                            <div class="date-info">
+                                <span class="lab-info strong" th:text="${booking.comfirmUsed}"></span>
+                            </div>
+                        </td>
+                        <td>
+                            <form th:action="@{'/Lab/admin/LabBookingManagement/ComfirmUsed'}" method="get" class="m-2"
+                                  th:if="${booking.comfirmUsed == 'Chưa sử dụng'}">
+                                <input type="hidden" name="bookingId" th:value="${booking.getId}">
+                                <input type="hidden" name="username" th:value="${#authentication.name}">
+                                <button type="submit" class="btn btn-danger mx-2" onclick="return confirm('Bạn có chắc chắn muốn HỦY không?')">Hủy</button>
+                            </form>
+                            <div class="d-flex justify-content-center align-content-center flex-column">
+                                <span class="text-success font-weight-bold" th:if="${booking.comfirmUsed == 'Đã sử dụng'}"> Đã sử dụng </span>
+                                <a class="font-weight-bold" th:href="'/Lab/myBookingDetail/ComfirmUsed/download/'+${booking.getId}"
+                                   th:if="${booking.comfirmUsed == 'Đã sử dụng'}"> <span>Tải xuống báo cáo</span></a>
+                            </div>
+                            <span class="text-danger font-weight-bold" th:if="${booking.comfirmUsed == 'Đã hủy'}"> Bạn Đã xác nhận <br> hủy phòng</span>
+                        </td>
+                        <td>
+                            <div class="d-flex justify-content-center align-content-center flex-row p-2">
+                                <button th:data="${booking.id}" th:data-user="${#authentication.name}"
+                                        th:if="${booking.comfirmUsed!='Chưa sử dụng'}"
+                                        type="button" class="btn btn-primary btn-detail-booking" style="border: black thin;">Xem chi tiết
+                                </button>
+                                <button th:data="${booking.id}" th:data-user="${#authentication.name}"
+                                        th:if="${booking.comfirmUsed=='Chưa sử dụng'}"
+                                        type="button" class="btn btn-warning btn-detail-booking" style="border: black thin;">Vào xác nhận
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    </tbody>
+                    <tfoot>
+                    <tr>
+                        <th>STT</th>
+                        <th>Tên phòng</th>
+                        <th>Loại sản phẩm</th>
+                        <th>Tên lớp</th>
+                        <th>Ngày đặt</th>
+                        <th>Trạng thái</th>
+                        <th>Thao tác</th>
+                    </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+
     </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> <!--Phải load jquery trước khi load bootstrap js-->
@@ -99,6 +188,7 @@
             });
         });
     </script>
+    <script src="/js/my-booking.js"></script>
 </teacher-edit-form>
 </body>
 </html>

@@ -12,7 +12,11 @@
 <body>
 <!--<div th:replace="admin/headerAdmin :: header-admin"></div>-->
 <role>
-    <h1 style="text-align: center"> Danh mục quyền</h1>
+    <h1 style="text-align: center"> Danh mục quyền
+        <a th:href="'/Lab/admin/Export/Roles?username='+${#authentication.name}" >
+            <img src="/images/download.png" alt="Tải xuống" style="max-width: 2%" >
+        </a>
+    </h1>
     <!--<div th:replace="admin/add-nocite.html :: notice"></div>-->
     <div class="form-group" style="display: flex ; justify-content: space-around">
         <form th:action="@{'/Lab/admin/Role/delete'}" method="post">

@@ -10,16 +10,22 @@
 <!--<div th:replace="admin/headerAdmin :: header-admin"></div>-->
 <div class="container">
     <teacher>
-        <h1 style="margin-top: 50px; text-align: center;"
-            th:if="${#request.requestURI == '/Lab/admin/Teacher'}"
-            th:text="'Danh sách giáo viên' "></h1>
-        <h1 style="margin-top: 50px; text-align: center;"
+        <h1 class="text-center text-uppercase font-weight-bold mt-5"
+            th:if="${#request.requestURI == '/Lab/admin/Teacher'}" >Danh sách giáo viên
+            <a href="/Lab/admin/Export/Teachers" class="col-3">
+                <img src="/images/download.png" alt="Tải xuống" style="max-width: 2%">
+            </a>
+        </h1>
+        <h1 class="text-center text-uppercase font-weight-bold mt-5"
             th:if="${#request.requestURI == '/Lab/admin/UserWait'}"
             th:text="'Danh sách giáo viên đăng kí' "></h1>
         <h1 style=" text-align: center; font-size: 2em" th:text="'Số lượng: ' + ${#lists.size(teacherDTOS)}"></h1>
-        <a href="/Lab/admin/Teacher/add" sec:authorize="hasRole('ROLE_ADMIN')">
-            <button type="button" class="btn btn-primary font-bold font-size-xlg">Thêm giáo viên</button>
-        </a>
+        <div class="d-flex justify-content-center align-content-center">
+            <a href="/Lab/admin/Teacher/add" sec:authorize="hasRole('ROLE_ADMIN')">
+                <button type="button" class="btn btn-primary font-bold font-size-xlg">Thêm giáo viên</button>
+            </a>
+        </div>
+        <br>
         <div class="main-card mb-3 card">
             <div class="card-body">
                 <table style="width: 100%;" id="example" class="table table-hover table-striped table-bordered">

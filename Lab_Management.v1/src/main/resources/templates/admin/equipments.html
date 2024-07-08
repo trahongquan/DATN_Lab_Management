@@ -12,7 +12,12 @@
 <body class="scroll-container">
 
 <equipment><!--<div th:replace="admin/templateAdmin.html :: header-admin"></div>-->
-    <h1 style="margin-top: 50px; text-align: center;text-transform: uppercase;" th:text="'Danh sách thiết bị '"><span th:if="${#request.requestURI == '/Lab/admin/Equipment'}">Chưa được sử dụng</span> </h1>
+    <h1 style="margin-top: 50px; text-align: center;text-transform: uppercase;" > Danh sách thiết bị
+        <span th:if="${#request.requestURI == '/Lab/admin/Equipment'}">Chưa được sử dụng</span>
+        <a th:href="'/Lab/admin/Export/EquipmentAll?username='+${#authentication.name}" >
+            <img src="/images/download.png" alt="Tải xuống" style="max-width: 2%" >
+        </a>
+    </h1>
     <h1 style=" text-align: center; font-size: 2em" th:text="'Số lượng: ' + ${#lists.size(allEquipment)}"></h1>
     <br>
     <div class="row">
@@ -54,23 +59,25 @@
                         <td>
                             <div class="d-flex" style="display: flex; justify-content: center; align-items: center;">
                                 <th:block th:if="${#request.requestURI == '/Lab/admin/Equipment'}">
-                                    <form th:action="@{'/Lab/admin/Equipment/showFormForUpdate/' + ${equi.getId}}" method="get">
+                                    <form th:action="@{'/Lab/admin/Equipment/showFormForUpdate/' + ${equi.getId}}" method="get" target="_blank">
                                         <button type="submit" class="btn btn-info btn-sm mr-1">Chi tiết</button>
                                     </form>
                                     <form sec:authorize="hasRole('ROLE_ADMIN')"
-                                          th:action="@{'/Lab//admin/Equipment/delete/' + ${equi.getId}}" method="POST">
+                                          th:action="@{'/Lab/admin/Equipment/delete/' + ${equi.getId}}" method="POST">
                                         <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Bạn có chắc chắn muốn xóa?')">
                                             Xóa
                                         </button>
                                     </form>
                                 </th:block>
                                 <th:block th:if="${#request.requestURI == '/Lab/admin/AllEquipment'}" sec:authorize="hasRole('ROLE_ADMIN')">
-                                    <form th:action="@{'/Lab/admin/AllEquipment/showAll/' + ${equi.getId}}" method="get">
+                                    <form th:action="@{'/Lab/admin/AllEquipment/showAll/' + ${equi.getId}}" method="get" target="_blank">
+                                        <input type="hidden" name="username" th:value="${#authentication.name}">
                                         <button type="submit" class="btn btn-info btn-sm mr-1">Chi tiết</button>
                                     </form>
                                 </th:block>
                                 <th:block th:if="${#request.requestURI == '/Lab/admin/AllEquipment'}"  sec:authorize="hasRole('ROLE_MANAGER')">
-                                    <form th:action="@{'/Lab/admin/AllEquipment/showForManager/' + ${equi.getId}}" method="get">
+                                    <form th:action="@{'/Lab/admin/AllEquipment/showForManager/' + ${equi.getId}}" method="get" target="_blank">
+                                        <input type="hidden" name="username" th:value="${#authentication.name}">
                                         <button type="submit" class="btn btn-info btn-sm mr-1">Chi tiết</button>
                                     </form>
                                 </th:block>

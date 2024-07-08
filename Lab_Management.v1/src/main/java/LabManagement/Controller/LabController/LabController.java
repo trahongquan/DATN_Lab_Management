@@ -2,11 +2,11 @@ package LabManagement.Controller.LabController;
 
 import LabManagement.ClassSuport.*;
 import LabManagement.ClassSuport.Comparator;
+import LabManagement.ClassSuport.EquidLevel.AllEquipment_ReadOnly;
 import LabManagement.ClassSuport.EquidLevel.EquidAndLevel;
 import LabManagement.dao.*;
 import LabManagement.dto.*;
-import LabManagement.dtoExport.BookingDtoExport;
-import LabManagement.dtoExport.LabDtoExport;
+import LabManagement.dtoExport.*;
 import LabManagement.entity.*;
 import LabManagement.service.BookingService.BookingService;
 import LabManagement.service.InventoryEquipmentService.InventoryEquipmentService;
@@ -31,10 +31,8 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 //import com.sun.rowset.internal.Row;
 import org.apache.commons.io.output.ByteArrayOutputStream;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -55,6 +53,7 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.security.Principal;
 import java.sql.Date;
@@ -383,10 +382,10 @@ public class LabController {
                             @RequestParam(value = "inputdatasearch", defaultValue = "NoSearch") String inputdatasearch,
                             @RequestParam(value = "datetimepicker", defaultValue = "1970-01-01") Date datetimepicker,
                             @RequestParam(value = "success", defaultValue = "false") boolean success,
-                            @RequestParam(value = "unsuccess", defaultValue = "false") boolean unsuccess){
+                            @RequestParam(value = "unsuccess", defaultValue = "false") boolean unsuccess,
+                            ArrayList<BookingDTO> bookingDTOs ){
         People teacher = GetPeopleByUsername(username);
         List<Content> contents = contentService.findAllByReservationistId(teacher.getId());
-        List<BookingDTO> bookingDTOs = new ArrayList<>();
         contents.forEach(content -> {
             Booking booking = bookingService.findByContent_id(content.getId());
             Lab lab = labService.findByLabId(booking.getLabid());
@@ -419,10 +418,59 @@ public class LabController {
         Collections.sort(bookingDTOs, new BookingDateComparator());
 
         model.addAttribute("AndOr", AndOr);
+        model.addAttribute("search", search);
         model.addAttribute("bookingDTOs", bookingDTOs);
         model.addAttribute("success", success);
         model.addAttribute("unsuccess", unsuccess);
         return "booking/my-booking";
+    }
+
+    private ArrayList<BookingDTO> GetMyBooking(String username, boolean search, boolean AndOr, String inputdatasearch,
+                                           Date datetimepicker, boolean success, boolean unsuccess){
+        Model model = new Model() {
+            @Override
+            public Model addAttribute(String attributeName, Object attributeValue) {
+                return null;
+            }
+
+            @Override
+            public Model addAttribute(Object attributeValue) {
+                return null;
+            }
+
+            @Override
+            public Model addAllAttributes(Collection<?> attributeValues) {
+                return null;
+            }
+
+            @Override
+            public Model addAllAttributes(Map<String, ?> attributes) {
+                return null;
+            }
+
+            @Override
+            public Model mergeAttributes(Map<String, ?> attributes) {
+                return null;
+            }
+
+            @Override
+            public boolean containsAttribute(String attributeName) {
+                return false;
+            }
+
+            @Override
+            public Object getAttribute(String attributeName) {
+                return null;
+            }
+
+            @Override
+            public Map<String, Object> asMap() {
+                return null;
+            }
+        };
+        ArrayList<BookingDTO> bookingDTOs = new ArrayList<>();
+        myBooking(model, username, search, AndOr, inputdatasearch, datetimepicker,success, unsuccess, bookingDTOs);
+        return bookingDTOs;
     }
 
     @GetMapping({"/myAccount/{username}"})
@@ -662,7 +710,10 @@ public class LabController {
                     if(score.getExperimentTypeId()==content.getExperimentType() && score.getExperimentReportId()==content.getExperimentReport()){
                         /** Mỗi lần tìm thấy thì cộng vào tổng điểm score */
                         if(experimentReportService.getExperimentReportById(score.getExperimentReportId()).getReportType().equals("Giờ khai thác")){
-//                            labsOnLineAndScore.setScore(labsOnLineAndScore.getScore() + (double) score.getScore()*booking.getWork_times());
+                            if(content.getLesson()!=0) {
+                                String lessonName = lessonService.getLessonById(content.getLesson()).getName();
+                                if(!labsOnLineAndScore.getLessonName().contains(lessonName)) labsOnLineAndScore.addLessonName(lessonName);
+                            }
                             labsOnLineAndScore.setScore(labsOnLineAndScore.getScore() + (double) booking.getWork_times()/15);
                             labsOnLineAndScore.setHour(labsOnLineAndScore.getHour() +  booking.getWork_times());
                         } else {labsOnLineAndScore.setScore(labsOnLineAndScore.getScore() + score.getScore());}
@@ -821,6 +872,7 @@ public class LabController {
         }
         return -1;
     }
+
     @PostMapping("/admin/Room/add")
     public String submitForm(@RequestParam("username") String username,
                              @RequestParam("LabName") String LabName,
@@ -877,7 +929,7 @@ public class LabController {
     }
 
     @GetMapping("/admin/room/showFormForUpdate/{id}")
-    public String RoomDetail(Model model, @PathVariable(value = "id") int id,
+    public String RoomDetail(Model model, @PathVariable(value = "id") int labId,
                              @RequestParam(value = "experiment_group", defaultValue = "0") int experiment_group,
                              @RequestParam(value = "experiment_type", defaultValue = "0") int experiment_type,
                              @RequestParam(value = "experiment_report", defaultValue = "0") int experiment_report,
@@ -886,10 +938,10 @@ public class LabController {
                              @RequestParam(value = "end_date", defaultValue = "") String endDate,
                              @RequestParam(value = "unsuccess", defaultValue = "false") boolean unsuccess,
                              @RequestParam(value = "success", defaultValue = "false") boolean success) {
-        Lab lab = labService.findByLabId(id);
+        Lab lab = labService.findByLabId(labId);
         LabDTO labDTO = Lab2LabDTO(lab);
         List<People> Managers = peopleService.getAllPeople().stream().filter(people -> CheckRole(people,RoleSystem.ROLE_MANAGER)/*||CheckRole(people,"ROLE_ADMIN")*/).collect(Collectors.toList());
-        List<EquipmentLabDTO> equipmentLabDTOs = EquiLabs2EquiLabDTOs(equipmentLabService.findAllByLabId(id));
+        List<EquipmentLabDTO> equipmentLabDTOs = EquiLabs2EquiLabDTOs(equipmentLabService.findAllByLabId(labId));
         List<String> usedSeries = GetUsedSeriesOfEquipmentLabs();
         List<ManagingUnit> managingUnits = managingUnitService.getAllManagingUnits();
         List<EquipmentDTO> equipmentDTOS =  GetEquisDTO_SeriNoUsed(usedSeries);
@@ -907,9 +959,8 @@ public class LabController {
         List<LabsOnLineAndScore> labsOnLineAndScores = GetLabsOnLineAndScore(labsOnLineAndScoresX, model, experiment_group, experiment_type, experiment_report,
                                 experiment_YesNo, startDate.split("T")[0], endDate.split("T")[0], success, unsuccess);
         for (LabsOnLineAndScore labsOnLineAndScore : labsOnLineAndScores) {
-            if(labsOnLineAndScore.getLab().getId()==id){
+            if(labsOnLineAndScore.getLab().getId()==labId){
                 model.addAttribute("labsOnLineAndScore", labsOnLineAndScore);
-                System.out.println(labsOnLineAndScore);
             }
         }
         return template;
@@ -1000,7 +1051,6 @@ public class LabController {
             for (EquipmentLab equipmentLab : allEquipmentLab) {
                 for (Equipment equipment : allEquipment) {
                     if (equipmentLab.getEquipmentId() == equipment.getId()) {
-
                         List<String> equipListSeri = equipment.getSeriesAsList();
                         for (String seriLab : equipmentLab.getEquipmentSerieList()) equipListSeri.add(seriLab);
                         equipment.setEquipmentSeries(equipListSeri.toString());
@@ -1008,6 +1058,10 @@ public class LabController {
                         List<String> equipListLevel = equipment.getLevelList();
                         for (String levelLab : equipmentLab.getLevelList()) equipListLevel.add(levelLab);
                         equipment.setLevelList(equipListLevel.toString());
+
+                        List<String> equipListUsing = equipment.getUsingList();
+                        for (String usingLab : equipmentLab.getUsingList()) equipListUsing.add(usingLab);
+                        equipment.setUsing(equipListUsing.toString());
                     }
                 }
             }
@@ -1091,58 +1145,39 @@ public class LabController {
     }
 
     @GetMapping("/admin/AllEquipment/showAll/{id}")
-    public String AllEquipmentDetail(Model model, @PathVariable(value = "id") int id) {
-        Equipment equipment = equipmentService.findByEquipmentId(id);
-        List<String> series = equipment.getSeriesAsList();
-        List<String> levels = equipment.getLevelList();
-        List<String> usings = equipment.getUsingList();
-        List<EquipmentLab> equipmentLabs = equipmentLabService.findAllByEquipmentId(id);
-
-        List<String> LabNames = new ArrayList<>();
-        List<Integer> LabId = new ArrayList<>();
-
-        for (String seri : series) {
-            LabNames.add(""); LabId.add(0);
-        }
-        for (EquipmentLab equipmentLab : equipmentLabs) {
-            for (String seriLab : equipmentLab.getEquipmentSerieList()) {
-                Lab lab = labService.findByLabId(equipmentLab.getLabId());
-                series.add(seriLab);
-                LabNames.add(lab.getLabName());
-                LabId.add(lab.getId());
-            }
-            for (String levelLab : equipmentLab.getLevelList()) {
-                levels.add(levelLab);
-            }
-            for (String usingLab : equipmentLab.getUsingList()) {
-                usings.add(usingLab);
-            }
-        }
-        equipment.setSeries(series.toString());
-        equipment.setLevelList(levels.toString());
-        equipment.setUsing(usings.toString());
+    public String AllEquipmentDetail(Model model, @PathVariable(value = "id") int id,
+                                     @RequestParam("username") String username) {
+        AllEquipment_ReadOnly allEquipment_readOnly = GetAllEquipment_ReadOnly(id, username);
 
         List<Unit> units = unitService.getAllUnits();
 
         model.addAttribute("units", units);
-        model.addAttribute("equipment", equipment);
-        model.addAttribute("LabIds", LabId);
-        model.addAttribute("LabNames", LabNames);
+        model.addAttribute("equipment", allEquipment_readOnly.getEquipment());
+        model.addAttribute("LabIds", allEquipment_readOnly.getLabId());
+        model.addAttribute("LabNames", allEquipment_readOnly.getLabNames());
         model.addAttribute("title", "Thông tin chi tiết thiết bị");
         return template;
     }
-
-    @GetMapping("/admin/AllEquipment/showForManager/{id}")
-    public String AllEquipmentshowForManagerDetail(Model model, @PathVariable(value = "id") int id) {
-        Equipment equipment = equipmentService.findByEquipmentId(id);
+    private AllEquipment_ReadOnly GetAllEquipment_ReadOnly(int equipId, String username){
+        People people = GetPeopleByUsername(username);
+        boolean isAdmin = CheckRole(people, RoleSystem.ROLE_ADMIN);
+        Equipment equipment = equipmentService.findByEquipmentId(equipId);
         List<String> series = new ArrayList<>();
         List<String> levels = new ArrayList<>();
         List<String> usings = new ArrayList<>();
-        List<EquipmentLab> equipmentLabs = equipmentLabService.findAllByEquipmentId(id);
 
         List<String> LabNames = new ArrayList<>();
         List<Integer> LabId = new ArrayList<>();
+        if(isAdmin){
+            series = equipment.getSeriesAsList();
+            levels = equipment.getLevelList();
+            usings = equipment.getUsingList();
+            for (String seri : series) {
+                LabNames.add(""); LabId.add(0);
+            }
+        }
 
+        List<EquipmentLab> equipmentLabs = equipmentLabService.findAllByEquipmentId(equipId);
         for (EquipmentLab equipmentLab : equipmentLabs) {
             for (int i = 0; i < equipmentLab.getLevelList().size(); i++) {
                 series.add(equipmentLab.getEquipmentSerieList().get(i));
@@ -1157,13 +1192,23 @@ public class LabController {
         equipment.setLevelList(levels.toString());
         equipment.setUsingList(usings.toString());
 
-        model.addAttribute("equipment", equipment);
-        model.addAttribute("LabNames", LabNames);
-        model.addAttribute("LabIds", LabId);
+        return new AllEquipment_ReadOnly(equipment, LabNames, LabId);
+    }
+
+    @GetMapping("/admin/AllEquipment/showForManager/{id}")
+    public String AllEquipmentshowForManagerDetail(Model model, @PathVariable(value = "id") int id,
+                                                   @RequestParam("username") String username) {
+        AllEquipment_ReadOnly allEquipment_readOnly = GetAllEquipment_ReadOnly(id, username);
+
+        List<Unit> units = unitService.getAllUnits();
+
+        model.addAttribute("equipment", allEquipment_readOnly.getEquipment());
+        model.addAttribute("units", units);
+        model.addAttribute("LabNames", allEquipment_readOnly.getLabNames());
+        model.addAttribute("LabIds", allEquipment_readOnly.getLabId());
         model.addAttribute("title", "Thông tin chi tiết thiết bị");
         return template;
     }
-
 
 
     @PostMapping("/admin/Equipment/showFormForUpdate/{id}")
@@ -1219,7 +1264,7 @@ public class LabController {
         List<People> managers = peopleService.getAllPeople()
                 .stream()
                 .filter(people -> {
-                    return people.getIsDelete()==0 && !CheckRole(people, RoleSystem.ROLE_TEACHER);
+                    return people.getIsDelete()==0 && (CheckRole(people, RoleSystem.ROLE_ADMIN) || CheckRole(people, RoleSystem.ROLE_MANAGER));
                 })
                 .collect(Collectors.toList());
         List<PeopleDTO> managerDTOS = Peoples2PeopleDTOs(managers);
@@ -1256,6 +1301,9 @@ public class LabController {
 
     @GetMapping("/admin/Manager/showFormForUpdate/{id}")
     public String ManagerDetail(Model model, @PathVariable(value = "id") int id) {
+        List<Lab> labs = labService.findAllByLabManagemetId(id).stream().filter(l -> l.getIsDelete()==0).collect(Collectors.toList());
+        model.addAttribute("labs", labs);
+
         List<Roles> roles = roleService.getAllRoles();
         model.addAttribute("roles", roles);
         People manager = peopleService.findByPeopleId(id);
@@ -1364,6 +1412,17 @@ public class LabController {
         ManagerDetail(model,id);
         List<Roles> roles = GetRolesNomal();
         model.addAttribute("roles", roles);
+
+        List<Content> contents = contentService.findAllByReservationistId(id);
+        List<BookingDTO> bookingDTOs = new ArrayList<>();
+        contents.forEach(content -> {
+            Booking booking = bookingService.findByContent_id(content.getId());
+            ExperimentReport experimentReport = experimentReportService.getExperimentReportById(content.getExperimentReport());
+            Lab lab = labService.findByLabId(booking.getLabid());
+            bookingDTOs.add(new BookingDTO(booking,content,lab,experimentReport));
+        });
+        model.addAttribute("bookingDTOs", bookingDTOs);
+
         return template;
     }
 
@@ -1520,6 +1579,9 @@ public class LabController {
     public String Role(Model model, @PathVariable("username") String username,
                        @RequestParam(value = "changedPassfalse", defaultValue = "false") boolean changedPassfalse,
                        @RequestParam(value = "success", defaultValue = "false") boolean success){
+        List<Lab> labs = labService.findAllByLabManagemetId(GetPeopleIdByUsername(username)).stream().filter(l -> l.getIsDelete()==0).collect(Collectors.toList());
+        model.addAttribute("labs", labs);
+
         Users user = userService.findByUsername(username);
         People people = peopleService.findByPeopleId(user.getPeopleid());
         model.addAttribute("peopleDTO",People2PeopleDTO(people) );
@@ -2226,8 +2288,8 @@ public class LabController {
                               @RequestParam(value = "experiment_type", defaultValue = "0") int experiment_type,
                               @RequestParam(value = "experiment_report", defaultValue = "0") int experiment_report,
                               @RequestParam(value = "experiment_YesNo", defaultValue = "false") boolean experiment_YesNo,
-                              @RequestParam(value = "startDate", defaultValue = "") String startDate,
-                              @RequestParam(value = "endDate", defaultValue = "") String endDate,
+                              @RequestParam(value = "start_date", defaultValue = "") String startDate,
+                              @RequestParam(value = "end_date", defaultValue = "") String endDate,
                               @RequestParam(value = "success", defaultValue = "false") boolean success,
                               @RequestParam(value = "unsuccess", defaultValue = "false") boolean unsuccess){
         List<LabsOnLineAndScore> labsOnLineAndScores = new ArrayList<>();
@@ -2546,7 +2608,6 @@ public class LabController {
 
         int year = LocalDate.now().getYear();
         if(yearSelected!=0) year = yearSelected;
-
         /*Lấy ra list years của các năm (kể cả nhưng năm mà phòng ko có danh sách)*/
         List<Integer> sortedUniqueYears = GetSortedUniqueYears_InventoryLab();
 
@@ -2593,6 +2654,7 @@ public class LabController {
         model.addAttribute("sortedUniqueYears", sortedUniqueYears);
         model.addAttribute("year", year);
         model.addAttribute("departmentName", departmentName);
+        model.addAttribute("managingUnitId", managingUnitId);
         model.addAttribute("success", success);
         model.addAttribute("managingUnitsCheck", managingUnitsCheck);
 
@@ -2686,13 +2748,14 @@ public class LabController {
 
 
     @GetMapping({"/admin/Showinventory/Equipment"})
-    public String Equipment(Model model,
-                            @RequestParam(value = "managingUnitsCheck", defaultValue = "false") boolean managingUnitsCheck,
-                            @RequestParam(value = "yearSelected", defaultValue = "0") int yearSelected,
-                            @RequestParam(value = "managingUnitId", defaultValue = "0") int managingUnitId,
-                            @RequestParam("username") String username,
-                            @RequestParam(value = "success", defaultValue = "false") boolean success,
-                            @RequestParam(value = "unsuccess", defaultValue = "false") boolean unsuccess){
+    public String ShowinventoryEquipment(Model model,
+                                         @RequestParam(value = "managingUnitsCheck", defaultValue = "false") boolean managingUnitsCheck,
+                                         @RequestParam(value = "yearSelected", defaultValue = "0") int yearSelected,
+                                         @RequestParam(value = "managingUnitId", defaultValue = "0") int managingUnitId,
+                                         @RequestParam("username") String username,
+                                         @RequestParam(value = "success", defaultValue = "false") boolean success,
+                                         @RequestParam(value = "unsuccess", defaultValue = "false") boolean unsuccess,
+                                         InventoryResult inventoryResult){
 
         /** Giống phần kiểm kê all lab */
         /*Lấy ra list years của các năm (kể cả nhưng năm mà phòng ko có danh sách)*/
@@ -2722,7 +2785,8 @@ public class LabController {
 
             InventoryResult inventoryResultInventoryCompares = new InventoryResult();
             List<EquipmentLabDTO> equipmentLabDTOsUnique = CompareInventory(equipmentLabDTOsUnique_Year, equipmentLabDTOsUnique_MinusYear, inventoryResultInventoryCompares.getInventoryCompares());
-            InventoryResult inventoryResult = new InventoryResult(new ArrayList<>(), equipmentLabDTOsUnique, inventoryResultInventoryCompares.getInventoryCompares());
+            inventoryResult.setInventoryCompares(inventoryResultInventoryCompares.getInventoryCompares());
+            inventoryResult.setEquipmentLabDTOs(equipmentLabDTOsUnique);
 
             model.addAttribute("inventoryResult", inventoryResult);
             model.addAttribute("managingUnitName", managingUnitService.getManagingUnitById(managingUnitId).getDepartmentName());
@@ -2754,15 +2818,66 @@ public class LabController {
             InventoryResult inventoryResultCompare = new InventoryResult();
             List<EquipmentLabDTO> equipmentLabDTOS = CompareInventory(equipmentLabDTOsUnique_Year, equipmentLabDTOsUnique_MinusYear, inventoryResultCompare.getInventoryCompares());
 
-            InventoryResult inventoryResult = new InventoryResult();
+//            inventoryResult = new InventoryResult();
             inventoryResult.setEquipmentLabDTOs(equipmentLabDTOS);
             inventoryResult.setInventoryCompares(inventoryResultCompare.getInventoryCompares());
             model.addAttribute("inventoryResult", inventoryResult);
         }
 
+        model.addAttribute("managingUnitId", managingUnitId);
         model.addAttribute("title", "Kiểm kê trang thiết bị năm " + year);
+
         return template;
     }
+
+    private InventoryResult ShowinventoryEquipment(boolean managingUnitsCheck,int yearSelected,int managingUnitId,
+                                                   String username,boolean success,boolean unsuccess){
+        InventoryResult inventoryResult = new InventoryResult();
+        Model model = new Model() {
+            @Override
+            public Model addAttribute(String attributeName, Object attributeValue) {
+                return null;
+            }
+
+            @Override
+            public Model addAttribute(Object attributeValue) {
+                return null;
+            }
+
+            @Override
+            public Model addAllAttributes(Collection<?> attributeValues) {
+                return null;
+            }
+
+            @Override
+            public Model addAllAttributes(Map<String, ?> attributes) {
+                return null;
+            }
+
+            @Override
+            public Model mergeAttributes(Map<String, ?> attributes) {
+                return null;
+            }
+
+            @Override
+            public boolean containsAttribute(String attributeName) {
+                return false;
+            }
+
+            @Override
+            public Object getAttribute(String attributeName) {
+                return null;
+            }
+
+            @Override
+            public Map<String, Object> asMap() {
+                return null;
+            }
+        };
+        ShowinventoryEquipment(model, managingUnitsCheck, yearSelected, managingUnitId, username, success, unsuccess, inventoryResult);
+        return inventoryResult;
+    }
+
 
     private List<EquipmentLabDTO> GetEquipmentLabDTOsUnique_Year(List<InventoryResult> inventoryResults_Year){
         /** Test lấy ds Equip */
@@ -2879,6 +2994,7 @@ public class LabController {
                                 /******************************************************/
                                             /** Quản lý Export Report Excel */
                                 /*****************************************************/
+
     private List<BookingDtoExport> GetBookingDtoExportByStatus(String status, String username){
         People people = GetPeopleByUsername(username);
         boolean isAdmin = CheckRole(people, RoleSystem.ROLE_ADMIN);
@@ -2900,43 +3016,55 @@ public class LabController {
         });
         return bookingDtoExports;
     }
-    private <T> ResponseEntity<Resource> exportData(List<T> dataList, String[] headers, String sheetName) {
-        try (Workbook workbook = new XSSFWorkbook()) {
-            // Tạo một Sheet
-            Sheet sheet = workbook.createSheet(sheetName);
-            // Thêm header vào dòng đầu tiên
-            Row headerRow = sheet.createRow(0);
-            fillDataToSheet(sheet, headers, dataList, 0);
-            String status = "Trống";
-            if (!dataList.isEmpty()) {
-                Object firstData = dataList.get(0);
-                if (firstData instanceof BookingDtoExport) {
-                    status = ((BookingDtoExport) firstData).getComfirmUsed();
-                } else if (firstData instanceof LabDtoExport) {
-                    status = "Phòng thí nghiệm";
-                }
+
+    private Workbook createSheet(Workbook workbook, List<?> dataList, String[] headers, String sheetName) {
+        Sheet sheet = workbook.createSheet(sheetName);
+        Row headerRow = sheet.createRow(0);
+        fillDataToSheet(sheet, headers, dataList, 0);
+        return workbook;
+    }
+    private Workbook createSheet(Workbook workbook, List<?> dataList, String[] headers, String sheetName, boolean inventoryExport) {
+        Sheet sheet = workbook.createSheet(sheetName);
+        Row headerRow = sheet.createRow(0);
+        fillDataToSheetInventoryExport(sheet, headers, dataList, 0);
+        return workbook;
+    }
+
+    private ResponseEntity<Resource> exportData(Workbook workbook, String fileName) {
+        return ResponseExcel(workbook, fileName);
+    }
+
+    private String getFileName(List<?> dataList) {
+        String status = "Trống";
+        if (!dataList.isEmpty()) {
+            Object firstData = dataList.get(0);
+            if (firstData instanceof BookingDtoExport) {
+                status = ((BookingDtoExport) firstData).getComfirmUsed();
+            } else if (firstData instanceof LabDtoExport) {
+                status = "Phòng thí nghiệm";
+            } else if (firstData instanceof ScoresLabExport) {
+                status = "Danh sách điểm";
             }
-            return ResponseExel(workbook, "Danh sách " + status);
+        }
+        return "Danh sách " + status;
+    }
+
+    private ResponseEntity<Resource> ResponseExcel(Workbook workbook, String excelName) {
+        try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
+            workbook.write(bos);
+            InputStreamResource resource = new InputStreamResource(new ByteArrayInputStream(bos.toByteArray()));
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + excelName + ".xlsx")
+                    .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                    .body(resource);
         } catch (IOException e) {
             e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
     }
-    private ResponseEntity<Resource> ResponseExel(Workbook workbook, String ExelName){
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        try {
-            workbook.write(bos);
-        }catch (IOException e) {
-            e.printStackTrace();
-        }
-        InputStreamResource resource = new InputStreamResource(new ByteArrayInputStream(bos.toByteArray()));
-        return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename="+ExelName+".xlsx")
-                .contentType(MediaType.APPLICATION_OCTET_STREAM)
-                .body(resource);
-    }
+
     private void fillDataToSheet(Sheet sheet, String[] headers, List<?> dataList, int startCellIndex) {
-        Row headerRow = (Row) sheet.createRow(0);
+        Row headerRow = sheet.createRow(0);
         for (int i = 0; i < headers.length; i++) {
             Cell cell = headerRow.createCell(i + startCellIndex);
             cell.setCellValue(headers[i]);
@@ -2944,7 +3072,7 @@ public class LabController {
 
         int rowIndex = 1;
         for (Object data : dataList) {
-            Row row = (Row) sheet.createRow(rowIndex++);
+            Row row = sheet.createRow(rowIndex++);
             Field[] fields = data.getClass().getDeclaredFields();
             int cellIndex = startCellIndex;
             for (Field field : fields) {
@@ -2962,31 +3090,98 @@ public class LabController {
         }
     }
 
+    private void fillDataToSheetInventoryExport(Sheet sheet, String[] headers, List<?> dataList, int startCellIndex) {
+        Row headerRow = sheet.createRow(0);
+        for (int i = 0; i < headers.length; i++) {
+            Cell cell = headerRow.createCell(i + startCellIndex);
+            cell.setCellValue(headers[i]);
+        }
+
+        int rowIndex = 1;
+        for (Object data : dataList) {
+            Field[] fields = data.getClass().getDeclaredFields();
+            int cellIndex = startCellIndex;
+
+            /** Java áp đặt các ràng buộc truy cập để bảo vệ tính đóng gói của đối tượng. Bằng cách sử dụng phương thức setAccessible(true),
+             chúng ta có thể bỏ qua ràng buộc này và truy cập vào các trường không công khai.*/
+            int mergeRowCount = 1;
+            for (Field field : fields) {
+                field.setAccessible(true);
+                if (field.getType().equals(List.class)) {
+                /** Kiểm tra kiểu dữ liệu của trường có phải là List không*/
+                    try {
+                        ParameterizedType stringListType = (ParameterizedType) field.getGenericType();
+                        /** Ép kiểu trường thành List String và lấy giá trị của trường từ đối tượng data*/
+                        Object Series_value = field.get(data);
+                        List<String> listSeries_Value = (List<String>) Series_value;
+                        /** Lấy số lượng phần tử trong danh sách*/
+                        mergeRowCount = listSeries_Value.size();
+                        break;
+                    } catch (IllegalAccessException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+
+            List<Row> rows = new ArrayList<>();
+            for (int i = 0; i < mergeRowCount; i++) {
+                Row row = sheet.createRow(rowIndex++);
+                rows.add(row);
+            }
+            for (Field field : fields) {
+                field.setAccessible(true);
+                try {
+                    Object value = field.get(data);
+                    Cell cell = rows.get(0).createCell(cellIndex++);
+                    if (value instanceof List) {
+                        List<String> listValue = (List<String>) value;
+                        for (int i = 0; i < listValue.size(); i++) {
+                            if(i==0) cell.setCellValue(listValue.get(i));
+                            for (int i1 = 1; i1 < rows.size(); i1++) {
+                                if(i == i1) rows.get(i1).createCell(cellIndex-1).setCellValue(listValue.get(i));
+                            }
+                        }
+                    } else {
+                        if (value != null) {
+                            if(mergeRowCount>1) sheet.addMergedRegion(new CellRangeAddress(rows.get(0).getRowNum(), rows.get(0).getRowNum() + mergeRowCount - 1, cell.getColumnIndex(), cell.getColumnIndex()));
+                            cell.setCellValue(value.toString());
+                        }
+                    }
+                } catch (IllegalAccessException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
     @GetMapping("/admin/Export/LabBookingPendding")
     public ResponseEntity<Resource> ExportLabBookingPendding(@RequestParam("username") String username) {
         List<BookingDtoExport> bookingDtoExports = GetBookingDtoExportByStatus(ConfirmStatus.PENDDING, username);
-        String[] headers = {"ID", "Tên PTN", "Tên bài", "Tên lớp", "Người đặt", "Số giờ", "Số người", "Ngày đặt", "Ghi chú", "Loại hình TN", "Loại BC", "Trạng thái quản lý", "Trạng thái người dùng", "Thao tác"};
-        return exportData(bookingDtoExports,headers, "Danh sách đơn chờ duyệt");
+        return ExportLabBooking(bookingDtoExports, "Danh sách đơn chờ duyệt");
     }
     @GetMapping("/admin/Export/LabBookingApprove")
     public ResponseEntity<Resource> ExportLabBookingApprove(@RequestParam("username") String username) {
         List<BookingDtoExport> bookingDtoExports = GetBookingDtoExportByStatus(ConfirmStatus.APPROVE, username);
-        String[] headers = {"ID", "Tên PTN", "Tên bài", "Tên lớp", "Người đặt", "Số giờ", "Số người", "Ngày đặt", "Ghi chú", "Loại hình TN", "Loại BC", "Trạng thái quản lý", "Trạng thái người dùng", "Thao tác"};
-        return exportData(bookingDtoExports,headers, "Danh sách đơn đã chấp nhận");
+        return ExportLabBooking(bookingDtoExports, "Danh sách đơn đã chấp nhận");
     }
     @GetMapping("/admin/Export/LabBookingWaitComfirmUsed")
     public ResponseEntity<Resource> ExportLabBookingWaitComfirmUsed(@RequestParam("username") String username) {
         List<BookingDtoExport> bookingDtoExports = GetBookingDtoExportByStatus(ConfirmStatus.APPROVE, username)
                                                     .stream().filter(b -> b.getComfirmUsed().equals(ConfirmUsed.USED))
                                                     .collect(Collectors.toList());
-        String[] headers = {"ID", "Tên PTN", "Tên bài", "Tên lớp", "Người đặt", "Số giờ", "Số người", "Ngày đặt", "Ghi chú", "Loại hình TN", "Loại BC", "Trạng thái quản lý", "Trạng thái người dùng", "Thao tác"};
-        return exportData(bookingDtoExports,headers, "Danh sách đơn chờ người dùng xác nhận");
+        return ExportLabBooking(bookingDtoExports, "Danh sách đơn chờ người dùng xác nhận");
     }
     @GetMapping("/admin/Export/LabBookingCancel")
     public ResponseEntity<Resource> ExportLabBookingCancel(@RequestParam("username") String username) {
         List<BookingDtoExport> bookingDtoExports = GetBookingDtoExportByStatus(ConfirmStatus.CANCEL, username);
+        return ExportLabBooking(bookingDtoExports, "Danh sách đơn đã hủy");
+    }
+
+    private ResponseEntity<Resource> ExportLabBooking(List<BookingDtoExport> bookingDtoExports, String sheetName){
         String[] headers = {"ID", "Tên PTN", "Tên bài", "Tên lớp", "Người đặt", "Số giờ", "Số người", "Ngày đặt", "Ghi chú", "Loại hình TN", "Loại BC", "Trạng thái quản lý", "Trạng thái người dùng", "Thao tác"};
-        return exportData(bookingDtoExports,headers, "Danh sách đơn đã hủy");
+        Workbook workbook = new XSSFWorkbook();
+        createSheet(workbook, bookingDtoExports, headers,   sheetName);
+        return exportData(workbook, sheetName);
     }
 
             /*********************************/
@@ -3013,6 +3208,712 @@ public class LabController {
     public ResponseEntity<Resource> ExportLabs(@RequestParam("username") String username) {
         List<LabDtoExport> labDtoExports = GetLabDtoExport(username);
         String[] headers = {"ID", "Tên PTN", "Người quản lý", "Đơn vị chủ quản", "Sức chứa (người)", "Vị trí"};
-        return exportData(labDtoExports,headers, "Danh sách phòng thí nghiệm");
+        Workbook workbook = new XSSFWorkbook();
+        createSheet(workbook, labDtoExports, headers,"Danh sách phòng thí nghiệm");
+        return exportData(workbook, "Danh sách phòng thí nghiệm");
+    }
+
+    @GetMapping("/admin/Export/LabAndScores/{labId}")
+    public ResponseEntity<Resource> ExportLabAndScores(@PathVariable("labId") int labId, Model model,
+                                                       @RequestParam("username") String username,
+                                                       @RequestParam(value = "experiment_group", defaultValue = "0") int experiment_group,
+                                                       @RequestParam(value = "experiment_type", defaultValue = "0") int experiment_type,
+                                                       @RequestParam(value = "experiment_report", defaultValue = "0") int experiment_report,
+                                                       @RequestParam(value = "experiment_YesNo", defaultValue = "false") boolean experiment_YesNo,
+                                                       @RequestParam(value = "start_date", defaultValue = "") String startDate,
+                                                       @RequestParam(value = "end_date", defaultValue = "") String endDate,
+                                                       @RequestParam(value = "unsuccess", defaultValue = "false") boolean unsuccess,
+                                                       @RequestParam(value = "success", defaultValue = "false") boolean success){
+        /** Lấy thông tin lab */
+        List<LabDtoExport> labDtoExports = GetLabDtoExport(username).stream().filter(labDtoExport -> labDtoExport.getId()==labId).collect(Collectors.toList());
+        Workbook workbook = new XSSFWorkbook();
+        String[] headersLab = {"ID", "Tên PTN", "Người quản lý", "Đơn vị chủ quản", "Sức chứa (người)", "Vị trí"};
+        createSheet(workbook, labDtoExports, headersLab,"Thông tin PTN");
+
+
+        /** Lấy thông tin chấm điểm lab*/
+        List<LabsOnLineAndScore> labsOnLineAndScoresX = new ArrayList<>();
+        List<LabsOnLineAndScore> labsOnLineAndScores = GetLabsOnLineAndScore(labsOnLineAndScoresX, model, experiment_group, experiment_type, experiment_report,
+                experiment_YesNo, startDate.split("T")[0], endDate.split("T")[0], success, unsuccess);
+        LabsOnLineAndScore labsOnLineAndScoreData = new LabsOnLineAndScore();
+        for (LabsOnLineAndScore labsOnLineAndScore : labsOnLineAndScores) {
+            if(labsOnLineAndScore.getLab().getId()==labId){
+                labsOnLineAndScoreData = labsOnLineAndScore;
+            }
+        }
+        List<ScoresLabExport> scoresLabExports = new ArrayList<>();
+        for (int i = 0; i < labsOnLineAndScoreData.getTypeName().size(); i++) {
+            String typeName = labsOnLineAndScoreData.getTypeName().get(i);
+            if(typeName.contains("Giờ khai thác")){
+                ScoresLabExport scoresLabExport = new ScoresLabExport(i+1, labsOnLineAndScoreData.getTypeName().get(i),labsOnLineAndScoreData.getQuantity().get(i), labsOnLineAndScoreData.getHour(), labsOnLineAndScoreData.getScores().get(i), labsOnLineAndScoreData.getScores().get(i)*labsOnLineAndScoreData.getHour());
+                scoresLabExports.add(scoresLabExport);
+            } else {
+                ScoresLabExport scoresLabExport = new ScoresLabExport(i+1, labsOnLineAndScoreData.getTypeName().get(i),labsOnLineAndScoreData.getQuantity().get(i), 0, labsOnLineAndScoreData.getScores().get(i), labsOnLineAndScoreData.getScores().get(i)*labsOnLineAndScoreData.getQuantity().get(i));
+                scoresLabExports.add(scoresLabExport);
+            }
+        }
+        String[] headersScore = {"STT", "Phân loại", "Số lượng (Bài TN hoặc)", "Tổng giờ", "Điểm", "Tổng điểm"};
+        createSheet(workbook, scoresLabExports, headersScore,"Chi tiết điểm");
+
+        /** Lấy thông tin chấm điểm: các bài thí nghiệm đã được khai thác */
+        String[] headersLesson = {"ID", "ID PTN", "Mã bài TN", "Tên bài", "Thời lượng (giờ)", "Loại", "Trạng thái"};
+        List<Lesson> lessonsUsed = new ArrayList<>();
+        List<Lesson> lessons = lessonService.findAllByLabId(labId);
+        for (String lessonName : labsOnLineAndScoreData.getLessonName()) {
+            Lesson lesson = lessonService.findByName(lessonName);
+            lessonsUsed.add(lesson);
+        }
+        createSheet(workbook, lessonsUsed, headersLesson,"Danh sách bài thí nghiệm đã thực hiện");
+
+        /** Tất cả các bài thí nghiệm của PTN */
+        createSheet(workbook, lessons, headersLesson,"Danh sách bài thí nghiệm của PTN");
+
+        /** Các yêu cầu đặt phòng của phòng */
+        String[] headers = {"ID", "Tên PTN", "Tên bài", "Tên lớp", "Người đặt", "Số giờ", "Số người", "Ngày đặt", "Ghi chú", "Loại hình TN", "Loại BC", "Trạng thái quản lý", "Trạng thái người dùng", "Thao tác"};
+        List<BookingDtoExport> bookingDtoExports_PENDDING = GetBookingDtoExportByStatus(ConfirmStatus.PENDDING, username)
+                                                            .stream().filter(b -> b.getLabName().equals(labDtoExports.get(0).getLabName())).collect(Collectors.toList());
+        createSheet(workbook, bookingDtoExports_PENDDING, headers,"Danh sách đơn chờ xử lý");
+
+        List<BookingDtoExport> bookingDtoExports_APPROVE = GetBookingDtoExportByStatus(ConfirmStatus.APPROVE, username)
+                                                            .stream().filter(b -> b.getLabName().equals(labDtoExports.get(0).getLabName())).collect(Collectors.toList());
+        createSheet(workbook, bookingDtoExports_APPROVE, headers,"Danh sách đơn đã xác nhận");
+
+        List<BookingDtoExport> bookingDtoExports_APPROVE_USED = GetBookingDtoExportByStatus(ConfirmStatus.APPROVE, username)
+                                                            .stream().filter(b -> b.getComfirmUsed().equals(ConfirmUsed.USED)
+                                                                            && b.getLabName().equals(labDtoExports.get(0).getLabName()))
+                                                                            .collect(Collectors.toList());
+        createSheet(workbook, bookingDtoExports_APPROVE_USED, headers,"Danh sách đơn người dùng đã xác nhận");
+
+        List<BookingDtoExport> bookingDtoExports_CANCEL = GetBookingDtoExportByStatus(ConfirmStatus.CANCEL, username)
+                                                            .stream().filter(b -> b.getLabName().equals(labDtoExports.get(0).getLabName())).collect(Collectors.toList());
+        createSheet(workbook, bookingDtoExports_CANCEL, headers,"Danh sách đơn đã hủy");
+
+        /** Danh sách thiết bị của phòng */
+        List<EquipmentLab> equipmentLabs = equipmentLabService.findAllByLabId(labId);
+        List<EquipmentDtoExport> equipmentDtoExports = new ArrayList<>();
+        for (EquipmentLab equipmentLab : equipmentLabs) {
+            Equipment equipment = equipmentService.findByEquipmentId(equipmentLab.getEquipmentId());
+            for (int i = 0; i < equipmentLab.getEquipmentSerieList().size(); i++) {
+                EquipmentDtoExport equipmentDtoExport = new EquipmentDtoExport(equipment.getId(),equipment.getName(), equipmentLab.getEquipmentSerieList().get(i),
+                                                                                equipment.getUnit(), equipmentLab.getLevelList().get(i), equipmentLab.getUsingList().get(i), equipment.getOrigin(),equipment.getDescription());
+
+                equipmentDtoExports.add(equipmentDtoExport);
+            }
+        }
+
+        String[] headersEquip = {"ID", "Tên PTN", "Seri/Mã số", "Đơn vị tính", "Xuất sứ", "Phân cấp TB", "Ngày bắt đầu sử dụng", "Mô tả"};
+        createSheet(workbook, equipmentDtoExports, headersEquip,"Danh sách TTB thuộc PTN");
+
+        return exportData(workbook, "Chi tiết chấm điểm của " + labDtoExports.get(0).getLabName());
+    }
+
+                /*********************************/
+                    /** Export Managing Unit */
+                /********************************/
+
+    @GetMapping("/admin/Export/ManagingUnits")
+    public ResponseEntity<Resource> ExportManagingUnits() {
+                    List<ManagingUnit> managingUnits = managingUnitService.getAllManagingUnits();
+                    String[] headers = {"ID", "Tên đơn vị chủ quản"};
+                    Workbook workbook = new XSSFWorkbook();
+                    createSheet(workbook, managingUnits, headers,"Đơn vị chủ quản");
+                    return exportData(workbook, "Danh sách Đơn vị chủ quản PTN");
+        }
+
+                /*********************************/
+                    /** Export Lesson */
+                /********************************/
+
+    @GetMapping("/admin/Export/Lesson")
+    public ResponseEntity<Resource> ExportManagingUnits(@RequestParam("username") String username) {
+        People people = GetPeopleByUsername(username);
+        boolean isAdmin = CheckRole(people,RoleSystem.ROLE_ADMIN);
+        List<LessonDtoExport> lessonDtoExports = new ArrayList<>();
+        lessonService.getAllLessons().forEach(lesson -> {
+            Lab lab = labService.findByLabId(lesson.getLabId());
+            if(isAdmin){
+                lessonDtoExports.add(new LessonDtoExport(lesson.getId(), lab.getLabName(), lesson.getNoLesson(), lesson.getName(), lesson.getModule(), lesson.getLevel(), lesson.getWorkTime(), lesson.getType(), lesson.getNote()));
+            } else {
+                if(lab.getLabManagemetId()==people.getId()){
+                    lessonDtoExports.add(new LessonDtoExport(lesson.getId(), lab.getLabName(), lesson.getNoLesson(), lesson.getName(), lesson.getModule(), lesson.getLevel(), lesson.getWorkTime(), lesson.getType(), lesson.getNote()));
+                }
+            }
+        });
+        String[] headers = {"ID", "Tên PTN", "Mã số", "Tên bài TN", "Học phần môn học", "Cấp học", "Thời lượng (giờ)", "Phân loại", "Ghi chú"};
+        Workbook workbook = new XSSFWorkbook();
+        createSheet(workbook, lessonDtoExports, headers,"Danh sách bài thí nghiệm");
+        return exportData(workbook, "Danh sách bài thí nghiệm");
+    }
+
+                /*********************************/
+                    /** Export Equipment */
+                /********************************/
+
+    @GetMapping("/admin/Export/EquipmentAll")
+    public ResponseEntity<Resource> ExportEquipmentAll(@RequestParam("username") String username) {
+            List<EquipmentDtoExportWithLabName> equipmentDtoExportWithLabNames = new ArrayList<>();
+            People people = peopleService.findByPeopleId(GetPeopleIdByUsername(username));
+            List<EquipmentLab> allEquipmentLab = equipmentLabService.getAllEquipmentLabs();
+            List<Equipment> allEquipment = new ArrayList<>();
+
+            if (CheckRole(people, RoleSystem.ROLE_ADMIN)) {
+                allEquipment = equipmentService.getAllEquipment().stream()
+                                                .filter(equipment -> equipment.getIsDeleted() == 0)
+                                                .collect(Collectors.toList());
+                for (Equipment equipment : allEquipment) {
+                    List<String> labNames = new ArrayList<>();
+                    List<Integer> labIds = new ArrayList<>();
+                    for (int i = 0; i < equipment.getSeriesAsList().size(); i++) {
+                        labNames.add("");
+                        labIds.add(0);
+                    }
+                    for (EquipmentLab equipmentLab : allEquipmentLab) {
+                        if (equipmentLab.getEquipmentId() == equipment.getId()) {
+                            Lab lab = labService.findByLabId(equipmentLab.getLabId());
+                            for (String s : equipmentLab.getEquipmentSerieList()) {
+                                labNames.add(lab.getLabName());
+                                labIds.add(lab.getId());
+                            }
+                            SetSeriLevelUsing_For_EquipFromEquiLab(equipmentLab, equipment);
+                        }
+                    }
+                    CreateEquipDtoExportWithLabName(equipmentDtoExportWithLabNames, equipment, labNames);
+                }
+            } else {
+                List<EquipmentLab> allEquipmentLab_AfterFilter = new ArrayList<>();
+                /** Lấy ra Lab do người đó phụ trách */
+                List<Lab> labs = labService.getAllLabsOnLine().stream()
+                        .filter(lab -> lab.getLabManagemetId() == people.getId())
+                        .collect(Collectors.toList());
+                /** Lấy ra DS equipment ID chứa những ID duy nhất */
+                Set<Integer> uniqueEquipmentIds = new HashSet<>();
+                for (Lab lab : labs) {
+                    for (EquipmentLab equipmentLab : allEquipmentLab) {
+                        if (equipmentLab.getLabId() == lab.getId()) {
+                            uniqueEquipmentIds.add(equipmentLab.getEquipmentId());
+                            allEquipmentLab_AfterFilter.add(equipmentLab);
+                        }
+                    }
+                }
+                /** Tạo DS allEquipment chứa những equipment duy nhất và set trống seri, level, using */
+                for (Integer id : uniqueEquipmentIds) {
+                    Equipment equipment = equipmentService.findByEquipmentId(id);
+                    equipment.setSeries("[]");
+                    equipment.setLevelList("[]");
+                    equipment.setUsingList("[]");
+                    allEquipment.add(equipment);
+                }
+                /** trả về DS equipmentDtoExportWithLabNames để xuất */
+                for (Equipment equipment : allEquipment) {
+                    List<String> labNames = new ArrayList<>();
+                    List<Integer> labIds = new ArrayList<>();
+
+                    for (EquipmentLab equipmentLab : allEquipmentLab_AfterFilter) {
+                        /** Lọc những equip trong equip Lab */
+                        if (equipment.getId() == equipmentLab.getEquipmentId()) {
+                            Lab lab = labService.findByLabId(equipmentLab.getLabId());
+                            /** Bỏ vào vòng lặp vì có bn seri thì thêm từng đó lần tên
+                             *  do SetSeriLevelUsing_For_EquipFromEquiLab sử dụng addAll*/
+                            for (String s : equipmentLab.getEquipmentSerieList()) {
+                                labIds.add(lab.getId());
+                                labNames.add(lab.getLabName());
+                            }
+                            SetSeriLevelUsing_For_EquipFromEquiLab(equipmentLab, equipment);
+                        }
+                    }
+                CreateEquipDtoExportWithLabName(equipmentDtoExportWithLabNames, equipment, labNames);
+                }
+            }
+
+            String[] headers = {"ID", "Tên TB", "Seri/Mã số", "Đơn vị tính", "Phân cấp TB", "Ngày bắt đầu sử dụng", "Xuất sứ", "Tên PTN", "Mô tả"};
+            Workbook workbook = new XSSFWorkbook();
+            Set<String> uniqueLabNames_Set = new HashSet<>(); // Tạo một set để lưu trữ các tên labName duy nhất
+            for (EquipmentDtoExportWithLabName equipment : equipmentDtoExportWithLabNames) {
+                uniqueLabNames_Set.add(equipment.getLabName()); // Thêm tên labName vào set
+            }
+            List<String> uniqueLabNames = new ArrayList<>(uniqueLabNames_Set);
+            int z = 0;
+            if(uniqueLabNames.contains("")) {
+                Sheet sheet = workbook.createSheet(0 + ". DSTB Chưa được biên chế");
+                Row headerRow = sheet.createRow(0);
+                int rowIndex = 1;
+                for (int i = 0; i < headers.length; i++) {
+                    Cell cell = headerRow.createCell(i);
+                    cell.setCellValue(headers[i]);
+                }
+                for (EquipmentDtoExportWithLabName equipment : equipmentDtoExportWithLabNames) {
+                    if (equipment.getLabName().equals("")) {
+                        rowIndex = CreatedRowFromIndex(sheet, rowIndex, equipment);
+                    }
+                }
+                uniqueLabNames.remove("");
+            }
+            for (String labName : uniqueLabNames) {
+                Sheet sheet = workbook.createSheet(++z + ". Danh sách thiết bị " + labName);
+
+                Row headerRow = sheet.createRow(0);
+                for (int i = 0; i < headers.length; i++) {
+                    Cell cell = headerRow.createCell(i);
+                    cell.setCellValue(headers[i]);
+                }
+                int rowIndex = 1;
+                for (EquipmentDtoExportWithLabName equipment : equipmentDtoExportWithLabNames) {
+                    if (equipment.getLabName().equals(labName)) {
+                        rowIndex = CreatedRowFromIndex(sheet, rowIndex, equipment);
+                    }
+                }
+            }
+            return ResponseExcel(workbook, "Danh sách tất cả các thiết bị thuộc phòng quản lý");
+        }
+
+    private int CreatedRowFromIndex(Sheet sheet, int rowIndex, EquipmentDtoExportWithLabName equipment) {
+        Row dataRow = sheet.createRow(rowIndex);
+        dataRow.createCell(0).setCellValue(equipment.getId());
+        dataRow.createCell(1).setCellValue(equipment.getName());
+        dataRow.createCell(2).setCellValue(equipment.getSerie());
+        dataRow.createCell(3).setCellValue(equipment.getUnit());
+        dataRow.createCell(4).setCellValue(equipment.getLevel());
+        dataRow.createCell(5).setCellValue(equipment.getUsing());
+        dataRow.createCell(6).setCellValue(equipment.getOrigin());
+        dataRow.createCell(7).setCellValue(equipment.getLabName());
+        dataRow.createCell(8).setCellValue(equipment.getDescription());
+
+        rowIndex++;
+        return rowIndex;
+    }
+
+    private List<EquipmentDtoExportWithLabName> CreateEquipDtoExportWithLabName(List<EquipmentDtoExportWithLabName> equipmentDtoExportWithLabNames, Equipment equipment, List<String> labNames) {
+        for (int i = 0; i < equipment.getSeriesAsList().size(); i++) {
+            equipmentDtoExportWithLabNames.add(new EquipmentDtoExportWithLabName(
+                    equipment.getId(),
+                    equipment.getName(),
+                    equipment.getSeriesAsList().get(i),
+                    equipment.getUnit(),
+                    equipment.getLevelList().get(i),
+                    equipment.getUsingList().get(i),
+                    equipment.getOrigin(),
+                    labNames.get(i),
+                    equipment.getDescription()
+            ));
+        }
+        return equipmentDtoExportWithLabNames;
+    }
+
+    private void SetSeriLevelUsing_For_EquipFromEquiLab(EquipmentLab equipmentLab, Equipment equipment) {
+        List<String> series = equipment.getSeriesAsList();
+        series.addAll(equipmentLab.getEquipmentSerieList());
+        equipment.setSeries(series.toString());
+        List<String> leveles = equipment.getLevelList();
+        leveles.addAll(equipmentLab.getLevelList());
+        equipment.setLevelList(leveles.toString());
+        List<String> usinges = equipment.getUsingList();
+        usinges.addAll(equipmentLab.getUsingList());
+        equipment.setUsingList(usinges.toString());
+    }
+
+    @GetMapping("/admin/Export/Equipment")
+    public ResponseEntity<Resource> ExportEquipment(@RequestParam("username") String username,
+                                                    @RequestParam("equipmentId") int equipmentId) {
+
+        Equipment equipment = equipmentService.findByEquipmentId(equipmentId);
+        List<EquipmentLab> equipmentLabs = equipmentLabService.findAllByEquipmentId(equipmentId);
+        List<EquipmentDtoExportWithLabName> equipmentDtoExportWithLabNames = new ArrayList<>();
+        List<String> labNames = new ArrayList<>();
+        List<Integer> labIds = new ArrayList<>();
+        for (int i = 0; i < equipment.getSeriesAsList().size(); i++) {
+            labIds.add(0);
+            labNames.add("");
+        }
+        for (EquipmentLab equipmentLab : equipmentLabs) {
+            Lab lab = labService.findByLabId(equipmentLab.getLabId());
+            equipmentLab.getEquipmentSerieList().forEach(e -> {
+                labNames.add(lab.getLabName());
+                labIds.add(lab.getId());
+            });
+            SetSeriLevelUsing_For_EquipFromEquiLab(equipmentLab, equipment);
+        }
+        CreateEquipDtoExportWithLabName(equipmentDtoExportWithLabNames, equipment, labNames);
+
+        String[] headers = {"ID", "Tên TB", "Seri/Mã số", "Đơn vị tính", "Phân cấp TB", "Ngày bắt đầu sử dụng", "Xuất sứ", "Tên PTN", "Mô tả"};
+        Workbook workbook = new XSSFWorkbook();
+        createSheet(workbook, equipmentDtoExportWithLabNames, headers,"DS TB " + equipment.getName());
+        return exportData(workbook, "DS TB "  + equipment.getName());
+    }
+
+
+
+                /*********************************/
+                        /** Export Roles */
+                /********************************/
+
+    @GetMapping("/admin/Export/LabRankings")
+    public ResponseEntity<Resource> ExportLabRankings(Model model,
+                                                      @RequestParam(value = "experiment_group", defaultValue = "0") int experiment_group,
+                                                      @RequestParam(value = "experiment_type", defaultValue = "0") int experiment_type,
+                                                      @RequestParam(value = "experiment_report", defaultValue = "0") int experiment_report,
+                                                      @RequestParam(value = "experiment_YesNo", defaultValue = "false") boolean experiment_YesNo,
+                                                      @RequestParam(value = "start_date", defaultValue = "") String startDate,
+                                                      @RequestParam(value = "end_date", defaultValue = "") String endDate,
+                                                      @RequestParam(value = "success", defaultValue = "false") boolean success,
+                                                      @RequestParam(value = "unsuccess", defaultValue = "false") boolean unsuccess) {
+        Workbook workbook = new XSSFWorkbook();
+
+        /** Lấy thông tin chấm điểm lab*/
+        List<LabsOnLineAndScore> labsOnLineAndScoresX = new ArrayList<>();
+        List<LabsOnLineAndScore> labsOnLineAndScores = GetLabsOnLineAndScore(labsOnLineAndScoresX, model, experiment_group, experiment_type, experiment_report,
+                experiment_YesNo, startDate.split("T")[0], endDate.split("T")[0], success, unsuccess);
+        List<ScoresLabRankingsExport> scoresLabRankingsExports = new ArrayList<>();
+        for (int i = 0; i < labsOnLineAndScores.size(); i++) {
+            int STT = i +1;
+            scoresLabRankingsExports.add(new ScoresLabRankingsExport(
+                    STT, "Hạng " +STT, labsOnLineAndScores.get(i).getLab().getLabName(), labsOnLineAndScores.get(i).getScore()
+            ));
+        }
+
+        List<List<ScoresLabExport>> scoresLabExports_List = new ArrayList<>();
+
+        for (LabsOnLineAndScore labsOnLineAndScore : labsOnLineAndScores) {
+            List<ScoresLabExport> scoresLabExports = new ArrayList<>();
+            for (int i = 0; i < labsOnLineAndScore.getTypeName().size(); i++) {
+                String typeName = labsOnLineAndScore.getTypeName().get(i);
+                if(!typeName.contains("Giờ khai thác")){
+                    scoresLabExports.add(new ScoresLabExport(i+1, labsOnLineAndScore.getTypeName().get(i),labsOnLineAndScore.getQuantity().get(i), 0, labsOnLineAndScore.getScores().get(i), labsOnLineAndScore.getScores().get(i)*labsOnLineAndScore.getQuantity().get(i)));
+                } else {
+                    scoresLabExports.add(new ScoresLabExport(i+1, labsOnLineAndScore.getTypeName().get(i),labsOnLineAndScore.getQuantity().get(i), labsOnLineAndScore.getHour(), labsOnLineAndScore.getScores().get(i), labsOnLineAndScore.getScores().get(i)*labsOnLineAndScore.getHour()));
+                }
+            }
+            scoresLabExports_List.add(scoresLabExports);
+        }
+        String[] headersRanking = {"STT", "Hạng", "Tên PTN", "Tổng điểm"};
+        createSheet(workbook, scoresLabRankingsExports, headersRanking,"Bảng xếp hạng");
+        String[] headersScore = {"STT", "Phân loại", "Số lượng", "Tổng giờ", "Điểm", "Tổng điểm"};
+        for (int i = 0; i < scoresLabExports_List.size(); i++) {
+            createSheet(workbook, scoresLabExports_List.get(i), headersScore,i+1 + ". " + scoresLabRankingsExports.get(i).getLabName());
+        }
+        return exportData(workbook, "Danh điểm các phòng thí nghiệm");
+    }
+
+
+                    /*********************************/
+                        /** Export Inventory */
+                    /********************************/
+
+    @GetMapping("/admin/Export/AllshowinventoryLab")
+    public ResponseEntity<Resource> ExportInventoryAllLab(@RequestParam(value = "managingUnitsCheck", defaultValue = "false") boolean managingUnitsCheck,
+                                                          @RequestParam(value = "yearSelected", defaultValue = "0") int yearSelected,
+                                                          @RequestParam(value = "managingUnitId", defaultValue = "0") int managingUnitId,
+                                                          @RequestParam(value = "labId", defaultValue = "0") int labId,
+                                                          @RequestParam("username") String username,
+                                                          @RequestParam(value = "success", defaultValue = "false") boolean success){
+        List<InventoryResult> inventoryResults = ShowinventoryAllshowinventoryLab(managingUnitsCheck, yearSelected, managingUnitId, username, success, new ArrayList<InventoryResult>());
+        if (labId!=0) inventoryResults.removeIf(inventoryResult -> inventoryResult.getLabDTO().getId() != labId);
+        int j = 0;
+        for (InventoryResult inventoryResult : inventoryResults) {
+            int z = 0;
+            System.out.println((j+1) + ": " + inventoryResult.getLabDTO().getLabName());
+            for (EquipmentLabDTO equipmentLabDTO : inventoryResult.getEquipmentLabDTOs()) {
+                System.out.print("_" + (z+1) + ". "+ equipmentLabDTO.getEquipment().getName() + ": ");
+                for (int i = 0; i < equipmentLabDTO.getEquipmentSerieList().size(); i++) {
+                    System.out.print(equipmentLabDTO.getEquipmentSerieList().get(i)+" /// ");
+                }
+                if(inventoryResult.getInventoryCompares().size()>0){
+                    System.out.print(" LastYear: " + inventoryResult.getInventoryCompares().get(z).getLastYear());
+                    System.out.print(" ThisYear: " + inventoryResult.getInventoryCompares().get(z).getThisYear());
+                    System.out.print(" Increase: " + inventoryResult.getInventoryCompares().get(z).getIncrease());
+                    System.out.print(" Reduce: " + inventoryResult.getInventoryCompares().get(z).getReduce() +"\n");
+                } else {
+                    System.out.print(" LastYear: " + 0);
+                    System.out.print(" ThisYear: " + equipmentLabDTO.getEquipmentSerieList().size());
+                    System.out.print(" Increase: " + 0);
+                    System.out.print(" Reduce: " + 0 +"\n");
+
+                }
+                z++;
+            }
+            j++;
+            System.out.println("===============================");
+        }
+
+        int year = LocalDate.now().getYear();
+        if(yearSelected!=0) year = yearSelected;
+        System.out.println("year = " + year);
+        System.out.println("managingUnitsCheck = " + managingUnitsCheck);
+        System.out.println("managingUnitId = " + managingUnitId);
+
+
+        List<InventoryResultExport> inventoryResultExports = new ArrayList<>();
+        List<InventoryResultExport> inventoryResultExports_NotEquipment = new ArrayList<>();
+        for (InventoryResult inventoryResult : inventoryResults) {
+            if(inventoryResult.getEquipmentLabDTOs().size()==0)
+                inventoryResultExports_NotEquipment.add(
+                    new InventoryResultExport(
+                            "","",
+                            new ArrayList<>(),new ArrayList<>(),new ArrayList<>(),
+                            0,0,0,0,
+                            inventoryResult.getLabDTO().getLabName()
+                    )
+                );
+            for (int i = 0; i < inventoryResult.getEquipmentLabDTOs().size(); i++) {
+                EquipmentLabDTO equipmentLabDTOS = inventoryResult.getEquipmentLabDTOs().get(i);
+                InventoryResultExport inventoryResultExport = new InventoryResultExport(
+                        equipmentLabDTOS.getEquipment().getName(),
+                        equipmentLabDTOS.getEquipment().getUnit(),
+                        equipmentLabDTOS.getEquipmentSerieList(),
+                        equipmentLabDTOS.getLevels(),
+                        equipmentLabDTOS.getUsingdates(),
+                        inventoryResult.getInventoryCompares().size() > 0 ? inventoryResult.getInventoryCompares().get(i).getLastYear() : 0,
+                        inventoryResult.getInventoryCompares().size() > 0 ? inventoryResult.getInventoryCompares().get(i).getThisYear() : equipmentLabDTOS.getEquipmentSerieList().size(),
+                        inventoryResult.getInventoryCompares().size() > 0 ? inventoryResult.getInventoryCompares().get(i).getIncrease() : 0,
+                        inventoryResult.getInventoryCompares().size() > 0 ? inventoryResult.getInventoryCompares().get(i).getReduce() : 0,
+                        inventoryResult.getLabDTO().getLabName()
+                );
+                inventoryResultExports.add(inventoryResultExport);
+            }
+        }
+
+        Set<String> labNameUnique_Set = new HashSet<>();
+        for (InventoryResultExport inventoryResultExport : inventoryResultExports) {
+            labNameUnique_Set.add(inventoryResultExport.getLabName());
+        }
+        List<String> labNameUnique = new ArrayList<>(labNameUnique_Set);
+
+        /** Xuất Exel */
+        int year_MinusYear = year -1;
+        String[] headers = {"Tên trang bị", "Đơn vị tính", "Seri/mã", "Phân cấp", "Năm sử dụng", "Thực lực 0 giờ ngày 01/01/" + year_MinusYear, "Thực lực 0 giờ ngày 01/01/" + year, "Tăng", "Giảm", "Tên PTN"};
+        Workbook workbook = new XSSFWorkbook();
+        if(managingUnitId==0 && labId==0)
+            createSheet(workbook, inventoryResultExports_NotEquipment, headers,0+". Phòng trống hoặc không có T.tin K.kê");
+
+        List<InventoryResultExport> inventoryResultExport_SameLabName = new ArrayList<>();
+        for (int i = 0; i < labNameUnique.size(); i++) {
+            for (InventoryResultExport inventoryResultExport : inventoryResultExports) {
+                if(inventoryResultExport.getLabName().equals(labNameUnique.get(i)))
+                    inventoryResultExport_SameLabName.add(inventoryResultExport);
+            }
+            createSheet(workbook, inventoryResultExport_SameLabName, headers,(i+1)+". "+ labNameUnique.get(i), true);
+            inventoryResultExport_SameLabName.clear();
+        }
+
+        return exportData(workbook, "Danh sách kiểm kê");
+    }
+
+    @GetMapping({"/admin/Export/AllshowinventoryEquipment"})
+    public ResponseEntity<Resource> ExportInventoryAllEquipment(@RequestParam(value = "managingUnitsCheck", defaultValue = "false") boolean managingUnitsCheck,
+                                                                @RequestParam(value = "yearSelected", defaultValue = "0") int yearSelected,
+                                                                @RequestParam(value = "managingUnitId", defaultValue = "0") int managingUnitId,
+                                                                @RequestParam("username") String username,
+                                                                @RequestParam(value = "success", defaultValue = "false") boolean success,
+                                                                @RequestParam(value = "unsuccess", defaultValue = "false") boolean unsuccess){
+        InventoryResult inventoryResult = ShowinventoryEquipment(managingUnitsCheck, yearSelected, managingUnitId, username, success, unsuccess);
+        int year = LocalDate.now().getYear();
+        if(yearSelected!=0) year = yearSelected;
+        int year_MinusYear = year -1;
+
+        String managingUnitName = "";
+        if(managingUnitId != 0) managingUnitName = managingUnitService.getManagingUnitById(managingUnitId).getDepartmentName();
+
+        List<InventoryResultExport> inventoryResultExports = new ArrayList<>();
+        for (int i = 0; i < inventoryResult.getEquipmentLabDTOs().size(); i++) {
+            EquipmentLabDTO equipmentLabDTOS = inventoryResult.getEquipmentLabDTOs().get(i);
+            InventoryResultExport inventoryResultExport = new InventoryResultExport(
+                    equipmentLabDTOS.getEquipment().getName(),
+                    equipmentLabDTOS.getEquipment().getUnit(),
+                    equipmentLabDTOS.getEquipmentSerieList(),
+                    equipmentLabDTOS.getLevels(),
+                    equipmentLabDTOS.getUsingdates(),
+                    inventoryResult.getInventoryCompares().size() > 0 ? inventoryResult.getInventoryCompares().get(i).getLastYear() : 0,
+                    inventoryResult.getInventoryCompares().size() > 0 ? inventoryResult.getInventoryCompares().get(i).getThisYear() : equipmentLabDTOS.getEquipmentSerieList().size(),
+                    inventoryResult.getInventoryCompares().size() > 0 ? inventoryResult.getInventoryCompares().get(i).getIncrease() : 0,
+                    inventoryResult.getInventoryCompares().size() > 0 ? inventoryResult.getInventoryCompares().get(i).getReduce() : 0,
+                    (managingUnitId != 0) && !managingUnitsCheck ? managingUnitName : ""
+            );
+            inventoryResultExports.add(inventoryResultExport);
+        }
+
+        Workbook workbook = new XSSFWorkbook();
+        String[] headers = {"Tên trang bị", "Đơn vị tính", "Seri/mã", "Phân cấp", "Năm sử dụng", "Thực lực 0 giờ ngày 01/01/" + year_MinusYear, "Thực lực 0 giờ ngày 01/01/" + year, "Tăng", "Giảm", "Tên Bộ môn"};
+        String sheetName = "Kiểm kê trang bị năm " + year;
+        if ((managingUnitId != 0 && !managingUnitsCheck)){
+            sheetName = managingUnitName + " năm " + year;
+        } else {
+            headers = Arrays.copyOfRange(headers, 0, headers.length - 1);
+        }
+        createSheet(workbook, inventoryResultExports, headers, sheetName, true);
+        return exportData(workbook, "Danh sách kiểm kê trang bị " + managingUnitName + " " + year);
+    }
+                        /*********************************/
+                            /**    Export Manager   */
+                        /********************************/
+
+    @GetMapping({"/admin/Export/Managers"})
+    public ResponseEntity<Resource> ExportManagers(){
+        List<People> managers = peopleService.getAllPeople()
+                                .stream().filter(p -> {
+                                    return (CheckRole(p, RoleSystem.ROLE_ADMIN) || CheckRole(p, RoleSystem.ROLE_MANAGER)) && p.getIsDelete()==0;
+                                }).collect(Collectors.toList());
+
+        List<PeoplesExport> managersExports = CreatePeopleExport(managers);
+        Workbook workbook = new XSSFWorkbook();
+        String[] headers = {"ID", "Họ và tên", "Cấp bậc", "Đơn vị", "Số hiệu QN", "Liên lạc", "Tên đăng nhập", "Mật khẩu (đã mã hóa)", "Quyền truy cập"};
+        String sheetName = "Danh sách tài khoản quản lý";
+        createSheet(workbook, managersExports, headers, sheetName);
+        return exportData(workbook, sheetName);
+    }
+
+    @GetMapping({"/admin/Export/Managers/{id}"})
+    public ResponseEntity<Resource> ExportManagers(@PathVariable("id") int managerId){
+        List<People> managers = new ArrayList<>();
+        People people = peopleService.findByPeopleId(managerId);
+        managers.add(people);
+        List<Lab> labs = labService.findAllByLabManagemetId(managerId);
+        labs.removeIf(lab -> lab.getIsDelete()!=0);
+        List<LabDtoExport> labDtoExports = new ArrayList<>();
+        for (Lab lab : labs) {
+            labDtoExports.add(new LabDtoExport(lab, true));
+        }
+        List<PeoplesExport> managersExports = CreatePeopleExport(managers);
+        Workbook workbook = new XSSFWorkbook();
+        String[] headers = {"ID", "Họ và tên", "Cấp bậc", "Đơn vị", "Số hiệu QN", "Liên lạc", "Tên đăng nhập", "Mật khẩu (đã mã hóa)", "Quyền truy cập"};
+        String[] headersLabs = {"ID", "Tên PTN", "Người quản lý", "Đơn vị chủ quản", "Sức chứa (người)", "Vị trí"};
+        String sheetManager = "TT TK " + people.getRank() + " " + people.getName();
+        String sheetLabs = "DS PTN đang quản lý";
+        createSheet(workbook, managersExports, headers, sheetManager);
+        createSheet(workbook, labDtoExports, headersLabs, sheetLabs);
+        return exportData(workbook, sheetManager);
+    }
+
+
+                        /*********************************/
+                            /**    Export Teacher   */
+                        /********************************/
+
+    private List<PeoplesExport> CreatePeopleExport(List<People> teachers) {
+        List<PeoplesExport> teachersExports = new ArrayList<>();
+        for (People teacher : teachers) {
+            Users user = userService.findByPeopleId(teacher.getId());
+            teachersExports.add(new PeoplesExport(
+                    teacher.getId(),
+                    teacher.getName(),
+                    teacher.getRank(),
+                    teacher.getUnit(),
+                    teacher.getMilitaryNumber(),
+                    teacher.getContact(),
+                    user.getUsername(),
+                    user.getPassword(),
+                    GetAuthorityByUsername(user.getUsername())
+            ));
+        }
+        return teachersExports;
+    }
+
+    @GetMapping({"/admin/Export/Teachers"})
+    public ResponseEntity<Resource> ExportTeachers(){
+        List<People> teachers = peopleService.getAllPeople()
+                                .stream().filter(p -> {
+                                    return !(CheckRole(p, RoleSystem.ROLE_ADMIN) || CheckRole(p, RoleSystem.ROLE_MANAGER)) && p.getIsDelete()==0;
+                                }).collect(Collectors.toList());
+
+        List<PeoplesExport> teachersExports = CreatePeopleExport(teachers);
+        Workbook workbook = new XSSFWorkbook();
+        String sheetName = "Danh sách tài khoản giáo viên và người phụ trách";
+        String[] headers = {"ID", "Họ và tên", "Cấp bậc", "Đơn vị", "Số hiệu QN", "Liên lạc", "Tên đăng nhập", "Mật khẩu (đã mã hóa)", "Quyền truy cập"};
+        createSheet(workbook, teachersExports, headers, sheetName);
+        return exportData(workbook, sheetName);
+    }
+
+    @GetMapping({"/admin/Export/Teachers/{id}"})
+    public ResponseEntity<Resource> ExportTeacher(@PathVariable("id") int teacherId){
+        List<People> teachers = new ArrayList<>();
+        People people = peopleService.findByPeopleId(teacherId);
+        teachers.add(people);
+        List<PeoplesExport> teachersExports = CreatePeopleExport(teachers);
+
+        List<Content> contents = contentService.findAllByReservationistId(teacherId);
+        List<BookingDTO> bookingDTOs = new ArrayList<>();
+        List<BookingDtoExport> bookingDtoExports = new ArrayList<>();
+        contents.forEach(content -> {
+            Booking booking = bookingService.findByContent_id(content.getId());
+            Lab lab = labService.findByLabId(booking.getLabid());
+            ExperimentReport experimentReport = experimentReportService.getExperimentReportById(content.getExperimentReport());
+            bookingDTOs.add(new BookingDTO(booking,content,lab,experimentReport));
+        });
+        Collections.sort(bookingDTOs, new BookingDateComparator());
+        bookingDTOs.forEach(bookingDTO -> {
+            Booking booking = bookingService.findByBookingId(bookingDTO.getId());
+            People reservationist = peopleService.findByPeopleId(bookingDTO.getContent().getReservationistId());
+            ExperimentType experimentType = experimentTypeService.getExperimentTypeById(bookingDTO.getContent().getExperimentType());
+            bookingDtoExports.add(new BookingDtoExport(booking,bookingDTO.getLab().getLabName(), bookingDTO.getContent(), experimentType.getTypeName(), bookingDTO.getExperimentReport().getReportType(),reservationist.getRank() + " " + reservationist.getName()));
+        });
+
+        String[] headers = {"ID", "Họ và tên", "Cấp bậc", "Đơn vị", "Số hiệu QN", "Liên lạc", "Tên đăng nhập", "Mật khẩu (đã mã hóa)", "Quyền truy cập"};
+        Workbook workbook = new XSSFWorkbook();
+        String sheetName = "TT TK GV " + people.getName();
+        createSheet(workbook, teachersExports, headers, sheetName);
+
+        String[] headersBooking = {"ID", "Tên PTN", "Tên bài", "Tên lớp", "Người đặt", "Số giờ", "Số người", "Ngày đặt", "Ghi chú", "Loại hình TN", "Loại BC", "Trạng thái quản lý", "Trạng thái người dùng", "Thao tác"};
+        List<BookingDtoExport> bookingDtoExports_Pendding = bookingDtoExports.stream()
+                                                            .filter(b -> b.getConfirm_Status().equals(ConfirmStatus.PENDDING)).collect(Collectors.toList());
+        createSheet(workbook, bookingDtoExports_Pendding, headersBooking, ConfirmStatus.PENDDING);
+        List<BookingDtoExport> bookingDtoExports_Approve = bookingDtoExports.stream()
+                                                            .filter(b -> b.getConfirm_Status().equals(ConfirmStatus.APPROVE)).collect(Collectors.toList());
+        createSheet(workbook, bookingDtoExports_Approve, headersBooking, ConfirmStatus.APPROVE);
+        List<BookingDtoExport> bookingDtoExports_UnUsed = bookingDtoExports.stream()
+                                                            .filter(b -> {
+                                                                return b.getComfirmUsed().equals(ConfirmUsed.UNUSED);
+                                                            }).collect(Collectors.toList());
+        createSheet(workbook, bookingDtoExports_UnUsed, headersBooking, "Chờ GV xác nhận sử dụng");
+        List<BookingDtoExport> bookingDtoExports_Cancel = bookingDtoExports.stream()
+                                                            .filter(b -> b.getConfirm_Status().equals(ConfirmStatus.CANCEL)).collect(Collectors.toList());
+        createSheet(workbook, bookingDtoExports_Cancel, headersBooking, ConfirmStatus.CANCEL);
+
+        return exportData(workbook, sheetName);
+    }
+
+    @GetMapping({"/Export/Teachers/myBooking"})
+    public ResponseEntity<Resource> ExportTeacherMyBooking(@RequestParam("username")String username,
+                                                           @RequestParam(value = "search", defaultValue = "false") boolean search,
+                                                           @RequestParam(value = "AndOr", defaultValue = "false") boolean AndOr,
+                                                           @RequestParam(value = "inputdatasearch", defaultValue = "NoSearch") String inputdatasearch,
+                                                           @RequestParam(value = "datetimepicker", defaultValue = "1970-01-01") Date datetimepicker,
+                                                           @RequestParam(value = "success", defaultValue = "false") boolean success,
+                                                           @RequestParam(value = "unsuccess", defaultValue = "false") boolean unsuccess){
+        List<BookingDTO> bookingDTOs = GetMyBooking(username, search, AndOr, inputdatasearch, datetimepicker, success, unsuccess);
+        System.out.println("bookingDTOs size = " + bookingDTOs.size());
+        System.out.println("username = " + username);
+        System.out.println("search = " + search);
+        System.out.println("AndOr = " + AndOr);
+        System.out.println("inputdatasearch = " + inputdatasearch);
+        System.out.println("datetimepicker = " + datetimepicker);
+
+        List<BookingDtoExport> bookingDtoExports = new ArrayList<>();
+        bookingDTOs.forEach(bookingDTO -> {
+            Booking booking = bookingService.findByBookingId(bookingDTO.getId());
+            People reservationist = peopleService.findByPeopleId(bookingDTO.getContent().getReservationistId());
+            ExperimentType experimentType = experimentTypeService.getExperimentTypeById(bookingDTO.getContent().getExperimentType());
+            BookingDtoExport bookingDtoExport = new BookingDtoExport(booking,bookingDTO.getLab().getLabName(),
+                                                                    bookingDTO.getContent(),
+                                                                    experimentType.getTypeName(),
+                                                                    bookingDTO.getExperimentReport().getReportType(),
+                                                                    reservationist.getRank() + " " + reservationist.getName());
+            bookingDtoExports.add(bookingDtoExport);
+        });
+        Workbook workbook = new XSSFWorkbook();
+        String[] headersBooking = {"ID", "Tên PTN", "Tên bài", "Tên lớp", "Người đặt", "Số giờ", "Số người", "Ngày đặt", "Ghi chú", "Loại hình TN", "Loại BC", "Trạng thái quản lý", "Trạng thái người dùng", "Thao tác"};
+        List<BookingDtoExport> bookingDtoExports_Pendding = bookingDtoExports.stream()
+                                                            .filter(b -> b.getConfirm_Status().equals(ConfirmStatus.PENDDING)).collect(Collectors.toList());
+        createSheet(workbook, bookingDtoExports_Pendding, headersBooking, ConfirmStatus.PENDDING);
+        List<BookingDtoExport> bookingDtoExports_Approve = bookingDtoExports.stream()
+                                                            .filter(b -> b.getConfirm_Status().equals(ConfirmStatus.APPROVE)).collect(Collectors.toList());
+        createSheet(workbook, bookingDtoExports_Approve, headersBooking, ConfirmStatus.APPROVE);
+        List<BookingDtoExport> bookingDtoExports_UnUsed = bookingDtoExports.stream()
+                                                            .filter(b -> {
+                                                                return b.getComfirmUsed().equals(ConfirmUsed.UNUSED);
+                                                            }).collect(Collectors.toList());
+        createSheet(workbook, bookingDtoExports_UnUsed, headersBooking, "Chờ GV xác nhận sử dụng");
+        List<BookingDtoExport> bookingDtoExports_Cancel = bookingDtoExports.stream()
+                                                            .filter(b -> b.getConfirm_Status().equals(ConfirmStatus.CANCEL)).collect(Collectors.toList());
+        createSheet(workbook, bookingDtoExports_Cancel, headersBooking, ConfirmStatus.CANCEL);
+
+        return exportData(workbook, "Lịch sử đặt PTN");
     }
 }

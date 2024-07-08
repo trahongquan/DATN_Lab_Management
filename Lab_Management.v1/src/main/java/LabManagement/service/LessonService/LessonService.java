@@ -11,4 +11,5 @@ public interface LessonService {
     Lesson updateLesson(int id, Lesson lesson);
     void deleteLesson(int id);
     List<Lesson> findAllByLabId(int id);
+    Lesson findByName(String name);
 }

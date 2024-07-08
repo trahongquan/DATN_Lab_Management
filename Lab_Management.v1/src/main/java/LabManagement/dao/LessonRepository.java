@@ -10,4 +10,5 @@ import java.util.List;
 public interface LessonRepository extends JpaRepository<Lesson, Integer> {
     // Additional methods if needed
     List<Lesson> findAllByLabId(int id);
+    Lesson findByName(String name);
 }

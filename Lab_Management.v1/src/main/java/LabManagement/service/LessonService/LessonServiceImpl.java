@@ -57,4 +57,8 @@ public class LessonServiceImpl implements LessonService {
     public List<Lesson> findAllByLabId(int id) {
         return lessonRepository.findAllByLabId(id);
     }
+    @Override
+    public Lesson findByName(String name) {
+        return lessonRepository.findByName(name);
+    }
 }
