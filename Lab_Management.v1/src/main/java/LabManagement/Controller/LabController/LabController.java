@@ -3734,7 +3734,7 @@ public class LabController {
         String[] headers = {"Tên trang bị", "Đơn vị tính", "Seri/mã", "Phân cấp", "Năm sử dụng", "Thực lực 0 giờ ngày 01/01/" + year_MinusYear, "Thực lực 0 giờ ngày 01/01/" + year, "Tăng", "Giảm", "Tên Bộ môn"};
         String sheetName = "Kiểm kê trang bị năm " + year;
         if ((managingUnitId != 0 && !managingUnitsCheck)){
-            sheetName = managingUnitName + " năm " + year;
+            sheetName = managingUnitName.replace("/", "-") + " năm " + year;
         } else {
             headers = Arrays.copyOfRange(headers, 0, headers.length - 1);
         }
