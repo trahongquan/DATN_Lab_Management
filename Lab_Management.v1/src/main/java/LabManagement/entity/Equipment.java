@@ -189,11 +189,11 @@ public class Equipment implements Serializable {
         for (int i = 0; i < seriesList.size(); i++) {
             if(seriesList.get(i).equals(seri)){
                 seriesList.remove(seri);
+                this.setEquipmentSeries(seriesList.toString());
+                equipmentService.updateEquipment(this);
                 return i;
             }
         }
-        this.setEquipmentSeries(seriesList.toString());
-        equipmentService.updateEquipment(this);
         return -1;
     }
     public void AddSeriFixed(EquipmentService equipmentService, String seri){
@@ -216,7 +216,7 @@ public class Equipment implements Serializable {
         equipmentService.updateEquipment(this);
     }
     public void DelLevel(EquipmentService equipmentService, String level){
-        List<String> levelList = new ToList().StringToList(levels);
+        List<String> levelList = new ToList().StringLevelsToList(levels);
         levelList.remove(level);
         this.setLevelList(levelList.toString());
         equipmentService.updateEquipment(this);

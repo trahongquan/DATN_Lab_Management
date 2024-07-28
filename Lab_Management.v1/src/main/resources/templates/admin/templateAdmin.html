@@ -955,6 +955,12 @@
                                             </i>Tất cả
                                         </a>
                                     </li>
+                                    <li>
+                                        <a th:href="'/Lab/admin/Recall?username='+${#authentication.name}">
+                                            <i class="metismenu-icon pe-7s-calculator">
+                                            </i>Thu hồi
+                                        </a>
+                                    </li>
                                 </ul>
                             </li>
                             <li sec:authorize="hasRole('ROLE_ADMIN')">
@@ -1134,6 +1140,13 @@
                     <div th:replace="admin/equipment-edit-form-readOnly.html :: equipment-edit-form-readOnly"></div>
                 </div>
                 <div th:if="${#strings.contains(#request.requestURI, '/Lab/admin/AllEquipment/showForManager/')}" class="app-main__inner">
+                    <div th:replace="admin/equipment-edit-form-readOnly.html :: equipment-edit-form-readOnly"></div>
+                </div>
+
+                <div th:if="${#request.requestURI == '/Lab/admin/Recall'}" class="app-main__inner">
+                    <div th:replace="admin/equipments.html :: recall-equip"></div>
+                </div>
+                <div th:if="${#strings.contains(#request.requestURI, '/Lab/admin/Recall/showDetail/')}" class="app-main__inner">
                     <div th:replace="admin/equipment-edit-form-readOnly.html :: equipment-edit-form-readOnly"></div>
                 </div>
 

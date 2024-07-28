@@ -12,6 +12,7 @@ public class ContentDTO {
     private int amountOfPeople;
     private int lessonId;
     private String listIdParticipants;
+    private String fileName;
 
     private Lesson lesson;
     private ExperimentGroup experimentGroup;
@@ -31,6 +32,7 @@ public class ContentDTO {
         this.className = content.getClassName();
         this.amountOfPeople = content.getAmountOfPeople();
         this.listIdParticipants = content.getListIdParticipants();
+        this.fileName = content.getFileName();
         this.reservationist = reservationist;
         this.experimentGroup = experimentGroup;
         this.experimentType = experimentType;
@@ -50,6 +52,7 @@ public class ContentDTO {
                 ", className='" + className + '\'' +
                 ", amountOfPeople=" + amountOfPeople +
                 ", listIdParticipants='" + listIdParticipants + '\'' +
+                ", fileName='" + fileName + '\'' +
                 ", experimentGroup=" + experimentGroup +
                 ", experimentType=" + experimentType +
                 ", experimentReport=" + experimentReport +
@@ -119,6 +122,14 @@ public class ContentDTO {
 
     public void setListIdParticipants(String listIdParticipants) {
         this.listIdParticipants = listIdParticipants;
+    }
+
+    public String getFileName() {
+        return fileName;
+    }
+
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
     }
 
     public ExperimentGroup getExperimentGroup() {

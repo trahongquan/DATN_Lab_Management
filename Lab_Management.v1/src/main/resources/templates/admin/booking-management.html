@@ -158,7 +158,8 @@
                                            accept=".xlsx, .xls, .doc, .docx, .ppt, .pptx" onchange="enableImportButton(this)">
                                     <input type="hidden" name="bookingId" th:value="${booking.getId}">
                                     <input type="hidden" name="username" th:value="${#authentication.name}">
-                                    <button type="submit" disabled class="btn btn-success m-2" onclick="return confirm('Bạn có chắc chắn muốn SỬ DỤNG không?')">Dùng</button>
+                                    <!--<button type="submit" disabled class="btn btn-success m-2" onclick="return confirm('Bạn có chắc chắn muốn SỬ DỤNG không?')">Dùng</button>-->
+                                    <button type="submit" class="btn btn-success m-2" onclick="return confirm('Bạn có chắc chắn muốn SỬ DỤNG không?')">Dùng</button>
                                 </form>
                                 <form th:action="@{'/Lab/admin/LabBookingManagement/ComfirmUsed'}" method="get"
                                       class="d-flex justify-content-center align-content-center"
@@ -170,7 +171,7 @@
                                 <div class="d-flex justify-content-center align-content-center flex-column">
                                     <span class="text-success font-weight-bold" th:if="${booking.comfirmUsed == 'Đã sử dụng'}"> GV đã xác nhận sử dụng phòng</span>
                                     <a class="font-weight-bold" th:href="'/Lab/admin/LabBookingManagement/ComfirmUsed/download/'+${booking.getId}"
-                                       th:if="${booking.comfirmUsed == 'Đã sử dụng'}"> <span>Tải xuống báo cáo</span></a>
+                                       th:if="${booking.comfirmUsed == 'Đã sử dụng' && booking.getContent.getFileName != ''}"> <span>Tải xuống báo cáo</span></a>
                                 </div>
                                 <span class="text-danger font-weight-bold" th:if="${booking.comfirmUsed == 'Đã hủy'}"> GV Đã xác nhận <br> hủy phòng</span>
                             </div>

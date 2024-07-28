@@ -21,7 +21,7 @@
         </a>
     </h1><br>
     <div class="container">
-        <form th:object="${equipment}" th:action="@{'/Lab/admin/Equipment/showFormForUpdate/'+ ${equipment.getId}}" method="post" enctype="multipart/form-data">
+        <div th:object="${equipment}">
             <div class="form-group">
                 <h4 for="name">Tên thiết bị:</h4>
                 <input type="text" class="form-control font-weight-bold" id="name" name="name" required
@@ -47,7 +47,7 @@
                 </div>
                 <div class="card-body col-6">
                     <h4 for="unit">Đơn vị tính:</h4>
-                    <select class="form-control font-weight-bold" name="unit" id="unit" required>
+                    <select class="form-control font-weight-bold" name="unit" id="unit" required disabled>
                         <option th:each="unit : ${units}"
                                 th:value="${unit.unitName}" th:text="${unit.unitName}"
                                 th:selected="${unit.unitName == equipment.getUnit}"></option>
@@ -63,13 +63,20 @@
                                 <input type="search" class="form-control" id="series" name="series" required th:value="${seri}" style="font-weight: bold">
                             </div>
                             <div class="form-group col-sm-2">
-                                <select class="form-control font-weight-bold" id="levels" name="levels" required>
-                                    <option value="Cấp 1" th:selected="${equipment.getLevelList[iter.index] == 'Cấp 1'}">Cấp 1</option>
-                                    <option value="Cấp 2" th:selected="${equipment.getLevelList[iter.index] == 'Cấp 2'}">Cấp 2</option>
-                                    <option value="Cấp 3" th:selected="${equipment.getLevelList[iter.index] == 'Cấp 3'}">Cấp 3</option>
-                                    <option value="Cấp 4" th:selected="${equipment.getLevelList[iter.index] == 'Cấp 4'}">Cấp 4</option>
-                                    <option value="Cấp 5" th:selected="${equipment.getLevelList[iter.index] == 'Cấp 5'}">Cấp 5</option>
-                                </select>
+                                <form th:action="'/Lab/admin/EditLevelEquipment'" method="get" class="row justify-content-center align-content-center">
+                                    <input type="hidden" name="username" th:value="${#authentication.name}" />
+                                    <input type="hidden" name="equipID" th:value="${equipment.getId}">
+                                    <input type="hidden" name="seri" th:value="${seri}">
+                                    <input type="hidden" name="labID" th:value="${LabIds[iter.index] != 0 ? LabIds[iter.index] : 0}">
+                                    <select class="form-control font-weight-bold col-4" id="levels" name="levels" required>
+                                        <option value="Cấp 1" th:selected="${equipment.getLevelList[iter.index] == 'Cấp 1'}">Cấp 1</option>
+                                        <option value="Cấp 2" th:selected="${equipment.getLevelList[iter.index] == 'Cấp 2'}">Cấp 2</option>
+                                        <option value="Cấp 3" th:selected="${equipment.getLevelList[iter.index] == 'Cấp 3'}">Cấp 3</option>
+                                        <option value="Cấp 4" th:selected="${equipment.getLevelList[iter.index] == 'Cấp 4'}">Cấp 4</option>
+                                        <option value="Cấp 5" th:selected="${equipment.getLevelList[iter.index] == 'Cấp 5'}">Cấp 5</option>
+                                    </select>
+                                    <button type="submit" id="btn-fixlevel" class="btn btn-primary mx-2 col-6" onclick="return confirm('Bạn có chắc chắn muốn sửa cấp TTB?')">Sửa cấp TTB</button>
+                                </form>
                             </div>
                             <div class="form-group col-sm-2">
                                 <input type="search" class="form-control" name="usingdate" required
@@ -80,6 +87,20 @@
                                     <a th:href="'/Lab/admin/room/showFormForUpdate/' + ${LabIds[iter.index]}">
                                     <span class="text-info" th:text="${LabNames[iter.index]}"></span>
                                 </a></p>
+                            </div>
+                            <!--<div>
+                                <button id="btn-fixlevel" class="btn btn-primary mx-2" onclick="event.preventDefault(); if(confirm('Bạn có chắc chắn muốn sửa cấp TTB?')){document.getElementById('fix-level').submit();}">Sửa cấp TTB</button>
+                            </div>-->
+                            <div>
+                                <form action="/Lab/admin/RecallEquipment" method="get" id="fix-recall" th:if="${equipment.getLevelList[iter.index] == 'Cấp 5'}">
+                                    <input type="hidden" name="username" th:value="${#authentication.name}" />
+                                    <input type="hidden" name="note"/>
+                                    <input type="hidden" name="equipID" th:value="${equipment.getId}">
+                                    <input type="hidden" name="seri" th:value="${seri}">
+                                    <input type="hidden" name="labID" th:value="${LabIds[iter.index] != 0 ? LabIds[iter.index] : 0}">
+                                    <!--<button type="submit" id="btn-recall" class="btn btn-danger mx-4" onclick="return confirm('Bạn có chắc chắn muốn thu hồi thiết bị này?')" >Thu hồi</button>-->
+                                    <button type="button" id="btn-recall" class="btn btn-danger mx-4" onclick="showPrompt()" >Thu hồi</button>
+                                </form>
                             </div>
                         </div>
                     </th:block>
@@ -104,9 +125,8 @@
                 }
             </style>
             <button th:if="false" type="submit" class="btn btn-primary" id="submitButton">Sửa</button>
-        </form>
+        </div>
     </div>
-
     <!-- Link to Bootstrap JS and jQuery -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
@@ -114,7 +134,18 @@
 
     <script th:src="@{/js/equipment-edit-form.js}"></script>
     <script>
-        var inputElements = document.querySelectorAll('input, textarea, select');
+        function showPrompt() {
+            var userInput = prompt("Nhập số công văn thu hồi và nội dung:"); // Hiển thị hộp thoại để nhập nội dung
+
+            if (userInput !== null && userInput.trim() !== "") {
+                // Set giá trị nhập vào thẻ input "note"
+                document.querySelector('input[name="note"]').value = userInput;
+                document.getElementById("fix-recall").submit();
+            } else {
+                alert("Vui lòng nhập nội dung trước khi thu hồi.");
+            }
+        }
+        var inputElements = document.querySelectorAll('input:not([type="hidden"]), textarea');;
         for (var i = 0; i < inputElements.length; i++) {
             if (inputElements[i].type !== 'checkbox') {
                 inputElements[i].disabled = true;

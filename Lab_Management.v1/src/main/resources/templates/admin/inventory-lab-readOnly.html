@@ -154,18 +154,24 @@
 <inventory-AllLab-readOnly>
     <h1 style="margin-top: 50px; text-align: center;" class="text-uppercase text-danger font-weight-bold">
         Danh sách kiểm kê [[${#lists.size(inventoryResults)}]] phòng
-        <a href="#"
+        <a href="#" id="img-download"
            class="col-3" onclick="event.preventDefault(); document.getElementById('download-form-all').submit();">
             <img src="/images/download.png" alt="Tải xuống" style="max-width: 2%">
         </a>
     </h1>
-    <form id="download-form-all" th:action="'/Lab/admin/Export/AllshowinventoryLab/'" method="get" style="display: none;">
+    <form id="download-form-all" th:action="'/Lab/admin/Export/AllshowinventoryLab'" method="get" style="display: none;">
         <input type="hidden" name="username" th:value="${#authentication.name}" />
         <input type="hidden" name="managingUnitsCheck" th:value="${managingUnitsCheck != null ? managingUnitsCheck : false}" />
         <input type="hidden" name="yearSelected" th:value="${year != null ? year : 0}" />
         <input type="hidden" name="managingUnitId" th:value="${managingUnitId != null ? managingUnitId : 0}" />
     </form>
-    <form th:action="'/Lab/admin/Showinventory/AllshowinventoryLab'" method="get">
+    <form id="download-form-multi-managing" th:action="'/Lab/admin/Export/AllshowinventoryLab/MultiManagingUnit'" method="get" style="display: none;">
+        <input type="hidden" name="username" th:value="${#authentication.name}" />
+        <input type="hidden" name="managingUnitsCheck" th:value="${managingUnitsCheck != null ? managingUnitsCheck : false}" />
+        <input type="hidden" name="yearSelected" th:value="${year != null ? year : 0}" />
+        <input type="hidden" name="multiManagingUnit" th:value="${multiManagingUnit != null ? multiManagingUnit : ''}" />
+    </form>
+    <form th:action="'/Lab/admin/Showinventory/AllshowinventoryLab'" method="get" id="one-managingUnit">
         <div class="d-flex flex-column">
             <input type="hidden" name="username" th:value="${#authentication.name}">
             <div class="row justify-content-center">
@@ -186,10 +192,81 @@
                     <span class="my-4 font-weight-bold">Xem tất cả</span>
                 </div>
             </div>
-            <button type="submit" class="form-control btn-primary m-4 col-3 align-self-center">Xem</button>
+            <button type="submit" class="form-control btn-primary m-4 col-3 align-self-center font-size-xlg">Xem</button>
+        </div>
+    </form>
+    <form th:action="'/Lab/admin/Showinventory/AllshowinventoryLab/MultiManagingUnit'" method="get" id="multi-managingUnit">
+        <div class="d-flex flex-column">
+            <input type="hidden" name="username" th:value="${#authentication.name}">
+            <div class="row justify-content-center align-content-center">
+                <select name="yearSelected" class="form-control m-4 col-3" required>
+                    <option th:each="yearSort : ${sortedUniqueYears}"
+                            th:value="${yearSort}"
+                            th:text="'Danh sách kiểm kê ngày 01/01/'+${yearSort}"
+                            th:selected="${yearSort==year}"></option>
+                </select>
+                <div class="form-group col-3" style="margin: unset">
+                    <div class="main-card card" >
+                        <div class="card-body" style="padding: unset">
+                            <h5 class="card-title">Chọn các bộ môn</h5>
+                            <select multiple="multiple" class="multiselect-dropdown form-control"
+                                    id="multiManagingUnit" name="multiManagingUnit">
+                                <th:block th:each="managingUnit, iterStat : ${managingUnits}">
+                                    <option th:value="${managingUnit.id}" th:text="${managingUnit.departmentName}"
+                                            th:selected="${#lists.contains(multiManagingUnit, managingUnit.id)}"></option>
+                                </th:block>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <button type="submit" class="form-control btn-primary m-4 col-3 align-self-center font-size-xlg">Xem</button>
         </div>
     </form>
 
+    <div class="d-flex justify-content-center align-content-center">
+        <button class="btn btn-warning font-size-xlg" id="switch-multi-managingUnit"> Chọn nhiều bộ môn </button>
+    </div>
+    <script>
+        $(document).ready(function() {
+            // Lấy các form và button
+            var oneManagingUnitForm = $('#one-managingUnit');
+            var multiManagingUnitForm = $('#multi-managingUnit');
+            var switchButton = $('#switch-multi-managingUnit');
+
+            // Khôi phục trạng thái từ localStorage
+            var formState = localStorage.getItem('formState');
+            if (formState === 'one') {
+                oneManagingUnitForm.show();
+                multiManagingUnitForm.hide();
+                switchButton.text("Chọn nhiều bộ môn");
+                $('#img-download').attr('onclick', "event.preventDefault(); document.getElementById('download-form-all').submit();");
+            } else {
+                oneManagingUnitForm.hide();
+                multiManagingUnitForm.show();
+                switchButton.text("Bỏ chọn nhiều bộ môn");
+                $('#img-download').attr('onclick', "event.preventDefault(); document.getElementById('download-form-multi-managing').submit();");
+            }
+
+            // Xử lý sự kiện click của nút "Chọn nhiều bộ môn"
+            switchButton.click(function() {
+                // Chuyển đổi hiển thị của hai form
+                oneManagingUnitForm.toggle();
+                multiManagingUnitForm.toggle();
+
+                // Cập nhật text trên switchButton
+                if (oneManagingUnitForm.is(':visible')) {
+                    switchButton.text("Chọn nhiều bộ môn");
+                    localStorage.setItem('formState', 'one');
+                    $('#img-download').attr('onclick', "event.preventDefault(); document.getElementById('download-form-all').submit();");
+                } else {
+                    switchButton.text("Bỏ chọn nhiều bộ môn");
+                    localStorage.setItem('formState', 'multi');
+                    $('#img-download').attr('onclick', "event.preventDefault(); document.getElementById('download-form-multi-managing').submit();");
+                }
+            });
+        });
+    </script>
     <th:block th:each="inventoryResult : ${inventoryResults}">
         <h1 style="margin-top: 50px; text-align: center;text-transform: uppercase;">=========================================================</h1>
         <style>p{margin: unset}</style>

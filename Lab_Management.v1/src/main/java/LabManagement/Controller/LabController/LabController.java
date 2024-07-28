@@ -15,6 +15,7 @@ import LabManagement.service.EquipmentService.EquipmentService;
 import LabManagement.service.LessonService.LessonService;
 import LabManagement.service.ManagingUnitService.ManagingUnitService;
 import LabManagement.service.PeopleService.PeopleService;
+import LabManagement.service.RecallEquipmentService.EquipmentService.RecallEquipmentService;
 import LabManagement.service.RoleService.RoleService;
 import LabManagement.service.LabService.LabService;
 import LabManagement.service.authority.AuthorityService;
@@ -31,8 +32,14 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 //import com.sun.rowset.internal.Row;
 import org.apache.commons.io.output.ByteArrayOutputStream;
+import org.apache.poi.ss.SpreadsheetVersion;
+import org.apache.poi.ss.formula.EvaluationWorkbook;
+import org.apache.poi.ss.formula.udf.UDFFinder;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
+import org.apache.poi.xssf.usermodel.XSSFCell;
+import org.apache.poi.xssf.usermodel.XSSFRow;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -49,9 +56,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -112,9 +117,10 @@ public class LabController {
     private InventoryEquipmentService inventoryEquipmentService;
     private ManagingUnitService managingUnitService;
     private LessonService lessonService;
+    private RecallEquipmentService recallEquipmentService;
 
     @Autowired
-    public LabController(UserService userService, AuthorityService authorityService, BookingService bookingService, BookingRepository bookingRepository, ContentService contentService, EquipmentService equipmentService, EquipmentLabService equipmentLabService, Booking_equiService booking_equiService, PeopleService peopleService, RoleService roleService, LabService labService, PasswordEncoder passwordEncoder, ExperimentGroupService experimentGroupService, ExperimentTypeService experimentTypeService, ExperimentReportService experimentReportService, ScoreService scoreService, UnitService unitService, InventoryLabService inventoryLabService, InventoryEquipmentService inventoryEquipmentService, ManagingUnitService managingUnitService, LessonService lessonService) {
+    public LabController(UserService userService, AuthorityService authorityService, BookingService bookingService, BookingRepository bookingRepository, ContentService contentService, EquipmentService equipmentService, EquipmentLabService equipmentLabService, Booking_equiService booking_equiService, PeopleService peopleService, RoleService roleService, LabService labService, PasswordEncoder passwordEncoder, ExperimentGroupService experimentGroupService, ExperimentTypeService experimentTypeService, ExperimentReportService experimentReportService, ScoreService scoreService, UnitService unitService, InventoryLabService inventoryLabService, InventoryEquipmentService inventoryEquipmentService, ManagingUnitService managingUnitService, LessonService lessonService, RecallEquipmentService recallEquipmentService) {
         this.userService = userService;
         this.authorityService = authorityService;
         this.bookingService = bookingService;
@@ -136,6 +142,7 @@ public class LabController {
         this.inventoryEquipmentService = inventoryEquipmentService;
         this.managingUnitService = managingUnitService;
         this.lessonService = lessonService;
+        this.recallEquipmentService = recallEquipmentService;
     }
 
     /******************************************************************************************************/
@@ -975,13 +982,13 @@ public class LabController {
             for (Equipment equipment : equipments) {
                 for (String seriEqui: equipment.getEquipmentSerieList()) {
                     if(seriEqui.equals(seri)){
-                        /** Remove seri trong Equi*/
                         int position = equipment.DelSeri(equipmentService, seriEqui);
-                        String level = equipment.getLevelList().get(position);
-                        equipment.DelLevel(equipmentService, level);
-                        String usingdate = equipment.getUsingList().get(position);
-                        equipment.DelUsing(equipmentService, usingdate);
-                        if(position>0){
+                        if(position>-1){
+                            /** Remove seri trong Equi*/
+                            String level = equipment.getLevelList().get(position);
+                            equipment.DelLevel(equipmentService, level);
+                            String usingdate = equipment.getUsingList().get(position);
+                            equipment.DelUsing(equipmentService, usingdate);
                             /** Add seri vào trong EquiLab*/
                             EquipmentLab equipmentLab = equipmentLabService.findByLabIdAndEquipmentId(lab.getId(),equipment.getId());
                             if(equipmentLab.getId() != 0){
@@ -991,7 +998,7 @@ public class LabController {
                             } else {
                                 EquipmentLab equipmentLabNew = new EquipmentLab(lab.getId(),equipment.getId(),new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
                                 equipmentLabNew.AddSeri(equipmentLabService, seri);
-                                equipmentLabNew.AddSeri(equipmentLabService, level);
+                                equipmentLabNew.AddLevel(equipmentLabService, level);
                                 equipmentLabNew.AddUsing(equipmentLabService, usingdate);
                             }
                         } else {
@@ -1144,6 +1151,37 @@ public class LabController {
         return template;
     }
 
+    @GetMapping("/admin/EditLevelEquipment")
+    public String EditLevelEquipment(Model model,
+                                     @RequestParam(value = "username") String username,
+                                     @RequestParam(value = "equipID") int equipID,
+                                     @RequestParam(value = "labID") int labID,
+                                     @RequestParam("levels") String level,
+                                     @RequestParam("seri") String seri) {
+        if(labID!=0){
+            EquipmentLab equipmentLab = equipmentLabService.findByLabIdAndEquipmentId(labID, equipID);
+            for (int i = 0; i < equipmentLab.getEquipmentSerieList().size(); i++) {
+                if(equipmentLab.getEquipmentSerieList().get(i).equals(seri)) {
+                    List<String> levels = equipmentLab.getLevelList();
+                    levels.set(i, level);
+                    equipmentLab.setLevelList(levels.toString());
+                    equipmentLabService.saveEquipmentLab(equipmentLab);
+                }
+            }
+        } else {
+            Equipment equipment = equipmentService.findByEquipmentId(equipID);
+            for (int i = 0; i < equipment.getSeriesAsList().size(); i++) {
+                if(equipment.getEquipmentSerieList().get(i).equals(seri)){
+                    List<String> levels = equipment.getLevelList();
+                    levels.set(i, level);
+                    equipment.setLevelList(levels.toString());
+                    equipmentService.updateEquipment(equipment);
+                }
+            }
+        }
+
+        return Redirect("admin/AllEquipment/showAll/"+equipID+"?username="+username, "");
+    }
     @GetMapping("/admin/AllEquipment/showAll/{id}")
     public String AllEquipmentDetail(Model model, @PathVariable(value = "id") int id,
                                      @RequestParam("username") String username) {
@@ -1198,8 +1236,8 @@ public class LabController {
     @GetMapping("/admin/AllEquipment/showForManager/{id}")
     public String AllEquipmentshowForManagerDetail(Model model, @PathVariable(value = "id") int id,
                                                    @RequestParam("username") String username) {
-        AllEquipment_ReadOnly allEquipment_readOnly = GetAllEquipment_ReadOnly(id, username);
 
+        AllEquipment_ReadOnly allEquipment_readOnly = GetAllEquipment_ReadOnly(id, username);
         List<Unit> units = unitService.getAllUnits();
 
         model.addAttribute("equipment", allEquipment_readOnly.getEquipment());
@@ -1210,6 +1248,125 @@ public class LabController {
         return template;
     }
 
+    @GetMapping("/admin/Recall")
+    public String Liquidation(Model model,
+                              @RequestParam("username") String username,
+                              @RequestParam(value = "success", defaultValue = "false") boolean success) {
+        List<RecallEquipment> recallEquipments = recallEquipmentService.getAllRecallEquipment();
+
+        People people = GetPeopleByUsername(username);
+        boolean isAdmin = CheckRole(people, RoleSystem.ROLE_ADMIN);
+        if(!isAdmin) {
+            List<Lab> labs_byPeople = labService.findAllByLabManagemetId(people.getId());
+            Set<EquipmentLab> equipmentLab_set = new HashSet<>();
+            for (Lab lab_byPerson : labs_byPeople) {
+                List<EquipmentLab> equipmentLabs = equipmentLabService.findAllByLabId(lab_byPerson.getId());
+                equipmentLab_set.addAll(equipmentLabs);
+            }
+            List<RecallEquipment> recallEquipments_Coppy = new ArrayList<>(recallEquipments);
+            recallEquipments_Coppy.removeIf(recallEquipment -> {
+                // Duyệt qua từng phần tử trong danh sách equipmentLabs để so sánh equipId
+                for (EquipmentLab equipmentLab : new ArrayList<>(equipmentLab_set)) {
+                    if (recallEquipment.getEquipID() == equipmentLab.getEquipmentId()) {
+                        return true; // Loại bỏ recallEquipment nếu có equipId trùng
+                    }
+                }
+                return false;
+            });
+            recallEquipments.removeAll(recallEquipments_Coppy);
+        }
+
+        List<RecallEquipmentDTO> recallEquipmentDTOS = new ArrayList<>();
+        int quantity = 0;
+        for (RecallEquipment recallEquipment : recallEquipments) {
+            Equipment equipment = equipmentService.findByEquipmentId(recallEquipment.getEquipID());
+            recallEquipmentDTOS.add(new RecallEquipmentDTO(equipment, recallEquipment));
+            quantity += recallEquipment.getLevelList().size();
+        }
+
+        model.addAttribute("recallEquipmentDTOS", recallEquipmentDTOS);
+        model.addAttribute("quantity",quantity);
+        model.addAttribute("success",success);
+        model.addAttribute("title", "Các thiết bị được thu hồi");
+        return template;
+    }
+
+    @GetMapping("/admin/RecallEquipment")
+    public String RecallEquipment(Model model,
+                                  @RequestParam(value = "username") String username,
+                                  @RequestParam(value = "equipID") int equipID,
+                                  @RequestParam(value = "labID") int labID,
+                                  @RequestParam("note") String note,
+                                  @RequestParam("seri") String seri) {
+        if(labID!=0){
+            EquipmentLab equipmentLab = equipmentLabService.findByLabIdAndEquipmentId(labID, equipID);
+            for (int i = 0; i < equipmentLab.getEquipmentSerieList().size(); i++) {
+                if(equipmentLab.getEquipmentSerieList().get(i).equals(seri)) {
+
+                    List<String> series = equipmentLab.getEquipmentSerieList();
+                    series.remove(seri);
+                    equipmentLab.setEquipmentSeries(series.toString());
+
+                    List<String> levels = equipmentLab.getLevelList();
+                    String level = levels.get(i);
+                    levels.remove(i);
+                    equipmentLab.setLevelList(levels.toString());
+
+                    List<String> usingDates = equipmentLab.getUsingList();
+                    usingDates.remove(i);
+                    equipmentLab.setUsingList(usingDates.toString());
+
+                    equipmentLabService.saveEquipmentLab(equipmentLab);
+
+                    if(series.size()==0) equipmentLabService.deleteEquipmentLab(equipmentLab.getId());
+
+                    CreateRecallEquipment_IfNotExist(equipID, seri, level, note);
+                }
+            }
+        } else {
+            Equipment equipment = equipmentService.findByEquipmentId(equipID);
+            for (int i = 0; i < equipment.getSeriesAsList().size(); i++) {
+                if(equipment.getEquipmentSerieList().get(i).equals(seri)){
+
+                    List<String> series = equipment.getEquipmentSerieList();
+                    series.remove(seri);
+                    equipment.setEquipmentSeries(series.toString());
+
+                    List<String> levels = equipment.getLevelList();
+                    String level = levels.get(i);
+                    levels.remove(i);
+                    equipment.setLevelList(levels.toString());
+
+                    List<String> usingDates = equipment.getUsingList();
+                    usingDates.remove(i);
+                    equipment.setUsingList(usingDates.toString());
+
+                    equipmentService.updateEquipment(equipment);
+
+                    CreateRecallEquipment_IfNotExist(equipID, seri, level, note);
+                }
+            }
+        }
+
+        return Redirect("admin/AllEquipment/showAll/"+equipID+"?username="+username, "");
+    }
+
+    private void CreateRecallEquipment_IfNotExist(@RequestParam("equipID") int equipID, @RequestParam("seri") String seri, String level, String note) {
+        RecallEquipment recallEquipment = recallEquipmentService.findByEquipmentId(equipID);
+        if(recallEquipment.getId() == -1){
+            List<String> series = new ArrayList<>(); series.add(seri);
+            List<String> levels = new ArrayList<>(); levels.add(level);
+            List<String> recallDates = new ArrayList<>(); recallDates.add(LocalDate.now().toString());
+            List<String> notes = new ArrayList<>(); notes.add(note);
+            RecallEquipment recallEquipment_new = new RecallEquipment(equipID, series.toString(), levels.toString(), recallDates.toString(), notes.toString());
+            recallEquipmentService.createRecallEquipment(recallEquipment_new);
+        } else {
+            recallEquipment.AddSeri(recallEquipmentService, seri);
+            recallEquipment.AddLevel(recallEquipmentService, level);
+            recallEquipment.AddRecallEquip(recallEquipmentService, LocalDate.now().toString());
+            recallEquipment.AddNote(recallEquipmentService, note);
+        }
+    }
 
     @PostMapping("/admin/Equipment/showFormForUpdate/{id}")
     public String EquipmentDetailPost(@PathVariable(value = "id") int id,
@@ -1668,6 +1825,8 @@ public class LabController {
         model.addAttribute("bookingDTO", bookingDTO);
         model.addAttribute("date", booking.getBookingDate());
 
+        System.out.println("xxx-" + bookingDTO.getContentDTO().getFileName() + "-xxx");
+
         List<ExperimentGroup> experimentGroups = experimentGroupService.getAllExperimentGroups();
         List<ExperimentType> experimentTypes = experimentTypeService.getAllExperimentTypes();
         List<ExperimentReport> experimentReports = experimentReportService.getAllExperimentReports();
@@ -1832,14 +1991,18 @@ public class LabController {
     @GetMapping("/admin/LabBookingManagement/ComfirmUsed/download/{id}")
     public ResponseEntity<Resource> downloadReport(@PathVariable("id") int bookingId) {
         String fileName = contentService.getContentById(
-                            bookingService.findByBookingId(bookingId).getContentid()
-                        ).getFileName();
-        Resource resource = new ClassPathResource("static/"+fileName);
-
-        return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename="+fileName.split("/")[1])
-                .contentType(MediaType.APPLICATION_OCTET_STREAM)
-                .body(resource);
+                bookingService.findByBookingId(bookingId).getContentid()
+        ).getFileName();
+        if (fileName == null || fileName.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(null);
+        } else {
+            Resource resource = new ClassPathResource("static/" + fileName);
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + fileName.split("/")[1])
+                    .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                    .body(resource);
+        }
     }
 
     @GetMapping({"/admin/LabBookingManagement/ComfirmUsedCancel"})
@@ -2598,14 +2761,13 @@ public class LabController {
 
     @GetMapping({"/admin/Showinventory/AllshowinventoryLab"})
     public String ShowinventoryAllshowinventoryLab(Model model,
-                                                    @RequestParam(value = "managingUnitsCheck", defaultValue = "false") boolean managingUnitsCheck,
-                                                    @RequestParam(value = "yearSelected", defaultValue = "0") int yearSelected,
-                                                    @RequestParam(value = "managingUnitId", defaultValue = "0") int managingUnitId,
-                                                    @RequestParam("username") String username,
-                                                    @RequestParam(value = "success", defaultValue = "false") boolean success,
+                                                   @RequestParam(value = "managingUnitsCheck", defaultValue = "false") boolean managingUnitsCheck,
+                                                   @RequestParam(value = "yearSelected", defaultValue = "0") int yearSelected,
+                                                   @RequestParam(value = "managingUnitId", defaultValue = "0") int managingUnitId,
+                                                   @RequestParam("username") String username,
+                                                   @RequestParam(value = "success", defaultValue = "false") boolean success,
                                                     ArrayList<InventoryResult> inventoryResults) {
         int idFromUsername = GetPeopleFromUsername(username).getId();
-
         int year = LocalDate.now().getYear();
         if(yearSelected!=0) year = yearSelected;
         /*Lấy ra list years của các năm (kể cả nhưng năm mà phòng ko có danh sách)*/
@@ -2655,6 +2817,63 @@ public class LabController {
         model.addAttribute("year", year);
         model.addAttribute("departmentName", departmentName);
         model.addAttribute("managingUnitId", managingUnitId);
+        model.addAttribute("multiManagingUnit", "");
+        model.addAttribute("success", success);
+        model.addAttribute("managingUnitsCheck", managingUnitsCheck);
+
+        return template;
+    }
+
+    @GetMapping({"/admin/Showinventory/AllshowinventoryLab/MultiManagingUnit"})
+    public String ShowinventoryAllshowinventoryLab(Model model,
+                                                   @RequestParam(value = "managingUnitsCheck", defaultValue = "false") boolean managingUnitsCheck,
+                                                   @RequestParam(value = "yearSelected", defaultValue = "0") int yearSelected,
+                                                   @RequestParam(value = "multiManagingUnit", defaultValue = "") List<String> multiManagingUnitStr,
+                                                   @RequestParam("username") String username,
+                                                   @RequestParam(value = "success", defaultValue = "false") boolean success,
+                                                   ArrayList<InventoryResult> inventoryResults) {
+        int year = LocalDate.now().getYear();
+        if(yearSelected!=0) year = yearSelected;
+        int idFromUsername = GetPeopleFromUsername(username).getId();
+        /*Lấy ra list years của các năm (kể cả nhưng năm mà phòng ko có danh sách)*/
+        List<Integer> sortedUniqueYears = GetSortedUniqueYears_InventoryLab();
+
+        List<Lab> labs = new ArrayList<>();
+
+        List<Integer> multiManagingUnit = new ArrayList<>();
+        for (String IdManagingUnitStr : multiManagingUnitStr) {
+            multiManagingUnit.add(Integer.parseInt(IdManagingUnitStr));
+        }
+
+        for (Integer idManagingUnit : multiManagingUnit) {
+            String departmentNameX = managingUnitService.getManagingUnitById(idManagingUnit).getDepartmentName();
+            if(CheckRole(GetPeopleFromUsername(username),RoleSystem.ROLE_ADMIN)) {
+                List<Lab> labs_From_idManagingUnit = labService.getAllLabsOnLine().stream().filter(lab -> {
+                    return lab.getManagingUnit().trim().equals(departmentNameX);
+                }).collect(Collectors.toList());
+                labs.addAll(labs_From_idManagingUnit);
+            } else {
+                /** Nếu ko phải admin thì lọc theo manager*/
+                List<Lab> labs_From_idManagingUnit = labService.getAllLabsOnLine().stream().filter(lab -> {
+                    return lab.getManagingUnit().trim().equals(departmentNameX)
+                            && lab.getLabManagemetId() == idFromUsername;
+                }).collect(Collectors.toList());
+                labs.addAll(labs_From_idManagingUnit);
+            }
+        }
+        model.addAttribute("title", "Kiểm kê "+multiManagingUnitStr.size()+" bộ môn năm "+ year);
+
+        for (Lab lab : labs) {
+            InventoryResult inventoryResult = ShowInventoryForLabId(lab.getId(), year);
+            inventoryResults.add(inventoryResult);
+        }
+
+        GetManagingUnitsFromUsername(model, username);
+
+        model.addAttribute("inventoryResults", inventoryResults);
+        model.addAttribute("sortedUniqueYears", sortedUniqueYears);
+        model.addAttribute("year", year);
+        model.addAttribute("multiManagingUnit", multiManagingUnit);
         model.addAttribute("success", success);
         model.addAttribute("managingUnitsCheck", managingUnitsCheck);
 
@@ -3540,6 +3759,23 @@ public class LabController {
         return exportData(workbook, "DS TB "  + equipment.getName());
     }
 
+    @GetMapping("/admin/Export/Recall")
+    public ResponseEntity<Resource> ExportEquipmentRecall() {
+        List<RecallEquipment> recallEquipments = recallEquipmentService.getAllRecallEquipment();
+        List<RecallEquipmentDTOExport> recallEquipmentsDTOExports = new ArrayList<>();
+        for (RecallEquipment recallEquipment : recallEquipments) {
+            for (int i = 0; i < recallEquipment.getSeriList().size(); i++) {
+                Equipment equipment = equipmentService.findByEquipmentId(recallEquipment.getEquipID());
+                recallEquipmentsDTOExports.add(new RecallEquipmentDTOExport(equipment, recallEquipment, i));
+            }
+        }
+        
+        String[] headers = {"ID", "Tên TB", "Xuất sứ", "Đơn vị tính", "Seri/Mã số", "Phân cấp TB", "Ngày thu hồi", "Đơn vị bị thu hồi", "Lý do"};
+        Workbook workbook = new XSSFWorkbook();
+        createSheet(workbook, recallEquipmentsDTOExports, headers,"DS TB đã thu hồi");
+        return exportData(workbook, "DS TB đã thu hồi");
+    }
+
 
 
                 /*********************************/
@@ -3598,6 +3834,72 @@ public class LabController {
                         /** Export Inventory */
                     /********************************/
 
+    @GetMapping("/admin/Export/AllshowinventoryLab/MultiManagingUnit")
+    public ResponseEntity<Resource> ExportInventoryAllLabMulti(@RequestParam(value = "managingUnitsCheck", defaultValue = "false") boolean managingUnitsCheck,
+                                                          @RequestParam(value = "yearSelected", defaultValue = "0") int yearSelected,
+                                                          @RequestParam(value = "multiManagingUnit", defaultValue = "") List<String> multiManagingUnitStr,
+                                                          @RequestParam("username") String username,
+                                                          @RequestParam(value = "success", defaultValue = "false") boolean success){
+
+        List<ResponseEntity<Resource>> entities = new ArrayList<>();
+        List<ManagingUnit> managingUnitName = new ArrayList<>();
+        managingUnitName.add(new ManagingUnit(0, "Nếu không không có thông tin kiểm kê sẽ không có sheet PTN thuộc bộ môn đó"));
+        managingUnitName.add(new ManagingUnit(0, "================================================"));
+        for (String idManagingStr : multiManagingUnitStr) {
+            int idManaging = Integer.parseInt(idManagingStr.replace("]", "").replace("[", ""));
+            managingUnitName.add(managingUnitService.getManagingUnitById(idManaging));
+            ResponseEntity<Resource> entity = ExportInventoryAllLab(managingUnitsCheck,yearSelected, idManaging, 0, username, success);
+            entities.add(entity);
+        }
+        Workbook workbook = new XSSFWorkbook();
+        createSheet(workbook, managingUnitName, new String[] {"ID", "Tên Bộ môn"},"Danh sách Bộ môn");
+        entities.add(0, exportData(workbook,"Danh sách Bộ môn"));
+        return mergeExcelFiles(entities, "Danh sách kiểm kê theo các bộ môn");
+    }
+
+    private ResponseEntity<Resource> mergeExcelFiles(List<ResponseEntity<Resource>> entities, String excelName) {
+        try (XSSFWorkbook mergedWorkbook = new XSSFWorkbook()) {
+            // Lặp qua từng ResponseEntity trong danh sách entities
+            for (int i = 0; i < entities.size(); i++) {
+                ResponseEntity<Resource> entity = entities.get(i);
+                InputStream inputStream = entity.getBody().getInputStream();
+                XSSFWorkbook individualWorkbook = new XSSFWorkbook(inputStream);
+                // Lặp qua từng sheet trong workbook của mỗi ResponseEntity
+                for (int j = 0; j < individualWorkbook.getNumberOfSheets(); j++) {
+                    XSSFSheet individualSheet = individualWorkbook.getSheetAt(j);
+                    // Tạo một sheet mới trong workbook kết hợp với tên từ sheet cũ
+                    XSSFSheet mergedSheet = mergedWorkbook.createSheet(individualSheet.getSheetName());
+                    // Kiểm tra nếu sheet cũ có dữ liệu
+                    if (individualSheet.getLastRowNum() > 0) {
+                        // Lặp qua từng dòng trong sheet cũ
+                        for (int k = 0; k <= individualSheet.getLastRowNum(); k++) {
+                            XSSFRow individualRow = individualSheet.getRow(k);
+                            XSSFRow mergedRow = mergedSheet.createRow(k);
+                            // Kiểm tra nếu dòng không null
+                            if (individualRow != null) {
+                                // Lặp qua từng ô trong dòng
+                                for (int l = 0; l < individualRow.getLastCellNum(); l++) {
+                                    XSSFCell individualCell = individualRow.getCell(l);
+                                    XSSFCell mergedCell = mergedRow.createCell(l);
+                                    // Sao chép giá trị từ ô cũ sang ô mới
+                                    if (individualCell != null) {
+                                        mergedCell.setCellValue(individualCell.getStringCellValue());
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Tạo ResponseEntity cho workbook đã kết hợp và trả về để tải về
+            return ResponseExcel(mergedWorkbook, excelName);
+        } catch (IOException e) {
+            // Xử lý ngoại lệ nếu có lỗi
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
     @GetMapping("/admin/Export/AllshowinventoryLab")
     public ResponseEntity<Resource> ExportInventoryAllLab(@RequestParam(value = "managingUnitsCheck", defaultValue = "false") boolean managingUnitsCheck,
                                                           @RequestParam(value = "yearSelected", defaultValue = "0") int yearSelected,

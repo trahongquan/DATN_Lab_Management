@@ -18,6 +18,10 @@ public class ManagingUnit {
         this.id = 0;
         this.departmentName = "Xem tất cả các bộ môn";
     }
+    public ManagingUnit(int id, String departmentName) {
+        this.id = id;
+        this.departmentName = departmentName;
+    }
 
     public ManagingUnit(String departmentName) {
         this.departmentName = departmentName;

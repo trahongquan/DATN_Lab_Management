@@ -64,7 +64,7 @@
     <div th:if="${bookingDTO.confirm_Status=='Đã xác nhận'}" >
         <div class="d-flex justify-content-center align-content-center flex-row p-2">
             <span class="text-success font-weight-bold font-size-xlg bg-warning btn" th:if="${bookingDTO.comfirmUsed == 'Đã sử dụng'}"> GV đã xác nhận sử dụng phòng</span>
-            <a style="margin-left: 30px" th:if="${bookingDTO.comfirmUsed == 'Đã sử dụng'}"
+            <a style="margin-left: 30px" th:if="${bookingDTO.comfirmUsed == 'Đã sử dụng' && bookingDTO.getContentDTO.getFileName != ''}"
                th:href="'/Lab/myBookingDetail/ComfirmUsed/download/'+${bookingDTO.getId}"
                type="button" class="btn-success btn" id="download" ><span>Tải xuống báo cáo</span></a>
         </div>
