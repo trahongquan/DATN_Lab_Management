@@ -136,6 +136,7 @@
                     <th>Số seri</th>
                     <th>Phân cấp TTB</th>
                     <th>Ngày thu hồi</th>
+                    <th>Đơn vị trước khi thu hồi</th>
                     <th>Ghi chú</th>
                 </tr>
                 </thead>
@@ -159,6 +160,15 @@
                         </th:block>
                     </td>
                     <td>
+                        <th:block th:each="lab, iter : ${recallEqui.getLabNameList}">
+                            <a th:href="${recallEqui.labidList[iter.index] != 0 ? '/Lab/admin/room/showFormForUpdate/' + recallEqui.labidList[iter.index] : '#'}">
+                                <p th:text="${lab != '' ? lab : 'Không có'}"
+                                   th:classappend="${lab != '' ? 'font-weight-bold text-primary' : 'text-danger'}"
+                                   style="margin: unset"></p>
+                            </a>
+                        </th:block>
+                    </td>
+                    <td>
                         <th:block th:each="note : ${recallEqui.noteList}">
                             <p th:text="${note}" style="margin: unset"></p>
                         </th:block>
@@ -172,6 +182,7 @@
                     <th>Số seri</th>
                     <th>Phân cấp TTB</th>
                     <th>Ngày thu hồi</th>
+                    <th>Đơn vị trước khi thu hồi</th>
                     <th>Ghi chú</th>
                 </tr>
                 </tfoot>

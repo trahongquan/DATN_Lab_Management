@@ -1,0 +1,11 @@
+body {
+    font-family: Arial, sans-serif;
+}
+
+h1, h2 {
+    text-align: center;
+}
+
+p {
+    margin: 10px 0;
+}

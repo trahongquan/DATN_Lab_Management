@@ -970,6 +970,77 @@ public class LabController {
                 model.addAttribute("labsOnLineAndScore", labsOnLineAndScore);
             }
         }
+        if(!startDate.equals("")) System.out.println(LocalDate.parse(startDate.split("T")[0]));
+        if(!startDate.equals("")) System.out.println(LocalDate.parse(endDate.split("T")[0]));
+
+        List<List<BookingDtoExport>> bookingDtoExports = new ArrayList<>();
+
+        if(!startDate.equals("")) {
+            List<BookingDtoExport> bookingDtoExports_Pendding = GetBookingDtoExportByStatus(ConfirmStatus.PENDDING).stream().filter(b -> {
+                        return b.getLabName().equals(lab.getLabName())
+                                && b.getBooking_Date().toLocalDate().isAfter(LocalDate.parse(startDate.split("T")[0]))
+                                && b.getBooking_Date().toLocalDate().isBefore(LocalDate.parse(endDate.split("T")[0]));
+                    }
+            ).collect(Collectors.toList());
+            List<BookingDtoExport> bookingDtoExports_Approve = GetBookingDtoExportByStatus(ConfirmStatus.APPROVE).stream().filter(b -> {
+                        return b.getLabName().equals(lab.getLabName())
+                                && b.getBooking_Date().toLocalDate().isAfter(LocalDate.parse(startDate.split("T")[0]))
+                                && b.getBooking_Date().toLocalDate().isBefore(LocalDate.parse(endDate.split("T")[0]));
+                    }
+            ).collect(Collectors.toList());
+            List<BookingDtoExport> bookingDtoExports_UnUsed = GetBookingDtoExportByStatus(ConfirmStatus.APPROVE).stream()
+                    .filter(b -> {
+                        return b.getComfirmUsed().equals(ConfirmUsed.UNUSED) && b.getLabName().equals(lab.getLabName())
+                                && b.getBooking_Date().toLocalDate().isAfter(LocalDate.parse(startDate.split("T")[0]))
+                                && b.getBooking_Date().toLocalDate().isBefore(LocalDate.parse(endDate.split("T")[0]));
+                    }).collect(Collectors.toList());
+            List<BookingDtoExport> bookingDtoExports_Cancel = GetBookingDtoExportByStatus(ConfirmStatus.CANCEL).stream().filter(b -> {
+                        return b.getLabName().equals(lab.getLabName())
+                                && b.getBooking_Date().toLocalDate().isAfter(LocalDate.parse(startDate.split("T")[0]))
+                                && b.getBooking_Date().toLocalDate().isBefore(LocalDate.parse(endDate.split("T")[0]));
+                    }
+            ).collect(Collectors.toList());
+            bookingDtoExports.add(bookingDtoExports_Pendding);
+            bookingDtoExports.add(bookingDtoExports_Approve);
+            bookingDtoExports.add(bookingDtoExports_UnUsed);
+            bookingDtoExports.add(bookingDtoExports_Cancel);
+        } else {
+            List<BookingDtoExport> bookingDtoExports_Pendding = GetBookingDtoExportByStatus(ConfirmStatus.PENDDING).stream().filter(b -> {
+                        return b.getLabName().equals(lab.getLabName());
+                    }
+            ).collect(Collectors.toList());
+            List<BookingDtoExport> bookingDtoExports_Approve = GetBookingDtoExportByStatus(ConfirmStatus.APPROVE).stream().filter(b -> {
+                        return b.getLabName().equals(lab.getLabName());
+                    }
+            ).collect(Collectors.toList());
+            List<BookingDtoExport> bookingDtoExports_UnUsed = GetBookingDtoExportByStatus(ConfirmStatus.APPROVE).stream()
+                    .filter(b -> {
+                        return b.getComfirmUsed().equals(ConfirmUsed.UNUSED) && b.getLabName().equals(lab.getLabName());
+                    }).collect(Collectors.toList());
+            List<BookingDtoExport> bookingDtoExports_Cancel = GetBookingDtoExportByStatus(ConfirmStatus.CANCEL).stream().filter(b -> {
+                        return b.getLabName().equals(lab.getLabName());
+                    }
+            ).collect(Collectors.toList());
+            bookingDtoExports.add(bookingDtoExports_Pendding);
+            bookingDtoExports.add(bookingDtoExports_Approve);
+            bookingDtoExports.add(bookingDtoExports_UnUsed);
+            bookingDtoExports.add(bookingDtoExports_Cancel);
+        }
+
+
+
+
+        model.addAttribute("bookingDtoExports", bookingDtoExports);
+
+        List<LessonDTO> lessonDTOs = new ArrayList<>();
+        List<Lesson> lessons = lessonService.getAllLessons().stream().filter(l -> l.getLabId()==labId).collect(Collectors.toList());
+        lessons.forEach(lesson -> {
+            Lab lab_lesson = labService.findByLabId(lesson.getLabId());
+            lessonDTOs.add(new LessonDTO(lesson, lab_lesson));
+        });
+        model.addAttribute("lessonDTOs", lessonDTOs);
+
+
         return template;
     }
 
@@ -1280,7 +1351,15 @@ public class LabController {
         int quantity = 0;
         for (RecallEquipment recallEquipment : recallEquipments) {
             Equipment equipment = equipmentService.findByEquipmentId(recallEquipment.getEquipID());
-            recallEquipmentDTOS.add(new RecallEquipmentDTO(equipment, recallEquipment));
+            List<String> labNames = new ArrayList<>();
+            for (Integer labId : recallEquipment.getLabIdList()) {
+                if (labId != 0) {
+                    labNames.add(labService.findByLabId(labId).getLabName());
+                } else {
+                    labNames.add("");
+                }
+            }
+            recallEquipmentDTOS.add(new RecallEquipmentDTO(equipment, recallEquipment, labNames));
             quantity += recallEquipment.getLevelList().size();
         }
 
@@ -1320,7 +1399,7 @@ public class LabController {
 
                     if(series.size()==0) equipmentLabService.deleteEquipmentLab(equipmentLab.getId());
 
-                    CreateRecallEquipment_IfNotExist(equipID, seri, level, note);
+                    CreateRecallEquipment_IfNotExist(equipID, labID, seri, level, note);
                 }
             }
         } else {
@@ -1343,7 +1422,7 @@ public class LabController {
 
                     equipmentService.updateEquipment(equipment);
 
-                    CreateRecallEquipment_IfNotExist(equipID, seri, level, note);
+                    CreateRecallEquipment_IfNotExist(equipID, labID, seri, level, note);
                 }
             }
         }
@@ -1351,20 +1430,22 @@ public class LabController {
         return Redirect("admin/AllEquipment/showAll/"+equipID+"?username="+username, "");
     }
 
-    private void CreateRecallEquipment_IfNotExist(@RequestParam("equipID") int equipID, @RequestParam("seri") String seri, String level, String note) {
+    private void CreateRecallEquipment_IfNotExist(@RequestParam("equipID") int equipID, @RequestParam("labid") int labid, @RequestParam("seri") String seri, String level, String note) {
         RecallEquipment recallEquipment = recallEquipmentService.findByEquipmentId(equipID);
         if(recallEquipment.getId() == -1){
             List<String> series = new ArrayList<>(); series.add(seri);
             List<String> levels = new ArrayList<>(); levels.add(level);
             List<String> recallDates = new ArrayList<>(); recallDates.add(LocalDate.now().toString());
             List<String> notes = new ArrayList<>(); notes.add(note);
-            RecallEquipment recallEquipment_new = new RecallEquipment(equipID, series.toString(), levels.toString(), recallDates.toString(), notes.toString());
+            List<Integer> labids = new ArrayList<>(); labids.add(labid);
+            RecallEquipment recallEquipment_new = new RecallEquipment(equipID, labids.toString(), series.toString(), levels.toString(), recallDates.toString(), notes.toString());
             recallEquipmentService.createRecallEquipment(recallEquipment_new);
         } else {
             recallEquipment.AddSeri(recallEquipmentService, seri);
             recallEquipment.AddLevel(recallEquipmentService, level);
             recallEquipment.AddRecallEquip(recallEquipmentService, LocalDate.now().toString());
             recallEquipment.AddNote(recallEquipmentService, note);
+            recallEquipment.AddLabid(recallEquipmentService, labid);
         }
     }
 
@@ -3214,6 +3295,10 @@ public class LabController {
                                             /** Quản lý Export Report Excel */
                                 /*****************************************************/
 
+    private List<BookingDtoExport> GetBookingDtoExportByStatus(String status) {
+        return GetBookingDtoExportByStatus(status, "admin");
+    }
+
     private List<BookingDtoExport> GetBookingDtoExportByStatus(String status, String username){
         People people = GetPeopleByUsername(username);
         boolean isAdmin = CheckRole(people, RoleSystem.ROLE_ADMIN);
@@ -3766,11 +3851,11 @@ public class LabController {
         for (RecallEquipment recallEquipment : recallEquipments) {
             for (int i = 0; i < recallEquipment.getSeriList().size(); i++) {
                 Equipment equipment = equipmentService.findByEquipmentId(recallEquipment.getEquipID());
-                recallEquipmentsDTOExports.add(new RecallEquipmentDTOExport(equipment, recallEquipment, i));
+                recallEquipmentsDTOExports.add(new RecallEquipmentDTOExport(equipment, recallEquipment, i, labService));
             }
         }
         
-        String[] headers = {"ID", "Tên TB", "Xuất sứ", "Đơn vị tính", "Seri/Mã số", "Phân cấp TB", "Ngày thu hồi", "Đơn vị bị thu hồi", "Lý do"};
+        String[] headers = {"ID", "Tên TB", "Xuất sứ", "Đơn vị tính", "Seri/Mã số", "Phân cấp TB", "Ngày thu hồi", "Đơn vị trước khi thu hồi", "Lý do"};
         Workbook workbook = new XSSFWorkbook();
         createSheet(workbook, recallEquipmentsDTOExports, headers,"DS TB đã thu hồi");
         return exportData(workbook, "DS TB đã thu hồi");

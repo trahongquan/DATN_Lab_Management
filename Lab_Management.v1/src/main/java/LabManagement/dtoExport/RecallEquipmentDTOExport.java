@@ -3,6 +3,7 @@ package LabManagement.dtoExport;
 import LabManagement.ClassSuport.ToList;
 import LabManagement.entity.Equipment;
 import LabManagement.entity.RecallEquipment;
+import LabManagement.service.LabService.LabService;
 import LabManagement.service.RecallEquipmentService.EquipmentService.RecallEquipmentService;
 
 import java.util.List;
@@ -21,7 +22,7 @@ public class RecallEquipmentDTOExport {
     public RecallEquipmentDTOExport() {
     }
 
-    public RecallEquipmentDTOExport(Equipment equipment, RecallEquipment recallEquipment, int position) {
+    public RecallEquipmentDTOExport(Equipment equipment, RecallEquipment recallEquipment, int position, LabService labService) {
         this.id = recallEquipment.getId();
         this.name = equipment.getName();
         this.origin = equipment.getOrigin();
@@ -30,6 +31,7 @@ public class RecallEquipmentDTOExport {
         this.level = recallEquipment.getLevelList().get(position);
         this.recallDate = recallEquipment.getRecallDateList().get(position);
         this.note = recallEquipment.getNoteList().get(position);
+        this.labNameRecall = recallEquipment.getLabIdList().get(position) != 0 ? labService.findByLabId(recallEquipment.getLabIdList().get(position)).getLabName() : "";
     }
 
     public int getId() {

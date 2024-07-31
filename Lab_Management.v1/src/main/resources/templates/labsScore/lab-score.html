@@ -12,155 +12,215 @@
 <body>
 <!--<div th:replace="admin/headerAdmin :: header-admin"></div>-->
 <lab-rankings-score>
-    <h1 style="text-align: center" class="text-uppercase"> Bảng xếp hạng chấm điểm Phòng thí nghiệm </h1>
-    <h5 style="text-align: center" class="text-warning">(Theo năm học: Tháng 8 năm trước đến hiện tại)</h5>
-    <br>
-    <div>
-        <form th:action="@{'/Lab/admin/LabRankings'}" method="post">
-            <div class="col-lg-6;" style=" display:flex; flex-direction: row; justify-content: space-around">
-                <div class="col-lg-2;">
-                    <label for="start_date">Ngày bắt đầu:</label><br>
-                    <input type="datetime-local" class="form-control" id="start_date" name="start_date"
-                           th:value="${start_date}" required><br><br>
+    <div class="no-print" style="display: none">
+        <h1 style="text-align: center" class="text-uppercase"> Bảng xếp hạng chấm điểm Phòng thí nghiệm </h1>
+        <h5 style="text-align: center" class="text-warning">(Theo năm học: Tháng 8 năm trước đến hiện tại)</h5>
+        <br>
+        <div>
+            <form th:action="@{'/Lab/admin/LabRankings'}" method="post">
+                <div class="col-lg-6;" style=" display:flex; flex-direction: row; justify-content: space-around">
+                    <div class="col-lg-2;">
+                        <label for="start_date">Ngày bắt đầu:</label><br>
+                        <input type="datetime-local" class="form-control" id="start_date" name="start_date"
+                               th:value="${start_date}" required><br><br>
+                    </div>
+                    <div class="col-lg-2;">
+                        <label for="end_date">Ngày kết thúc:</label><br>
+                        <input type="datetime-local" class="form-control" id="end_date" name="end_date"
+                               th:value="${end_date}" required><br><br>
+                    </div>
                 </div>
-                <div class="col-lg-2;">
-                    <label for="end_date">Ngày kết thúc:</label><br>
-                    <input type="datetime-local" class="form-control" id="end_date" name="end_date"
-                           th:value="${end_date}" required><br><br>
+                <div style=" display:flex; flex-direction: row; justify-content: space-around">
+                    <button type="submit" class="btn btn-success mb-4">Xem theo khoảng thời gian đã chọn</button>
                 </div>
-            </div>
-            <div style=" display:flex; flex-direction: row; justify-content: space-around">
-                <button type="submit" class="btn btn-success mb-4">Xem theo khoảng thời gian đã chọn</button>
-            </div>
-        </form>
-    </div>
-
-    <div id="qickchoosetime" class="d-flex justify-content-between align-content-center">
-        <button id="btn-yesterday" class="btn btn-primary margin-h-center">Hôm qua</button>
-        <button id="btn-1-day" class="btn btn-primary margin-h-center">Hôm nay</button>
-        <button id="btn-1-week" class="btn btn-primary margin-h-center">1 Tuần</button>
-        <button id="btn-1-month" class="btn btn-primary margin-h-center">1 Tháng</button>
-        <button id="btn-3-months" class="btn btn-primary margin-h-center">3 Tháng</button>
-        <button id="btn-6-months" class="btn btn-primary margin-h-center">6 Tháng</button>
-        <button id="btn-1-year" class="btn btn-primary margin-h-center">1 Năm</button>
-        <button id="btn-1-year-2" class="btn btn-primary margin-h-center">Năm học</button>
-    </div>
-    <div class="form-group" style="display: flex ; justify-content: space-around">
-        <!--<div style="display: flex; justify-content: space-around">
-            <form th:action="'/Lab/admin/ExperimentManagement/ExperimentGroup/add'" method="post">
-                <div style="margin-right: 10px">
-                    <label for="experiment" >Thêm nhóm:</label>
-                    <input type="text" class="form-control" id="experiment" name="experiment" required>
-                </div>
-                <br>
-                <button type="submit" class="btn btn-primary" > Thêm mới</button>
             </form>
         </div>
-        <form th:action="@{'/Lab/admin/ExperimentManagement/ExperimentGroup/del'}" method="post">
-            <div>
-                <label th:for="@{'experiment'}" >Nhóm:</label>
-                <select th:class="@{'form-control'}" th:id="@{'experiment'}" th:name="@{'experiment'}"  required>
-                    <option th:each="experiment : ${unusedExperimentGroups}" th:value="${experiment.id}" th:text="${experiment.groupName}"></option>
-                </select>
-            </div>
-            <label class="text-warning"><span class="text-danger"><strong>Chú ý:</strong></span> Chỉ hiển thị những nhóm có thể xóa</label> <br>
-            <label class="text-warning"><span class="text-danger"><strong>Chú ý:</strong></span> Nếu bạn muốn xóa nhóm nào đó hãy chắc chắn <br> bạn không sử dụng nó ở phần tính điểm phòng thí nghiệm</label>
-            <br>
-            <button type="submit" class="btn btn-danger" > Xóa </button>
-        </form>-->
-    </div>
-    <div class="main-card mb-3 card">
-        <div class="card-body">
-            <table style="width: 100%;" id="example" class="table table-hover table-striped table-bordered">
-                <thead>
-                <tr>
-                    <th>Xếp hạng</th>
-                    <th>Tên phòng</th>
-                    <th>Điểm</th>
-                    <th>Thao tác</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr th:each="labsOnLineAndScore, iter : ${labsOnLineAndScores}">
-                    <td class="text-primary"><strong>
-                        <span th:text="'Hạng ' + ${iter.index + 1}" th:classappend="${iter.index < 3 ? 'text-danger' : ''}"></span>
-                    </strong></td>
-                    <td>
-                        <strong th:classappend="${iter.index < 3 ? 'text-danger' : ''}">
-                            <span th:text="${labsOnLineAndScore.lab.labName}" th:classappend="${iter.index >= 3 ? 'text-info' : ''}"></span>
-                        </strong>
-                    </td>
-                    <td class="text-danger">
-                        <strong>
-                            <span th:text="${#numbers.formatDecimal(labsOnLineAndScore.score, 1, 1, 'POINT')}" />
-                        </strong>
-                    </td>
-                    <td>
-                        <button type="button" class="form-control btn btn-primary btn-detail"
-                        th:data="${labsOnLineAndScore.lab.id}">Chi tiết</button>
-                    </td>
-                </tr>
-                </tbody>
-                <tfoot>
-                <tr>
-                    <th>Xếp hạng</th>
-                    <th>Tên phòng</th>
-                    <th>Điểm</th>
-                    <th>Thao tác</th>
-                </tr>
-                </tfoot>
-            </table>
-        </div>
-    </div>
-    <!-- Popup -->
-    <div id="popup" class="popup">
-        <div class="popup-content" style="max-width: 200rem; top: 25%; left: 17%">
-            <h2>CHI TIẾT CHẤM ĐIỂM</h2>
-            <h5 class="text-warning"><strong><span>Chú ý: </span></strong> Điểm chỉ được chấm đến thời điểm hiện tại, chưa tính các đơn được chấp nhận sau hôm nay</h5>
-            <div class="main-card mb-3 card">
-                <div class="card-body">
-                    <table style="width: 100%;" id="popup-example" class="table table-hover table-striped table-bordered">
-                        <thead>
-                        <tr>
-                            <th>STT</th>
-                            <th>Phân loại</th>
-                            <th>Số lượng</th>
-                            <th>Điểm số</th>
-                        </tr>
-                        </thead>
-                        <tbody id="tbody">
-                        </tbody>
-                        <tfoot>
-                        <tr>
-                            <th>STT</th>
-                            <th>Phân loại</th>
-                            <th>Số lượng</th>
-                            <th>Điểm số</th>
-                        </tr>
-                        </tfoot>
-                    </table>
-                </div>
-            </div>
-            <button type="button" class="btn btn-secondary close-btn">Đóng</button>
-        </div>
-    </div>
 
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script th:inline="javascript">
-        var labsOnLineAndScores = [[${labsOnLineAndScores}]];
-        $(document).ready(function() {
-            $(".btn-detail").click(function() {
-                var labid = parseInt($(this).attr('data'));
-                $(".popup").slideDown(300);
-                clickDetail(labsOnLineAndScores, labid);
+        <div id="qickchoosetime" class="d-flex justify-content-between align-content-center">
+            <button id="btn-yesterday" class="btn btn-primary margin-h-center">Hôm qua</button>
+            <button id="btn-1-day" class="btn btn-primary margin-h-center">Hôm nay</button>
+            <button id="btn-1-week" class="btn btn-primary margin-h-center">1 Tuần</button>
+            <button id="btn-1-month" class="btn btn-primary margin-h-center">1 Tháng</button>
+            <button id="btn-3-months" class="btn btn-primary margin-h-center">3 Tháng</button>
+            <button id="btn-6-months" class="btn btn-primary margin-h-center">6 Tháng</button>
+            <button id="btn-1-year" class="btn btn-primary margin-h-center">1 Năm</button>
+            <button id="btn-1-year-2" class="btn btn-primary margin-h-center">Năm học</button>
+        </div>
+        <div class="main-card mb-3 card">
+            <div class="card-body">
+                <table style="width: 100%;" id="example" class="table table-hover table-striped table-bordered">
+                    <thead>
+                    <tr>
+                        <th>Xếp hạng</th>
+                        <th>Tên phòng</th>
+                        <th>Điểm</th>
+                        <th>Thao tác</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="labsOnLineAndScore, iter : ${labsOnLineAndScores}">
+                        <td class="text-primary"><strong>
+                            <span th:text="'Hạng ' + ${iter.index + 1}" th:classappend="${iter.index < 3 ? 'text-danger' : ''}"></span>
+                        </strong></td>
+                        <td>
+                            <strong th:classappend="${iter.index < 3 ? 'text-danger' : ''}">
+                                <span th:text="${labsOnLineAndScore.lab.labName}" th:classappend="${iter.index >= 3 ? 'text-info' : ''}"></span>
+                            </strong>
+                        </td>
+                        <td class="text-danger">
+                            <strong>
+                                <span th:text="${#numbers.formatDecimal(labsOnLineAndScore.score, 1, 1, 'POINT')}" />
+                            </strong>
+                        </td>
+                        <td>
+                            <button type="button" class="form-control btn btn-primary btn-detail"
+                                    th:data="${labsOnLineAndScore.lab.id}">Chi tiết</button>
+                        </td>
+                    </tr>
+                    </tbody>
+                    <tfoot>
+                    <tr>
+                        <th>Xếp hạng</th>
+                        <th>Tên phòng</th>
+                        <th>Điểm</th>
+                        <th>Thao tác</th>
+                    </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+        <!-- Popup -->
+        <div id="popup" class="popup">
+            <div class="popup-content" style="max-width: 200rem; top: 25%; left: 17%">
+                <h2>CHI TIẾT CHẤM ĐIỂM</h2>
+                <h5 class="text-warning"><strong><span>Chú ý: </span></strong> Điểm chỉ được chấm đến thời điểm hiện tại, chưa tính các đơn được chấp nhận sau hôm nay</h5>
+                <div class="main-card mb-3 card">
+                    <div class="card-body">
+                        <table style="width: 100%;" id="popup-example" class="table table-hover table-striped table-bordered">
+                            <thead>
+                            <tr>
+                                <th>STT</th>
+                                <th>Phân loại</th>
+                                <th>Số lượng</th>
+                                <th>Điểm số</th>
+                            </tr>
+                            </thead>
+                            <tbody id="tbody">
+                            </tbody>
+                            <tfoot>
+                            <tr>
+                                <th>STT</th>
+                                <th>Phân loại</th>
+                                <th>Số lượng</th>
+                                <th>Điểm số</th>
+                            </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+                <button type="button" class="btn btn-secondary close-btn">Đóng</button>
+            </div>
+        </div>
+
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <script th:inline="javascript">
+            var labsOnLineAndScores = [[${labsOnLineAndScores}]];
+            $(document).ready(function() {
+                $(".btn-detail").click(function() {
+                    var labid = parseInt($(this).attr('data'));
+                    $(".popup").slideDown(300);
+                    clickDetail(labsOnLineAndScores, labid);
+                });
             });
-        });
-    </script>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    <script src="/js/noticePopUp.js"></script>
-    <script src="/js/lab-rankings-score.js"></script>
+        </script>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+        <script src="/js/noticePopUp.js"></script>
+        <script src="/js/lab-rankings-score.js"></script>
+    </div>
+    <div id="content-to-print" style="display: block">
+        <h1 style="text-align: center" class="text-uppercase"> Bảng xếp hạng chấm điểm Phòng thí nghiệm </h1>
+        <h5 style="text-align: center" class="text-warning">(Theo năm học: Tháng 8 năm trước đến hiện tại)</h5>
+        <br>
+
+        <div class="main-card mb-3 card">
+            <div class="card-body">
+                <table style="width: 100%;" id="example" class="table table-hover table-striped table-bordered">
+                    <thead>
+                    <tr>
+                        <th>Xếp hạng</th>
+                        <th>Tên phòng</th>
+                        <th>Điểm</th>
+                        <th>Thao tác</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="labsOnLineAndScore, iter : ${labsOnLineAndScores}">
+                        <td class="text-primary"><strong>
+                            <span th:text="'Hạng ' + ${iter.index + 1}" th:classappend="${iter.index < 3 ? 'text-danger' : ''}"></span>
+                        </strong></td>
+                        <td>
+                            <strong th:classappend="${iter.index < 3 ? 'text-danger' : ''}">
+                                <span th:text="${labsOnLineAndScore.lab.labName}" th:classappend="${iter.index >= 3 ? 'text-info' : ''}"></span>
+                            </strong>
+                        </td>
+                        <td class="text-danger">
+                            <strong>
+                                <span th:text="${#numbers.formatDecimal(labsOnLineAndScore.score, 1, 1, 'POINT')}" />
+                            </strong>
+                        </td>
+                        <td>
+                            <button type="button" class="form-control btn btn-primary btn-detail"
+                                    th:data="${labsOnLineAndScore.lab.id}">Chi tiết</button>
+                        </td>
+                    </tr>
+                    </tbody>
+                    <tfoot>
+                    <tr>
+                        <th>Xếp hạng</th>
+                        <th>Tên phòng</th>
+                        <th>Điểm</th>
+                        <th>Thao tác</th>
+                    </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+        <!-- Popup -->
+        <div id="popup" class="popup">
+            <div class="popup-content" style="max-width: 200rem; top: 25%; left: 17%">
+                <h2>CHI TIẾT CHẤM ĐIỂM</h2>
+                <h5 class="text-warning"><strong><span>Chú ý: </span></strong> Điểm chỉ được chấm đến thời điểm hiện tại, chưa tính các đơn được chấp nhận sau hôm nay</h5>
+                <div class="main-card mb-3 card">
+                    <div class="card-body">
+                        <table style="width: 100%;" id="popup-example" class="table table-hover table-striped table-bordered">
+                            <thead>
+                            <tr>
+                                <th>STT</th>
+                                <th>Phân loại</th>
+                                <th>Số lượng</th>
+                                <th>Điểm số</th>
+                            </tr>
+                            </thead>
+                            <tbody id="tbody">
+                            </tbody>
+                            <tfoot>
+                            <tr>
+                                <th>STT</th>
+                                <th>Phân loại</th>
+                                <th>Số lượng</th>
+                                <th>Điểm số</th>
+                            </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+                <button type="button" class="btn btn-secondary close-btn">Đóng</button>
+            </div>
+        </div>
+    </div>
 </lab-rankings-score>
+
 </body>
 </html>

@@ -52,6 +52,7 @@
                                     <button type="submit" class="btn btn-primary btn-sm mr-1">Kiểm kê</button>
                                 </form>-->
                                 <form th:action="@{'/Lab/admin/room/showFormForUpdate/' + ${lab.getId}}" method="get">
+                                    <input type="hidden" name="username" th:value="${#authentication.name}">
                                     <button type="submit" class="btn btn-info btn-sm mr-1">Chi tiết</button>
                                 </form>
                                 <form sec:authorize="hasRole('ROLE_ADMIN')"

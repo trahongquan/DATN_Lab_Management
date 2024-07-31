@@ -20,6 +20,9 @@ public class RecallEquipment implements Serializable {
     @Column(name = "equipID", nullable = false)
     private int equipID;
 
+    @Column(name = "labid", nullable = false)
+    private String labids;
+
     @Column(name = "series", nullable = false)
     private String series;
 
@@ -38,8 +41,9 @@ public class RecallEquipment implements Serializable {
         this.id = id;
     }
 
-    public RecallEquipment(int equipID, String series, String levels, String recallDate, String note) {
+    public RecallEquipment(int equipID, String labids, String series, String levels, String recallDate, String note) {
         this.equipID = equipID;
+        this.labids = labids;
         this.series = series;
         this.levels = levels;
         this.recallDate = recallDate;
@@ -60,6 +64,14 @@ public class RecallEquipment implements Serializable {
 
     public void setEquipID(int equipID) {
         this.equipID = equipID;
+    }
+
+    public String getLabid() {
+        return labids;
+    }
+
+    public void setLabid(String labids) {
+        this.labids = labids;
     }
 
     public String getSeries() {
@@ -108,6 +120,10 @@ public class RecallEquipment implements Serializable {
 
     public List<String> getNoteList(){
         return new ToList().StringLevelsToList(note);
+    }
+
+    public List<Integer> getLabIdList(){
+        return new ToList().StringToListINT(labids);
     }
 
     public void AddSeri(RecallEquipmentService recallEquipmentService, String seri){
@@ -168,11 +184,25 @@ public class RecallEquipment implements Serializable {
         recallEquipmentService.updateRecallEquipment(this);
     }
 
+    public void AddLabid(RecallEquipmentService recallEquipmentService, int labid){
+        List<Integer> labiList = new ToList().StringToListINT(labids);
+        labiList.add(labid);
+        this.setLabid(labiList.toString());
+        recallEquipmentService.updateRecallEquipment(this);
+    }
+    public void DelLabid(RecallEquipmentService recallEquipmentService, int labid){
+        List<Integer> labiList = new ToList().StringToListINT(labids);
+        labiList.remove(labid);
+        this.setLabid(labiList.toString());
+        recallEquipmentService.updateRecallEquipment(this);
+    }
+
     @Override
     public String toString() {
         return "RecallEquipment{" +
                 "id=" + id +
                 ", equipID=" + equipID +
+                ", labids=" + labids +
                 ", series='" + series + '\'' +
                 ", levels='" + levels + '\'' +
                 ", recallDate='" + recallDate + '\'' +

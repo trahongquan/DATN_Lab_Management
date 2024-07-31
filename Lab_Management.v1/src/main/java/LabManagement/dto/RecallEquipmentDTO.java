@@ -2,6 +2,7 @@ package LabManagement.dto;
 
 import LabManagement.ClassSuport.ToList;
 import LabManagement.entity.Equipment;
+import LabManagement.entity.Lab;
 import LabManagement.entity.RecallEquipment;
 import LabManagement.service.RecallEquipmentService.EquipmentService.RecallEquipmentService;
 
@@ -13,29 +14,35 @@ public class RecallEquipmentDTO {
     private String series;
     private String levels;
     private String recallDate;
+    private String labids;
     private String note;
 
     private Equipment equipment;
+    private List<String> labNames;
     private List<String> serieList;
     private List<String> levelList;
     private List<String> recallDateList;
     private List<String> noteList;
+    private List<Integer> labidList;
 
     public RecallEquipmentDTO() {
     }
 
-    public RecallEquipmentDTO(Equipment equipment, RecallEquipment recallEquipment) {
+    public RecallEquipmentDTO(Equipment equipment, RecallEquipment recallEquipment, List<String> labNames) {
         this.id = recallEquipment.getId();
         this.equipID = recallEquipment.getEquipID();
         this.series = recallEquipment.getSeries();
         this.levels = recallEquipment.getLevels();
         this.recallDate = recallEquipment.getRecallDate();
+        this.labids = recallEquipment.getLabid();
         this.note = recallEquipment.getNote();
         this.equipment = equipment;
         this.serieList = this.getSeriList();
         this.levelList = this.getLevelList();
         this.recallDateList = this.getRecallDateList();
         this.noteList = this.getNoteList();
+        this.labidList = this.getLabIdList();
+        this.labNames = labNames;
     }
 
     public List<String> getSeriList(){
@@ -54,6 +61,10 @@ public class RecallEquipmentDTO {
         return new ToList().StringLevelsToList(note);
     }
 
+    public List<Integer> getLabIdList(){
+        return new ToList().StringToListINT(labids);
+    }
+
     public int getId() {
         return id;
     }
@@ -68,6 +79,18 @@ public class RecallEquipmentDTO {
 
     public void setEquipID(int equipID) {
         this.equipID = equipID;
+    }
+
+    public List<String> getLabNameList() {
+        return labNames;
+    }
+
+    public void setLabNames(List<String> labNames) {
+        this.labNames = labNames;
+    }
+
+    public void setLabids(String labids) {
+        this.labids = labids;
     }
 
     public String getSeries() {
@@ -126,6 +149,23 @@ public class RecallEquipmentDTO {
         this.recallDateList = recallDateList;
     }
 
+
+    public List<String> getLabNames() {
+        return labNames;
+    }
+
+    public void setNoteList(List<String> noteList) {
+        this.noteList = noteList;
+    }
+
+    public List<Integer> getLabidList() {
+        return labidList;
+    }
+
+    public void setLabidList(List<Integer> labidList) {
+        this.labidList = labidList;
+    }
+
     public void AddSeri(RecallEquipmentService recallEquipmentService, String seri){
         List<String> seriesList = new ToList().StringToList(series);
         seriesList.add(seri);
@@ -164,4 +204,17 @@ public class RecallEquipmentDTO {
         usingList.remove(using1);
         this.setRecallDate(usingList.toString());
     }
+
+    public void AddLabid(RecallEquipmentService recallEquipmentService, int labid){
+        List<Integer> labiList = new ToList().StringToListINT(labids);
+        labiList.add(labid);
+        this.setLabids(labiList.toString());
+    }
+    public void DelLabid(RecallEquipmentService recallEquipmentService, int labid){
+        List<Integer> labiList = new ToList().StringToListINT(labids);
+        labiList.remove(labid);
+        this.setLabids(labiList.toString());
+    }
+
+
 }

@@ -7,344 +7,621 @@
     <!-- Link to Bootstrap CSS for styling -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" th:href="@{/css/styles.css}">
-
 </head>
 <body class="scroll-container">
-<form-edit-phone>
-<!--<div th:replace="admin/headerAdmin :: header-admin"></div>-->
-<h1 style="margin-top: 50px; text-align: center;" class="text-uppercase font-weight-bold">Cập nhật thông tin phòng thí nghiệm</h1>
-    <h2 class="text-center font-weight-bold text-uppercase text-primary" th:text="${labDTO.labName}"></h2><br>
 
-<div class="container">
-    <form th:object="${labDTO}" th:action="@{'/Lab/admin/room/showFormForUpdate/' + ${labDTO.getId}}" method="post" enctype="multipart/form-data">
-        <div class="row">
-            <div class="form-group col-md-6 font-weight-bold" >
-                <!-- Phone ID (hidden) -->
-                <input type="hidden" name="id" th:field="*{id}" />
+<form-edit-lab>
+    <div class="no-print" >
+        <h1 style="margin-top: 50px; text-align: center;" class="text-uppercase font-weight-bold">Cập nhật thông tin phòng thí nghiệm</h1>
+        <h2 class="text-center font-weight-bold text-uppercase text-primary" th:text="${labDTO.labName}"></h2><br>
+        <div class="container">
+            <form th:object="${labDTO}" th:action="@{'/Lab/admin/room/showFormForUpdate/' + ${labDTO.getId}}" method="post" enctype="multipart/form-data">
+                <div class="row">
+                    <div class="form-group col-md-6 font-weight-bold" >
+                        <!-- Phone ID (hidden) -->
+                        <input type="hidden" name="id" th:field="*{id}" />
+                        <input type="hidden" name="username" th:value="${#authentication.name}" />
 
-                <div class="form-group">
-                    <label for="LabName">Tên phòng thí nghiệm:</label>
-                    <input type="text" class="form-control font-weight-bold" id="LabName" name="labName" th:field="*{labName}" required >
-                </div>
+                        <div class="form-group">
+                            <label for="LabName">Tên phòng thí nghiệm:</label>
+                            <input type="text" class="form-control font-weight-bold" id="LabName" name="labName" th:field="*{labName}" required >
+                        </div>
 
-                <div class="form-group">
-                    <label for="Capacity">Sức chứa:</label>
-                    <input type="text" class="form-control font-weight-bold" id="Capacity" name="capacity" th:field="*{capacity}" required >
-                </div>
+                        <div class="form-group">
+                            <label for="Capacity">Sức chứa:</label>
+                            <input type="text" class="form-control font-weight-bold" id="Capacity" name="capacity" th:field="*{capacity}" required >
+                        </div>
 
-                <div class="form-group">
-                    <label for="Location">Vị trí:</label>
-                    <input type="text" class="form-control font-weight-bold" id="Location" name="location" th:field="*{location}" required >
-                </div>
-            </div>
-            <div class="form-group col-md-6" >
-                <div class="form-group">
-                    <label for="Manager">Phụ trách quản lý:</label>
-                    <select class="form-control font-weight-bold" id="Manager" name="lab_managemet_id" th:field="*{lab_managemet_id}" required >
-                        <option th:each="manager : ${Managers}" th:value="${manager.getId}" th:text="${manager.getName}"></option>
-                    </select>
-                </div>
-                <div class="form-group ">
-                    <label for="managingUnit">Chủ quản:</label>
-                    <select name="managingUnit" id="managingUnit" class="form-control" >
-                        <option th:each="managingUnitEach : ${managingUnits}"
-                                th:value="${managingUnitEach.departmentName}"
-                                th:text="${managingUnitEach.departmentName}"
-                        th:selected="${managingUnitEach.departmentName == labDTO.managingUnit}"></option>
-                    </select>
-                </div>
-                <div class="main-card mb-3 card" id="chosseSeries">
-                    <div class="card-body">
-                        <h5 class="card-title">Chọn thêm thiết bị khác </h5>
-                        <select multiple="multiple" class="multiselect-dropdown form-control"
-                                id="series" name="series" >
-                            <th:block th:each="equipment, iterStat : ${equipmentDTOS}">
-                                <optgroup th:label="${equipment.getName}">
-                                    <th:block th:each="seri, seriStat : ${equipment.getSerieList}">
-                                        <option th:value="${seri}" >[[${equipment.getName + '/'+seri}]]</option>
+                        <div class="form-group">
+                            <label for="Location">Vị trí:</label>
+                            <input type="text" class="form-control font-weight-bold" id="Location" name="location" th:field="*{location}" required >
+                        </div>
+                    </div>
+                    <div class="form-group col-md-6" >
+                        <div class="form-group">
+                            <label for="Manager">Phụ trách quản lý:</label>
+                            <select class="form-control font-weight-bold" id="Manager" name="lab_managemet_id" th:field="*{lab_managemet_id}" required
+                            th:disabled="${#authentication.principal.authorities[0] == 'ROLE_MANAGER' ? true : false}">
+                                <option th:each="manager : ${Managers}" th:value="${manager.getId}" th:text="${manager.getName}"></option>
+                            </select>
+                        </div>
+                        <div class="form-group ">
+                            <label for="managingUnit">Chủ quản:</label>
+                            <select name="managingUnit" id="managingUnit" class="form-control" >
+                                <option th:each="managingUnitEach : ${managingUnits}"
+                                        th:value="${managingUnitEach.departmentName}"
+                                        th:text="${managingUnitEach.departmentName}"
+                                        th:selected="${managingUnitEach.departmentName == labDTO.managingUnit}"></option>
+                            </select>
+                        </div>
+                        <div class="main-card mb-3 card" id="chosseSeries">
+                            <div class="card-body">
+                                <h5 class="card-title">Chọn thêm thiết bị khác </h5>
+                                <select multiple="multiple" class="multiselect-dropdown form-control"
+                                        id="series" name="series" >
+                                    <th:block th:each="equipment, iterStat : ${equipmentDTOS}">
+                                        <optgroup th:label="${equipment.getName}">
+                                            <th:block th:each="seri, seriStat : ${equipment.getSerieList}">
+                                                <option th:value="${seri}" >[[${equipment.getName + '/'+seri}]]</option>
+                                            </th:block>
+                                        </optgroup>
                                     </th:block>
-                                </optgroup>
-                            </th:block>
-                        </select>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <!-- Submit button -->
-        <button type="submit" class="btn btn-primary" onclick="return confirm('Bạn có chắc chắn muốn sửa?')">Sửa</button>
-    </form>
-    <br>
-    <br>
-    <h2 th:text="${'Các thiết bị có trong phòng thí nghiệm (' + #lists.size(equipmentLabDTOs) + ')'}"></h2>
-    <br>
-    <style>
-        .machine-block{border:1px solid #ccc;border-radius:8px;padding:20px;background-color:var(--white);box-shadow:0 2px 4px rgba(0,0,0,0.1);transition:box-shadow 0.3s ease}
-        .machine-block:hover{box-shadow:0 4px 8px rgba(0,15,255,0.6)}
-        .machine-block h4{font-size:18px;font-weight:bold;margin-bottom:10px}
-        .machine-block p{margin-bottom:5px}
-        .machine-block ul{margin-top:10px;padding-left:20px}
-        .machine-block ul li{list-style-type:square}
-        .machine-block img {max-width: 100%;max-height: 100%;}
-        .remove-button{padding: unset; border: unset; font-weight: bold; margin-bottom: 10px}
-        .remove-button:hover{color: red}
-        .card-title{color:var(--black)}
-    </style>
-    <div class="row">
-        <div th:each="machine : ${equipmentLabDTOs}" class="col-md-3 mb-3">
-            <div class="machine-block">
-                <div class="d-flex flex-row justify-content-between">
-                    <div>
-                        <h4 th:text="${machine.getName}"></h4>
-                    </div>
-                    <form th:action="@{/Lab/admin/room/removeEquiLab}" method="post">
-                        <input type="hidden" th:value="${labDTO.getId}" name="LabId">
-                        <input type="hidden" th:value="${machine.getId}" name="removeEquiLab">
-                        <button type="submit"  class="remove-button"> Bỏ </button>
-                    </form>
-                </div>
-                <p>Số lượng: <span th:text="${#lists.size(machine.getEquipmentSerieList)}"></span></p>
-                <p>Seri:</p>
-                <ul>
-                    <li th:each="seri : ${machine.getEquipmentSerieList}">
-                        <span th:text="${seri}"></span>
-                    </li>
-                </ul>
-            </div>
-        </div>
-        <div class="col-md-2 mb-3">
-            <div class="machine-block">
-                <img src="https://png.pngtree.com/png-vector/20230316/ourmid/pngtree-plus-sign-line-icon-vector-png-image_6650590.png" alt="Thêm" onclick="addEqui()" style="cursor: pointer">
-            </div>
-        </div>
-    </div>
-    <div class="d-flex flex-column justify-content-center align-content-center">
-        <br>
-        <h1 class="text-center">============================================</h1>
-        <br>
-        <h2 class="text-center font-weight-bold text-uppercase">Chi tiết chấm điểm khai thác ptn</h2>
-        <form id="download-form" th:action="'/Lab/admin/Export/LabAndScores/'+${labDTO.id}" method="get" style="display: none;">
-            <input type="hidden" name="username" th:value="${#authentication.name}" />
-            <input type="hidden" name="experiment_group" th:value="${experiment_group != null ? experiment_group : 0}" />
-            <input type="hidden" name="experiment_type" th:value="${experiment_type != null ? experiment_type : 0}" />
-            <input type="hidden" name="experiment_report" th:value="${experiment_report != null ? experiment_report : 0}" />
-            <input type="hidden" name="experiment_YesNo" th:value="${experiment_YesNo != null ? experiment_YesNo : false}" />
-            <input type="hidden" name="start_date" th:value="${start_date}" />
-            <input type="hidden" name="end_date" th:value="${end_date}" />
-            <input type="hidden" name="unsuccess" th:value="${unsuccess != null ? unsuccess : false}" />
-            <input type="hidden" name="success" th:value="${success != null ? success : false}" />
-        </form>
-        <h2 class="text-center font-weight-bold text-uppercase text-primary" th:text="${labDTO.labName}"></h2>
-        <!--<h4 class="text-center font-weight-bold text-danger" th:text="'(Từ ngày ' + ${start_date} + ' đến ngày ' + ${end_date} + ' Tổng: '+${#numbers.formatDecimal(labsOnLineAndScore.score, 1, 1, 'POINT')}+' điểm)'"></h4>-->
-        <h4 class="text-center font-weight-bold text-danger" th:text="'(Từ ngày ' + ${#strings.substring(start_date, 0, 10)}
-                                                                                + ' đến ngày ' + ${#strings.substring(end_date, 0, 10)}
-                                                                                + ' Tổng: '+${#numbers.formatDecimal(labsOnLineAndScore.score, 1, 1, 'POINT')}+' điểm)'"></h4>
-        <h5 class="text-warning text-center m-3"><strong><span>Chú ý: </span></strong> Điểm được tính đến trước ngày đã chọn</h5>
-    </div>
-</div>
-    <div>
-        <form th:action="@{'/Lab/admin/room/showFormForUpdate/'+${labDTO.id}}" method="get">
-            <div class="row d-flex justify-content-around align-content-center">
-                <div class="row justify-content-around align-content-center border p-2 col-8 font-weight-bold">
-                    <div class="form-group col-6">
-                        <div class="row justify-content-between align-content-center">
-                            <div class="col-6">
-                                <label for="experiment_group">Chọn nhóm loại hình thí nghiệm:</label>
-                                <select class="form-control bg-danger-subtle" id="experiment_group" name="experiment_group" required>
-                                    <option th:each="experimentGroup : ${experimentGroups}" th:value="${experimentGroup.getId}"
-                                            th:text="${experimentGroup.getGroupName}"></option>
                                 </select>
                             </div>
-                            <div class="col-4 row justify-content-end align-content-center">
-                                <span>Lọc theo Loại thí nghiệm</span>
-                                <input type="checkbox" class="form-control" name="experiment_YesNo" id="experiment_YesNo" th:checked="${experiment_YesNo}">
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label for="experiment_type">Chọn loại hình thí nghiệm:</label>
-                            <select class="form-control bg-danger-subtle" id="experiment_type" name="experiment_type" required>
-                                <option th:each="experimentType : ${experimentTypes}" th:value="${experimentType.getId}"
-                                        th:text="${experimentType.getTypeName}"></option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="experiment_report">Chọn loại báo cáo:</label>
-                            <select class="form-control bg-danger-subtle" id="experiment_report" name="experiment_report" required>
-                                <option th:each="experimentReport : ${experimentReports}" th:value="${experimentReport.getId}"
-                                        th:text="${experimentReport.getReportType}"></option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="d-flex justify-content-center align-content-center flex-column col-3">
-                        <div>
-                            <label for="start_date">Ngày bắt đầu:</label><br>
-                            <input type="datetime-local" class="form-control" id="start_date" name="start_date"
-                                   th:value="${start_date}" required><br><br>
-                        </div>
-                        <div>
-                            <label for="end_date">Ngày kết thúc:</label><br>
-                            <input type="datetime-local" class="form-control" id="end_date" name="end_date"
-                                   th:value="${end_date}" required><br><br>
-                        </div>
-                        <div class="row justify-content-around align-content-center mb-4">
-                            <a href="#"
-                               class="col-3" onclick="event.preventDefault(); document.getElementById('download-form').submit();">
-                                <img src="/images/download.png" alt="Tải xuống" class="img-fluid">
-                            </a>
-                            <button type="submit" class="btn btn-warning col-6 text-center">Xem</button>
                         </div>
                     </div>
                 </div>
-                <div id="qickchoosetime" class="d-flex flex-column justify-content-around align-content-center col-3 border">
-                    <div class="row justify-content-around align-content-center">
-                        <button id="btn-yesterday" class="btn btn-primary col-5 m-2">Hôm qua</button>
-                        <button id="btn-1-day" class="btn btn-primary col-5 m-2">Hôm nay</button>
+                <!-- Submit button -->
+                <button type="submit" class="btn btn-primary" onclick="return confirm('Bạn có chắc chắn muốn sửa?')">Sửa</button>
+            </form>
+            <br>
+            <br>
+            <h2 th:text="${'Các thiết bị có trong phòng thí nghiệm (' + #lists.size(equipmentLabDTOs) + ')'}"></h2>
+            <br>
+            <style>
+                .machine-block{border:1px solid #ccc;border-radius:8px;padding:20px;background-color:var(--white);box-shadow:0 2px 4px rgba(0,0,0,0.1);transition:box-shadow 0.3s ease}
+                .machine-block:hover{box-shadow:0 4px 8px rgba(0,15,255,0.6)}
+                .machine-block h4{font-size:18px;font-weight:bold;margin-bottom:10px}
+                .machine-block p{margin-bottom:5px}
+                .machine-block ul{margin-top:10px;padding-left:20px}
+                .machine-block ul li{list-style-type:square}
+                .machine-block img {max-width: 100%;max-height: 100%;}
+                .remove-button{padding: unset; border: unset; font-weight: bold; margin-bottom: 10px}
+                .remove-button:hover{color: red}
+                .card-title{color:var(--black)}
+            </style>
+
+            <div class="row">
+                <div th:each="machine : ${equipmentLabDTOs}" class="col-md-3 mb-3">
+                    <div class="machine-block">
+                        <div class="d-flex flex-row justify-content-between">
+                            <div>
+                                <h4 th:text="${machine.getName}"></h4>
+                            </div>
+                            <form th:action="@{/Lab/admin/room/removeEquiLab}" method="post">
+                                <input type="hidden" th:value="${labDTO.getId}" name="LabId">
+                                <input type="hidden" th:value="${machine.getId}" name="removeEquiLab">
+                                <input type="hidden" th:value="${#authentication.name}" name="username">
+                                <button type="submit"  class="remove-button"> Bỏ </button>
+                            </form>
+                        </div>
+                        <p>Số lượng: <span th:text="${#lists.size(machine.getEquipmentSerieList)}"></span></p>
+                        <p>Seri:</p>
+                        <ul>
+                            <li th:each="seri : ${machine.getEquipmentSerieList}">
+                                <span th:text="${seri}"></span>
+                            </li>
+                        </ul>
                     </div>
-                    <div class="row justify-content-around align-content-center">
-                        <button id="btn-1-week" class="btn btn-primary col-3 m-2">1 Tuần</button>
-                        <button id="btn-1-month" class="btn btn-primary col-3 m-2">1 Tháng</button>
-                        <button id="btn-3-months" class="btn btn-primary col-3 m-2">3 Tháng</button>
-                    </div>
-                    <div class="row justify-content-around align-content-center">
-                        <button id="btn-6-months" class="btn btn-primary col-5 m-2">6 Tháng</button>
-                        <button id="btn-1-year" class="btn btn-primary col-5 m-2">1 Năm</button>
-                    </div>
-                    <div class="row justify-content-around align-content-center">
-                        <button id="btn-1-year-2" class="btn btn-primary col-5 m-2">Năm học</button>
-                        <button id="btn-kk" class="btn btn-primary col-5 m-2">Tổng KK</button>
+                </div>
+                <div class="col-md-2 mb-3">
+                    <div class="machine-block">
+                        <img src="https://png.pngtree.com/png-vector/20230316/ourmid/pngtree-plus-sign-line-icon-vector-png-image_6650590.png" alt="Thêm" onclick="addEqui()" style="cursor: pointer">
                     </div>
                 </div>
             </div>
-        </form>
-    </div>
-    <br>
-    <br>
-    <br>
-    <div class="main-card mb-3 card">
-        <div class="card-body">
-            <table style="width: 100%;" id="popup-example" class="table table-hover table-striped table-bordered">
-                <thead>
-                <tr>
-                    <th>STT</th>
-                    <th>Phân loại</th>
-                    <th>Số lượng</th>
-                    <th>Điểm số</th>
-                    <th>Tổng điểm</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr th:each="typeName, iter : ${labsOnLineAndScore.getTypeName}">
-                    <td th:text="${iter.index+1}"></td>
-                    <td class="text-primary" th:text="${typeName}"></td>
-                    <td>
-                        <div class="row justify-content-around">
-                            <div class="col-6">
-                                <span th:text="${labsOnLineAndScore.quantity[iter.index]}"></span>
-                                <span th:if="${#strings.contains(typeName, 'Giờ khai thác')}" th:text="'bài TN (Tổng: ' + ${labsOnLineAndScore.hour} +' giờ)'"></span>
+            <div class="d-flex flex-column justify-content-center align-content-center">
+                <br>
+                <h1 class="text-center">============================================</h1>
+                <br>
+                <h2 class="text-center font-weight-bold text-uppercase">Chi tiết chấm điểm khai thác ptn</h2>
+                <form id="download-form" th:action="'/Lab/admin/Export/LabAndScores/'+${labDTO.id}" method="get" style="display: none;">
+                    <input type="hidden" name="username" th:value="${#authentication.name}" />
+                    <input type="hidden" name="experiment_group" th:value="${experiment_group != null ? experiment_group : 0}" />
+                    <input type="hidden" name="experiment_type" th:value="${experiment_type != null ? experiment_type : 0}" />
+                    <input type="hidden" name="experiment_report" th:value="${experiment_report != null ? experiment_report : 0}" />
+                    <input type="hidden" name="experiment_YesNo" th:value="${experiment_YesNo != null ? experiment_YesNo : false}" />
+                    <input type="hidden" name="start_date" th:value="${start_date}" />
+                    <input type="hidden" name="end_date" th:value="${end_date}" />
+                    <input type="hidden" name="unsuccess" th:value="${unsuccess != null ? unsuccess : false}" />
+                    <input type="hidden" name="success" th:value="${success != null ? success : false}" />
+                </form>
+                <h2 class="text-center font-weight-bold text-uppercase text-primary" th:text="${labDTO.labName}"></h2>
+                <!--<h4 class="text-center font-weight-bold text-danger" th:text="'(Từ ngày ' + ${start_date} + ' đến ngày ' + ${end_date} + ' Tổng: '+${#numbers.formatDecimal(labsOnLineAndScore.score, 1, 1, 'POINT')}+' điểm)'"></h4>-->
+                <h4 class="text-center font-weight-bold text-danger" th:text="'(Từ ngày ' + ${#strings.substring(start_date, 0, 10)}
+                                                                                + ' đến ngày ' + ${#strings.substring(end_date, 0, 10)}
+                                                                                + ' Tổng: '+${#numbers.formatDecimal(labsOnLineAndScore.score, 1, 1, 'POINT')}+' điểm)'"></h4>
+                <h5 class="text-warning text-center m-3"><strong><span>Chú ý: </span></strong> Điểm được tính đến trước ngày đã chọn</h5>
+            </div>
+        </div>
+        <div>
+            <form th:action="@{'/Lab/admin/room/showFormForUpdate/'+${labDTO.id}}" method="get">
+                <div class="row d-flex justify-content-around align-content-center">
+                    <div class="row justify-content-around align-content-center border p-2 col-8 font-weight-bold">
+                        <div class="form-group col-6">
+                            <div class="row justify-content-between align-content-center">
+                                <div class="col-6">
+                                    <label for="experiment_group">Chọn nhóm loại hình thí nghiệm:</label>
+                                    <select class="form-control bg-danger-subtle" id="experiment_group" name="experiment_group" required>
+                                        <option th:each="experimentGroup : ${experimentGroups}" th:value="${experimentGroup.getId}"
+                                                th:text="${experimentGroup.getGroupName}"></option>
+                                    </select>
+                                </div>
+                                <div class="col-4 row justify-content-end align-content-center">
+                                    <span>Lọc theo Loại thí nghiệm</span>
+                                    <input type="checkbox" class="form-control" name="experiment_YesNo" id="experiment_YesNo" th:checked="${experiment_YesNo}">
+                                </div>
                             </div>
-                            <div class="col-4" th:if="${#lists.size(labsOnLineAndScore.lessonName)!=0 && #strings.contains(typeName, 'Giờ khai thác')}">
-                                <button type="button" class="form-control btn btn-primary btn-detail"
-                                        th:data="${labsOnLineAndScore.lab.id}">Chi tiết</button>
+                            <div class="form-group">
+                                <label for="experiment_type">Chọn loại hình thí nghiệm:</label>
+                                <select class="form-control bg-danger-subtle" id="experiment_type" name="experiment_type" required>
+                                    <option th:each="experimentType : ${experimentTypes}" th:value="${experimentType.getId}"
+                                            th:text="${experimentType.getTypeName}"></option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="experiment_report">Chọn loại báo cáo:</label>
+                                <select class="form-control bg-danger-subtle" id="experiment_report" name="experiment_report" required>
+                                    <option th:each="experimentReport : ${experimentReports}" th:value="${experimentReport.getId}"
+                                            th:text="${experimentReport.getReportType}"></option>
+                                </select>
                             </div>
                         </div>
-                    </td>
-                    <td class="text-danger">
-                        <strong>
-                            <span th:text="${#numbers.formatDecimal(labsOnLineAndScore.scores[iter.index], 1, 1, 'POINT')}" />
-                        </strong>
-                    </td>
-                    <td class="text-danger">
-                        <strong>
+                        <div class="d-flex justify-content-center align-content-center flex-column col-3">
+                            <div>
+                                <label for="start_date">Ngày bắt đầu:</label><br>
+                                <input type="datetime-local" class="form-control" id="start_date" name="start_date"
+                                       th:value="${start_date}" required><br><br>
+                            </div>
+                            <div>
+                                <label for="end_date">Ngày kết thúc:</label><br>
+                                <input type="datetime-local" class="form-control" id="end_date" name="end_date"
+                                       th:value="${end_date}" required><br><br>
+                            </div>
+                            <div class="row justify-content-around align-content-center mb-4">
+                                <a href="#"
+                                   class="col-3" onclick="event.preventDefault(); document.getElementById('download-form').submit();">
+                                    <img src="/images/download.png" alt="Tải xuống" class="img-fluid">
+                                </a>
+                                <button type="submit" class="btn btn-warning col-6 text-center">Xem</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="qickchoosetime" class="d-flex flex-column justify-content-around align-content-center col-3 border">
+                        <div class="row justify-content-around align-content-center">
+                            <button id="btn-yesterday" class="btn btn-primary col-5 m-2">Hôm qua</button>
+                            <button id="btn-1-day" class="btn btn-primary col-5 m-2">Hôm nay</button>
+                        </div>
+                        <div class="row justify-content-around align-content-center">
+                            <button id="btn-1-week" class="btn btn-primary col-3 m-2">1 Tuần</button>
+                            <button id="btn-1-month" class="btn btn-primary col-3 m-2">1 Tháng</button>
+                            <button id="btn-3-months" class="btn btn-primary col-3 m-2">3 Tháng</button>
+                        </div>
+                        <div class="row justify-content-around align-content-center">
+                            <button id="btn-6-months" class="btn btn-primary col-5 m-2">6 Tháng</button>
+                            <button id="btn-1-year" class="btn btn-primary col-5 m-2">1 Năm</button>
+                        </div>
+                        <div class="row justify-content-around align-content-center">
+                            <button id="btn-1-year-2" class="btn btn-primary col-5 m-2">Năm học</button>
+                            <button id="btn-kk" class="btn btn-primary col-5 m-2">Tổng KK</button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <br>
+        <br>
+        <br>
+        <div class="main-card mb-3 card">
+            <div class="card-body">
+                <table style="width: 100%;" id="popup-example" class="table table-hover table-striped table-bordered">
+                    <thead>
+                    <tr>
+                        <th>STT</th>
+                        <th>Phân loại</th>
+                        <th>Số lượng</th>
+                        <th>Điểm số</th>
+                        <th>Tổng điểm</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="typeName, iter : ${labsOnLineAndScore.getTypeName}">
+                        <td th:text="${iter.index+1}"></td>
+                        <td class="text-primary" th:text="${typeName}"></td>
+                        <td>
+                            <div class="row justify-content-around">
+                                <div class="col-6">
+                                    <span th:text="${labsOnLineAndScore.quantity[iter.index]}"></span>
+                                    <span th:if="${#strings.contains(typeName, 'Giờ khai thác')}" th:text="'bài TN (Tổng: ' + ${labsOnLineAndScore.hour} +' giờ)'"></span>
+                                </div>
+                                <div class="col-4" th:if="${#lists.size(labsOnLineAndScore.lessonName)!=0 && #strings.contains(typeName, 'Giờ khai thác')}">
+                                    <button type="button" class="form-control btn btn-primary btn-detail"
+                                            th:data="${labsOnLineAndScore.lab.id}">Chi tiết</button>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="text-danger">
+                            <strong>
+                                <span th:text="${#numbers.formatDecimal(labsOnLineAndScore.scores[iter.index], 1, 1, 'POINT')}" />
+                            </strong>
+                        </td>
+                        <td class="text-danger">
+                            <strong>
                             <span th:text="${#numbers.formatDecimal(labsOnLineAndScore.scores[iter.index], 1, 1, 'POINT')}*${labsOnLineAndScore.quantity[iter.index]}"
                                   th:unless="${#strings.contains(typeName, 'Giờ khai thác')}"/>
-                            <span th:if="${#strings.contains(typeName, 'Giờ khai thác')}"
-                                  th:text="${#numbers.formatDecimal(labsOnLineAndScore.scores[iter.index]*labsOnLineAndScore.hour, 1, 1, 'POINT')}" />
-                        </strong>
-                    </td>
-                </tr>
-                </tbody>
-                <tfoot>
-                <tr>
-                    <th>STT</th>
-                    <th>Phân loại</th>
-                    <th>Số lượng</th>
-                    <th>Điểm số</th>
-                    <th>Tổng điểm</th>
-                </tr>
-                </tfoot>
-            </table>
+                                <span th:if="${#strings.contains(typeName, 'Giờ khai thác')}"
+                                      th:text="${#numbers.formatDecimal(labsOnLineAndScore.scores[iter.index]*labsOnLineAndScore.hour, 1, 1, 'POINT')}" />
+                            </strong>
+                        </td>
+                    </tr>
+                    </tbody>
+                    <tfoot>
+                    <tr>
+                        <th>STT</th>
+                        <th>Phân loại</th>
+                        <th>Số lượng</th>
+                        <th>Điểm số</th>
+                        <th>Tổng điểm</th>
+                    </tr>
+                    </tfoot>
+                </table>
+            </div>
         </div>
-    </div>
 
-    <!-- Popup -->
-    <div id="popup" class="popup">
-        <div class="popup-content" style="max-width: 200rem; top: 25%; left: 17%">
-            <h2>CHI TIẾT BÀI THÍ NGHIỆM</h2>
+        <!-- Popup -->
+        <div id="popup" class="popup">
+            <div class="popup-content" style="max-width: 200rem; top: 25%; left: 17%">
+                <h2>CHI TIẾT BÀI THÍ NGHIỆM</h2>
+                <div class="main-card mb-3 card">
+                    <div class="card-body">
+                        <table style="width: 100%;" id="popup-example" class="table table-hover table-striped table-bordered">
+                            <thead>
+                            <tr>
+                                <th>STT</th>
+                                <th>Tên bài</th>
+                            </tr>
+                            </thead>
+                            <tbody id="tbody">
+                            </tbody>
+                            <tfoot>
+                            <tr>
+                                <th>STT</th>
+                                <th>Phân loại</th>
+                            </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+                <button type="button" class="btn btn-secondary close-btn">Đóng</button>
+            </div>
+        </div>
+
+        <!-- Link to Bootstrap JS and jQuery -->
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> <!--Phải load jquery trước khi load bootstrap js-->
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+        <script th:inline="javascript">
+            var labsOnLineAndScore = [[${labsOnLineAndScore}]];
+            var experiment_YesNo = [[${experiment_YesNo}]];
+            $(document).ready(function() {
+                $(".btn-detail").click(function() {
+                    var labid = parseInt($(this).attr('data'));
+                    $(".popup").slideDown(300);
+                    clickDetailLesson(labsOnLineAndScore);
+                });
+
+            });
+
+            var role = authorities[0].authority;
+            $(document).ready(function () {
+                var labId = [[${labDTO.id}]];
+                var experimentGroups = [[${experimentGroups}]];
+                var experimentTypes = [[${experimentTypes}]];
+                var experimentReports = [[${experimentReports}]];
+                var tempGroupId;
+                var username = [[${#authentication.name}]];
+                var date = [[${date}]];
+                var lessons = [[${lessons}]];
+                var experiment_group = [[${experimentGroupId}]];
+                var experiment_type = [[${experimentTypeId}]];
+                var experiment_report = [[${experimentReportId}]];
+                var authorities = [[${#authentication.principal.authorities}]];
+                /*if(role === 'ROLE_MANAGER'){
+                    $('#Manager').attr('disabled', true);
+                }*/
+            })
+        </script>
+        <script src="/js/booking-lab.js"></script>
+        <script src="/js/lab-edit-form.js"></script>
+    </div>
+    <div id="content-to-print" style="display: none" >
+        <h1 style="margin-top: 50px; text-align: center;" class="text-uppercase font-weight-bold">Báo cáo Phòng thí nghiệm</h1>
+        <h2 class="text-center font-weight-bold text-uppercase text-primary" th:text="${labDTO.labName}"></h2><br>
+        <div class="container">
+            <div th:object="${labDTO}" th:action="@{'/Lab/admin/room/showFormForUpdate/' + ${labDTO.getId}}" method="post" enctype="multipart/form-data">
+                <div class="d-flex flex-column justify-content-center">
+                    <div class="form-group font-weight-bold d-flex flex-column" style="margin: unset">
+                        <!-- Phone ID (hidden) -->
+                        <input type="hidden" name="id" th:field="*{id}" />
+
+                        <div class="form-group">
+                            <label for="LabName">Tên phòng thí nghiệm:</label>
+                            <span class="font-weight-bold text-primary" th:text="${labDTO.labName}"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="Location">Vị trí:</label>
+                            <span class="font-weight-bold text-primary" th:text="${labDTO.location}"></span>
+                            <label for="Capacity"> - Sức chứa:</label>
+                            <span class="font-weight-bold text-primary" th:text="${labDTO.capacity} "></span>
+                        </div>
+                    </div>
+                    <div class="form-group font-weight-bold" >
+                        <div class="form-group ">
+                            <label for="managingUnit">Chủ quản:</label>
+                            <span class="font-weight-bold text-primary" th:text="${labDTO.managingUnit}"></span>
+                        </div>
+                        <div class="form-group">
+                            <label for="Manager">Phụ trách quản lý:</label>
+                            <span class="font-weight-bold text-primary" th:text="${labDTO.lab_managemet.name}"></span>
+                        </div>
+                    </div>
+                </div>
+                <!-- Submit button -->
+            </div>
+            <br>
+            <br>
+            <h2 th:text="${'Các loại thiết bị có trong phòng thí nghiệm (' + #lists.size(equipmentLabDTOs) + ')'}"></h2>
+            <br>
+
             <div class="main-card mb-3 card">
                 <div class="card-body">
                     <table style="width: 100%;" id="popup-example" class="table table-hover table-striped table-bordered">
                         <thead>
                         <tr>
                             <th>STT</th>
-                            <th>Tên bài</th>
+                            <th>Tên thiết bị</th>
+                            <th>seri/mã số</th>
+                            <th>Số lượng</th>
                         </tr>
                         </thead>
-                        <tbody id="tbody">
+                        <tbody>
+                        <tr th:each="machine, iter : ${equipmentLabDTOs}">
+                            <td th:text="${iter.index+1}"></td>
+                            <td class="text-primary" th:text="${machine.getName}"></td>
+                            <td>
+                                <ul>
+                                    <li th:each="seri : ${machine.getEquipmentSerieList}">
+                                        <span th:text="${seri}"></span>
+                                    </li>
+                                </ul>
+                            </td>
+                            <td th:text="${#lists.size(machine.getEquipmentSerieList)}"></td>
+                        </tr>
                         </tbody>
                         <tfoot>
                         <tr>
                             <th>STT</th>
-                            <th>Phân loại</th>
+                            <th>Tên thiết bị</th>
+                            <th>seri/mã số</th>
+                            <th>Số lượng</th>
                         </tr>
                         </tfoot>
                     </table>
                 </div>
             </div>
-            <button type="button" class="btn btn-secondary close-btn">Đóng</button>
+            <div class="d-flex flex-column justify-content-center align-content-center">
+                <br>
+                <h1 class="text-center">============================================</h1>
+                <br>
+                <h2 class="text-center font-weight-bold text-uppercase">Chi tiết chấm điểm khai thác ptn</h2>
+                <h2 class="text-center font-weight-bold text-uppercase text-primary" th:text="${labDTO.labName}"></h2>
+                <!--<h4 class="text-center font-weight-bold text-danger" th:text="'(Từ ngày ' + ${start_date} + ' đến ngày ' + ${end_date} + ' Tổng: '+${#numbers.formatDecimal(labsOnLineAndScore.score, 1, 1, 'POINT')}+' điểm)'"></h4>-->
+                <h4 class="text-center font-weight-bold text-danger" th:text="'(Từ ngày ' + ${#strings.substring(start_date, 0, 10)}
+                                                                                + ' đến ngày ' + ${#strings.substring(end_date, 0, 10)}
+                                                                                + ' Tổng: '+${#numbers.formatDecimal(labsOnLineAndScore.score, 1, 1, 'POINT')}+' điểm)'"></h4>
+                <h5 class="text-warning text-center m-3"><strong><span>Chú ý: </span></strong> Điểm được tính đến trước ngày đã chọn</h5>
+            </div>
+        </div>
+        <br>
+        <br>
+        <br>
+        <div class="main-card mb-3 card">
+            <div class="card-body">
+                <table style="width: 100%;" id="popup-example" class="table table-hover table-striped table-bordered">
+                    <thead>
+                    <tr>
+                        <th>STT</th>
+                        <th>Phân loại</th>
+                        <th>Số lượng</th>
+                        <th>Điểm số</th>
+                        <th>Tổng điểm</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="typeName, iter : ${labsOnLineAndScore.getTypeName}">
+                        <td th:text="${iter.index+1}"></td>
+                        <td class="text-primary" th:text="${typeName}"></td>
+                        <td>
+                            <div class="row justify-content-around">
+                                <div class="col-12">
+                                    <span th:text="${labsOnLineAndScore.quantity[iter.index]}"></span>
+                                    <span th:if="${#strings.contains(typeName, 'Giờ khai thác')}" th:text="'bài TN (Tổng: ' + ${labsOnLineAndScore.hour} +' giờ)'"></span>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="text-danger">
+                            <strong>
+                                <span th:text="${#numbers.formatDecimal(labsOnLineAndScore.scores[iter.index], 1, 1, 'POINT')}" />
+                            </strong>
+                        </td>
+                        <td class="text-danger">
+                            <strong>
+                            <span th:text="${#numbers.formatDecimal(labsOnLineAndScore.scores[iter.index], 1, 1, 'POINT')}*${labsOnLineAndScore.quantity[iter.index]}"
+                                  th:unless="${#strings.contains(typeName, 'Giờ khai thác')}"/>
+                                <span th:if="${#strings.contains(typeName, 'Giờ khai thác')}"
+                                      th:text="${#numbers.formatDecimal(labsOnLineAndScore.scores[iter.index]*labsOnLineAndScore.hour, 1, 1, 'POINT')}" />
+                            </strong>
+                        </td>
+                    </tr>
+                    </tbody>
+                    <tfoot>
+                    <tr>
+                        <th>STT</th>
+                        <th>Phân loại</th>
+                        <th>Số lượng</th>
+                        <th>Điểm số</th>
+                        <th>Tổng điểm</th>
+                    </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+
+
+<!--        String[] headers = {"ID", "Tên PTN", "Tên bài", "Tên lớp", "Người đặt", "Số giờ", "Số người", "Ngày đặt", "Ghi chú", "Loại hình TN", "Loại BC", "Trạng thái quản lý", "Trạng thái người dùng", "Thao tác"};
+-->
+        <th:block th:each="bookingDtoExport_status : ${bookingDtoExports}">
+            <!-- booking -->
+            <div th:if="${#lists.size(bookingDtoExport_status) > 0}">
+                <br>
+                <h1 class="text-center">============================================</h1>
+                <br>
+                <h2 class="text-center font-weight-bold text-uppercase"
+                    th:classappend="${bookingDtoExport_status[0].confirm_Status == 'Bị từ chối' ? 'text-danger' :
+                    (bookingDtoExport_status[0].confirm_Status == 'Đang chờ duyệt' ? 'text-warning' :
+                     (bookingDtoExport_status[0].comfirmUsed == 'Đã sử dụng' ? 'text-success' : ''))}">
+                    Danh sách đơn đặt phòng
+                    <span th:text="${bookingDtoExport_status[0].confirm_Status}"></span>
+                </h2>                <h2 class="text-center font-weight-bold text-uppercase text-primary" th:text="${labDTO.labName}"></h2>
+
+                <div class="main-card mb-3 card">
+                    <div class="card-body">
+                        <table style="width: 100%;" id="popup-example" class="table table-hover table-striped table-bordered">
+                            <thead>
+                            <tr>
+                                <th>STT</th>
+                                <th>Tên bài</th>
+                                <th>Tên lớp</th>
+                                <th>Người đặt</th>
+                                <th>Số giờ</th>
+                                <th>Số người</th>
+                                <th>Ngày đặt</th>
+                                <th>Ghi chú</th>
+                                <th>Loại hình TN</th>
+                                <th>Loại BC</th>
+                                <th>Trạng thái quản lý</th>
+                                <th>Trạng thái người dùng</th>
+                                <th>Thao tác</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="bookingExport, iter : ${bookingDtoExport_status}">
+                                <td th:text="${iter.index+1}"></td>
+                                <td class="text-primary" th:text="${bookingExport.contentName}"></td>
+                                <td th:text="${bookingExport.className}"></td>
+                                <td th:text="${bookingExport.reservationistName}"></td>
+                                <td th:text="${bookingExport.work_times}"></td>
+                                <td th:text="${bookingExport.amountOfPeople}"></td>
+                                <td th:text="${bookingExport.booking_Date}"></td>
+                                <td th:text="${bookingExport.note}"></td>
+                                <td th:text="${bookingExport.experimentType}"></td>
+                                <td th:text="${bookingExport.experimentReport}"></td>
+                                <td th:text="${bookingExport.confirm_Status}"></td>
+                                <td th:text="${bookingExport.comfirmUsed}"></td>
+                                <td th:text="${bookingExport.auto}"></td>
+                            </tr>
+                            </tbody>
+                            <tfoot>
+                            <tr>
+                                <th>STT</th>
+                                <th>Tên bài</th>
+                                <th>Tên lớp</th>
+                                <th>Người đặt</th>
+                                <th>Số giờ</th>
+                                <th>Số người</th>
+                                <th>Ngày đặt</th>
+                                <th>Ghi chú</th>
+                                <th>Loại hình TN</th>
+                                <th>Loại BC</th>
+                                <th>Trạng thái quản lý</th>
+                                <th>Trạng thái người dùng</th>
+                                <th>Thao tác</th>
+                            </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </th:block>
+
+        <br>
+        <br>
+        <h1 class="text-center">============================================</h1>
+        <br>
+        <h2 class="text-center font-weight-bold text-uppercase">
+            Danh sách bài thí nghiệm của phòng thí nghiệm
+        </h2>
+        <h2 class="text-center font-weight-bold text-uppercase text-primary" th:text="${labDTO.labName}"></h2>
+
+        <div class="main-card mb-3 card">
+            <div class="card-body">
+                <table style="width: 100%;"  class="table table-hover table-striped table-bordered">
+                    <thead>
+                    <tr>
+                        <th>STT</th>
+                        <th>Mã số</th>
+                        <th>Tên bài thí nghiệm</th>
+                        <th>Học phần môn học</th>
+                        <th>Cấp học</th>
+                        <th>Thời lượng <br> (giờ)</th>
+                        <th>Loại bài</th>
+                        <th>Phòng thí nghiệm</th>
+                        <th>Ghi chú</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="lesson, iter : ${lessonDTOs}">
+                        <td th:text="${iter.index + 1}"></td>
+                        <td th:text="${lesson.noLesson}"></td>
+                        <td th:text="${lesson.name}"></td>
+                        <td th:text="${lesson.module}"></td>
+                        <td th:text="${lesson.level}"></td>
+                        <td th:text="${lesson.workTime}"></td>
+                        <td th:text="${lesson.type}"></td>
+                        <td th:text="${lesson.lab.labName}"></td>
+                        <td th:text="${lesson.note}"></td>
+                    </tr>
+                    </tbody>
+                    <tfoot>
+                    <tr>
+                        <th>STT</th>
+                        <th>Mã số</th>
+                        <th>Tên bài thí nghiệm</th>
+                        <th>Học phần môn học</th>
+                        <th>Cấp học</th>
+                        <th>Thời lượng</th>
+                        <th>Loại bài</th>
+                        <th>Phòng thí nghiệm</th>
+                        <th>Ghi chú</th>
+                    </tr>
+                    </tfoot>
+                </table>
+            </div>
         </div>
     </div>
+</form-edit-lab>
 
-<!-- Link to Bootstrap JS and jQuery -->
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> <!--Phải load jquery trước khi load bootstrap js-->
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    <script src="/js/lab-rankings-score.js"></script>
-    <script src="/js/booking-lab.js"></script>
-    <script th:inline="javascript">
-        var labsOnLineAndScore = [[${labsOnLineAndScore}]];
-        var experiment_YesNo = [[${experiment_YesNo}]];
-        $(document).ready(function() {
-            $(".btn-detail").click(function() {
-                var labid = parseInt($(this).attr('data'));
-                $(".popup").slideDown(300);
-                clickDetailLesson(labsOnLineAndScore);
-            });
-
-        });
-
-
-        var labId = [[${labDTO.id}]];
-        console.log(labId)
-        var experimentGroups = [[${experimentGroups}]];
-        var experimentTypes = [[${experimentTypes}]];
-        var experimentReports = [[${experimentReports}]];
-        var tempGroupId;
-        var username = [[${#authentication.name}]];
-        var date = [[${date}]];
-        var lessons = [[${lessons}]];
-        var experiment_group = [[${experimentGroupId}]];
-        var experiment_type = [[${experimentTypeId}]];
-        var experiment_report = [[${experimentReportId}]];
-        var authorities = [[${#authentication.principal.authorities}]];
-
-        var role = authorities[0].authority;
-            console.log(role)
-        $(document).ready(function () {
-            if(role === 'ROLE_MANAGER'){
-                $('#Manager').attr('disabled', true);
-            }
-        })
-    </script>
-</form-edit-phone>
 </body>
 </html>

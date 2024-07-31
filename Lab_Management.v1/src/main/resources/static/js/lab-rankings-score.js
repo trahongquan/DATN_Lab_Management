@@ -6,7 +6,7 @@ function clickDetail(labsOnLineAndScores, id) {
     for (var i = 0; i < labsOnLineAndScores.length; i++) {
         var score = labsOnLineAndScores[i];
         if(score.lab.id === id){
-        console.log(labsOnLineAndScores[i])
+        console.log(labsOnLineAndScores[i]);
             for (var j = 0; j < score.typeName.length; j++) {
                 var row = $('<tr></tr>');
                 // STT
@@ -134,7 +134,7 @@ $(window).click(function(event) {
             var startDate = new Date();
             startDate.setDate(startDate.getDate() - 2);
             endDate.setDate(startDate.getDate() + 1);
-            redirectToProfitReport(labId, startDate, endDate, experiment_YesNo);
+            redirectToProfitReport(username, labId, startDate, endDate, experiment_YesNo);
             $('#start_date').val(formatDateTime(startDate));
             $('#end_date').val(formatDateTime(endDate));
         });
@@ -143,7 +143,7 @@ $(window).click(function(event) {
             var endDate = new Date();
             var startDate = new Date();
             startDate.setDate(startDate.getDate() - 1);
-            redirectToProfitReport(labId, startDate, endDate, experiment_YesNo);
+            redirectToProfitReport(username, labId, startDate, endDate, experiment_YesNo);
             $('#start_date').val(formatDateTime(startDate));
             $('#end_date').val(formatDateTime(endDate));
         });
@@ -152,7 +152,7 @@ $(window).click(function(event) {
             var endDate = new Date();
             var startDate = new Date();
             startDate.setDate(startDate.getDate() - 7);
-            redirectToProfitReport(labId, startDate, endDate, experiment_YesNo);
+            redirectToProfitReport(username, labId, startDate, endDate, experiment_YesNo);
             $('#start_date').val(formatDateTime(startDate));
             $('#end_date').val(formatDateTime(endDate));
             console.log(startDate)
@@ -165,7 +165,7 @@ $(window).click(function(event) {
             startDate.setMonth(startDate.getMonth() - 1);
             $('#start_date').val(formatDateTime(startDate));
             $('#end_date').val(formatDateTime(endDate));
-            redirectToProfitReport(labId, startDate, endDate, experiment_YesNo);
+            redirectToProfitReport(username, labId, startDate, endDate, experiment_YesNo);
         });
 
         $('#btn-3-months').click(function () {
@@ -174,7 +174,7 @@ $(window).click(function(event) {
             startDate.setMonth(startDate.getMonth() - 3);
             $('#start_date').val(formatDateTime(startDate));
             $('#end_date').val(formatDateTime(endDate));
-            redirectToProfitReport(labId, startDate, endDate, experiment_YesNo);
+            redirectToProfitReport(username, labId, startDate, endDate, experiment_YesNo);
         });
 
         $('#btn-6-months').click(function () {
@@ -183,7 +183,7 @@ $(window).click(function(event) {
             startDate.setMonth(startDate.getMonth() - 6);
             $('#start_date').val(formatDateTime(startDate));
             $('#end_date').val(formatDateTime(endDate));
-            redirectToProfitReport(labId, startDate, endDate, experiment_YesNo);
+            redirectToProfitReport(username, labId, startDate, endDate, experiment_YesNo);
         });
 
         $('#btn-1-year').click(function () {
@@ -192,11 +192,11 @@ $(window).click(function(event) {
             startDate.setFullYear(startDate.getFullYear() - 1);
             $('#start_date').val(formatDateTime(startDate));
             $('#end_date').val(formatDateTime(endDate));
-            redirectToProfitReport(labId, startDate, endDate, experiment_YesNo);
+            redirectToProfitReport(username, labId, startDate, endDate, experiment_YesNo);
         });
 
         $('#btn-1-year-2').click(function () {
-            redirectToProfitReport(labId, "","", experiment_YesNo);
+            redirectToProfitReport(username, labId, "","", experiment_YesNo);
         });
 
         $('#btn-kk').click(function () {
@@ -206,10 +206,10 @@ $(window).click(function(event) {
             startDate.setDate(1);
             $('#start_date').val(formatDateTime(startDate));
             $('#end_date').val(formatDateTime(endDate));
-            redirectToProfitReport(labId, startDate, endDate, experiment_YesNo);
+            redirectToProfitReport(username, labId, startDate, endDate, experiment_YesNo);
         });
 
-        function redirectToProfitReport(labId, startDate, endDate, experiment_YesNo) {
+        function redirectToProfitReport(username, labId, startDate, endDate, experiment_YesNo) {
             console.log(experiment_YesNo);
             if(labId==0) {
                 var url = '/Lab/admin/LabRankings';
@@ -218,7 +218,7 @@ $(window).click(function(event) {
             }
             var formattedStartDate = formatDateTimeX(startDate);
             var formattedEndDate = formatDateTimeX(endDate);
-            url += '?start_date=' + formattedStartDate + '&end_date=' + formattedEndDate + '&experiment_YesNo=' + experiment_YesNo;
+            url += '?start_date=' + formattedStartDate + '&end_date=' + formattedEndDate + '&experiment_YesNo=' + experiment_YesNo + '&username=' + username;
             window.location.href = url;
         }
 
