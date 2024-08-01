@@ -113,7 +113,7 @@
                         <select class="form-control bg-danger-subtle" id="lesson" name="lesson" required>
                             <option th:each="allLesson : ${lessons}" th:value="${allLesson.getId}"
                                     th:text="${allLesson.name}"
-                                    th:selected="${allLesson.name == bookingDTO.getContentDTO.lesson.name}"></option>
+                                    th:selected="${bookingDTO.getContentDTO.lesson != null ? allLesson.name == bookingDTO.getContentDTO.lesson.name : ''}"></option>
                         </select>
                     </div>
                 </div>
